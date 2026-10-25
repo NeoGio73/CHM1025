@@ -25,92 +25,217 @@ function wrapText(text, maxW, font) {
   if (line) lines.push(line); return lines;
 }
 
-// ============================================================ sound (all synthesized, no samples)
-// Early-80s style: square waves, stepped pitch sweeps, sample-and-hold noise, an 8-bit quantizer.
+// ============================================================ sound: emulated sound chips
+// No recordings. Each stage's sounds are rendered by an emulation of the kind of chip its era used:
+//   'tia'    the Atari 2600's TIA: 5-bit frequency dividers and polynomial counters (buzzy, off-key)
+//   'sn'     the SN76489 used by the ColecoVision: three square-wave tones with 10-bit dividers,
+//            2 dB volume steps, and a 15-bit noise shift register
+//   'arcade' an early-80s arcade board: timer-driven square waves and a clocked noise generator,
+//            through the board's output filter
+// Effects are written the way games of the time wrote them: a list of chip settings, one per
+// 1/60 s frame. Each effect is rendered once to a buffer and cached.
 const Sound = (() => {
   let ac = null, master = null, on = store.get('ca_sound', true), music = store.get('ca_music', true);
+  const cache = {};
   function init() {
     if (ac) return;
     try {
       ac = new (window.AudioContext || window.webkitAudioContext)();
-      master = ac.createGain(); master.gain.value = 0.3;
-      const crush = ac.createWaveShaper(), n = 2048, curve = new Float32Array(n), steps = 12;
-      for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1; curve[i] = Math.round(x * steps) / steps; }
-      crush.curve = curve; master.connect(crush); crush.connect(ac.destination);
+      master = ac.createGain(); master.gain.value = 0.55;
+      const tv = ac.createBiquadFilter(); tv.type = 'lowpass'; tv.frequency.value = 9000;   // a little like a TV/cabinet speaker
+      master.connect(tv); tv.connect(ac.destination);
     } catch (e) { ac = null; }
   }
-  const ready = () => ac && on;
-  function sweep({ type = 'square', f0, f1 = f0, dur, vol = 0.3, delay = 0, steps = 12, lin = false }) {
-    if (!ready()) return;
-    const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
-    o.type = type;
-    for (let i = 0; i <= steps; i++) { const k = i / steps; o.frequency.setValueAtTime(lin ? f0 + (f1 - f0) * k : f0 * Math.pow(f1 / f0, k), t + k * dur); }
-    g.gain.setValueAtTime(vol, t); g.gain.setValueAtTime(vol, t + dur * 0.75); g.gain.linearRampToValueAtTime(0, t + dur);
-    o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.03);
+  const seq = (n, fn) => Array.from({ length: n }, (_, i) => fn(i, n));
+  const expo = (a, b, k) => a * Math.pow(b / a, k);
+  const FRAME = 1 / 60;
+
+  // ---------------- Atari 2600 TIA ----------------
+  // a frame is [voice0, voice1]; a voice is [AUDC 0-15, AUDF 0-31, AUDV 0-15] or null
+  const lfsr = (bits, tap, len) => { let s = (1 << bits) - 1; const out = []; for (let i = 0; i < len; i++) { out.push(s & 1); const fb = ((s >> 0) ^ (s >> tap)) & 1; s = (s >> 1) | (fb << (bits - 1)); } return out; };
+  const BIT4 = lfsr(4, 1, 15), BIT5 = lfsr(5, 2, 31), BIT9 = lfsr(9, 4, 511);
+  const DIV31 = seq(31, i => (i === 17 || i === 30) ? 1 : 0);
+  function renderTIA(frames) {
+    const RATE = 31440, spf = Math.round(RATE * FRAME), n = frames.length * spf;
+    const buf = ac.createBuffer(1, n, RATE), d = buf.getChannelData(0);
+    const vs = [0, 1].map(() => ({ cnt: 1, p4: 0, p5: 0, p9: 0, out: 0 }));
+    let dc = 0;
+    for (let f = 0; f < frames.length; f++) {
+      const fr = Array.isArray(frames[f][0]) || frames[f][0] === null ? frames[f] : [frames[f], null];
+      for (let s = 0; s < spf; s++) {
+        let sum = 0;
+        for (let v = 0; v < 2; v++) {
+          const p = fr[v], st = vs[v]; if (!p) continue;
+          const [c, af, vol] = p;
+          if (c === 0 || c === 11) { sum += vol; continue; }
+          if (--st.cnt <= 0) {
+            st.cnt = (af + 1) * ((c & 0x0c) === 0x0c ? 3 : 1);
+            st.p5 = (st.p5 + 1) % 31;
+            if ((c & 2) === 0 || ((c & 1) === 0 && DIV31[st.p5]) || ((c & 1) === 1 && BIT5[st.p5])) {
+              if (c & 4) st.out = st.out ? 0 : 1;
+              else if (c & 8) { if (c === 8) { st.p9 = (st.p9 + 1) % 511; st.out = BIT9[st.p9]; } else st.out = BIT5[st.p5]; }
+              else { st.p4 = (st.p4 + 1) % 15; st.out = BIT4[st.p4]; }
+            }
+          }
+          sum += st.out * vol;
+        }
+        const x = sum / 30; dc += (x - dc) * 0.002;   // remove the DC offset (the TIA output is one-sided)
+        d[f * spf + s] = (x - dc) * 1.0;
+      }
+    }
+    return buf;
   }
-  function noise({ dur = 0.45, vol = 0.5, hold0 = 1, hold1 = 36, cutoff = 5000, delay = 0 }) {
-    if (!ready()) return;
-    const t = ac.currentTime + delay, n = Math.floor(ac.sampleRate * dur);
-    const buf = ac.createBuffer(1, n, ac.sampleRate), d = buf.getChannelData(0); let v = 0;
-    for (let i = 0; i < n; i++) { const hold = Math.max(1, Math.round(hold0 + (hold1 - hold0) * i / n)); if (i % hold === 0) v = Math.random() < 0.5 ? -1 : 1; d[i] = v; }
+
+  // ---------------- SN76489 (ColecoVision) ----------------
+  // a frame is { t: [[hz, att], ...up to 3], n: [rate 0-3, att, white] }; att 0 = loudest, 15 = off
+  const SN_CLOCK = 3579545 / 16;
+  const snN = hz => clamp(Math.round(SN_CLOCK / (2 * hz)), 1, 1023);          // the 10-bit divider the chip really uses
+  const SN_VOL = seq(16, a => a === 15 ? 0 : Math.pow(10, -a * 2 / 20));
+  function renderSN(frames) {
+    const RATE = 44100, spf = Math.round(RATE * FRAME), n = frames.length * spf, tick = SN_CLOCK / RATE;
+    const buf = ac.createBuffer(1, n, RATE), d = buf.getChannelData(0);
+    const tone = [0, 1, 2].map(() => ({ cnt: 0, out: 1 })), nz = { cnt: 0, ff: 0, reg: 0x4000 };
+    for (let f = 0; f < frames.length; f++) {
+      const fr = frames[f] || {}, ts = fr.t || [], ns = fr.n;
+      for (let s = 0; s < spf; s++) {
+        let sum = 0;
+        for (let k = 0; k < 3; k++) {
+          const p = ts[k]; if (!p || p[1] >= 15) continue;
+          const N = snN(p[0]), st = tone[k];
+          st.cnt -= tick; while (st.cnt <= 0) { st.cnt += N; st.out = -st.out; }
+          sum += st.out * SN_VOL[p[1]];
+        }
+        if (ns && ns[1] < 15) {
+          const N = [16, 32, 64][ns[0]] || (ts[2] ? snN(ts[2][0]) : 64);
+          nz.cnt -= tick;
+          while (nz.cnt <= 0) {
+            nz.cnt += N; nz.ff ^= 1;
+            if (nz.ff) { const fb = ns[2] ? ((nz.reg ^ (nz.reg >> 1)) & 1) : (nz.reg & 1); nz.reg = (nz.reg >> 1) | (fb << 14); }
+          }
+          sum += ((nz.reg & 1) ? 1 : -1) * SN_VOL[ns[1]];
+        }
+        d[f * spf + s] = sum * 0.42;
+      }
+    }
+    return buf;
+  }
+
+  // ---------------- early-80s arcade board ----------------
+  // a frame is { t: [[hz, vol 0-1], ...], n: [clock hz, vol 0-1] }
+  function renderArcade(frames) {
+    const RATE = 44100, spf = Math.round(RATE * FRAME), n = frames.length * spf;
+    const buf = ac.createBuffer(1, n, RATE), d = buf.getChannelData(0);
+    const ph = [0, 0, 0]; let nph = 0, reg = 0x1ffff, lp = 0;
+    const alpha = 1 - Math.exp(-2 * Math.PI * 6500 / RATE);   // the board's output filter
+    for (let f = 0; f < frames.length; f++) {
+      const fr = frames[f] || {}, ts = fr.t || [], ns = fr.n;
+      for (let s = 0; s < spf; s++) {
+        let sum = 0;
+        ts.forEach((p, k) => { if (!p || !p[1]) return; ph[k] = (ph[k] + p[0] / RATE) % 1; sum += (ph[k] < 0.5 ? 1 : -1) * p[1]; });
+        if (ns && ns[1]) {
+          nph += ns[0] / RATE;
+          while (nph >= 1) { nph -= 1; const fb = ((reg >> 0) ^ (reg >> 3)) & 1; reg = (reg >> 1) | (fb << 16); }
+          sum += ((reg & 1) ? 1 : -1) * ns[1];
+        }
+        lp += (sum - lp) * alpha;
+        d[f * spf + s] = lp * 0.32;
+      }
+    }
+    return buf;
+  }
+  const RENDER = { tia: renderTIA, sn: renderSN, arcade: renderArcade };
+
+  // ---------------- the effects, per chip ----------------
+  const T = (c, f, v) => [c, clamp(Math.round(f), 0, 31), clamp(Math.round(v), 0, 15)];
+  const notes = (list, frames, fn) => list.flatMap(x => seq(frames, i => fn(x, i)));
+  const SFX = {
+    tia: {   // Jungle Jump
+      jump:    () => seq(8, i => T(4, 18 - i * 1.7, 10)),
+      land:    () => seq(2, () => T(8, 18, 6)),
+      grab:    () => [...seq(6, i => T(12, 14 - i * 2, 11)), ...seq(6, i => T(12, 4 + i * 1.5, 9))],
+      splash:  () => seq(32, i => T(8, 2 + i * 0.5, 13 - i * 0.4)),
+      chomp:   () => [...seq(4, () => T(3, 26, 15)), [null, null], [null, null], ...seq(3, () => T(3, 29, 12))],
+      logHit:  () => seq(9, i => T(15, 20, 13 - i * 1.4)),
+      sink:    () => seq(70, i => T(6, 8 + i * 0.33, 11 - i * 0.12)),
+      crumble: () => seq(24, i => T(8, 8 + i * 0.7, 11 - i * 0.45)),
+      correct: () => notes([17, 13, 11, 8], 5, f => T(4, f, 10)),
+      wrong:   () => seq(22, i => T(7, 28, 12 - i * 0.3)),
+      death:   () => [...seq(66, i => [T(1, Math.floor(i / 3) % 2 ? 8 : 15, 12), T(8, 4, 5)]), ...seq(24, i => T(12, 6 + i, 10 - i * 0.4))],
+      exit:    () => seq(12, i => T(4, 6 + i * 1.2, 9)),
+      blip:    () => seq(2, () => T(4, 5, 8)),
+      warp:    () => seq(42, i => [T(12, 31 - i * 0.74, 10), T(4, 31 - i * 0.6, 4)])
+    },
+    sn: {    // Mole Hole
+      throwBall: () => seq(7, i => ({ t: [[expo(500, 1600, i / 6), 2]] })),
+      pop:       () => seq(13, i => ({ t: [[expo(900, 130, i / 12), 2 + i * 0.7 | 0]], n: [1, 4 + i | 0, 1] })),
+      electron:  () => [...seq(3, () => ({ t: [[1760, 4]] })), ...seq(3, () => ({ t: [[2350, 5]] }))],
+      wobble:    () => notes([140, 175, 140, 175], 7, f => ({ t: [[f, 3]] })),
+      thud:      () => seq(18, i => ({ t: [[expo(160, 55, i / 17), 3 + i * 0.6 | 0]], n: [2, 2 + i * 0.7 | 0, 1] })),
+      crumble:   () => seq(30, i => ({ n: [i < 10 ? 0 : i < 20 ? 1 : 2, 3 + i * 0.4 | 0, 1] })),
+      spawn:     () => seq(10, i => ({ t: [[expo(200, 420, i / 9), 6]] })),
+      digger:    () => seq(24, i => ({ t: [[i % 2 ? 300 : 345, 6], [150, 9]] })),
+      clear:     () => notes([523, 784, 659, 1047, 784, 1319, 1568], 5, f => ({ t: [[f, 3], [f / 2, 7]] })),
+      correct:   () => notes([523, 659, 784, 1047, 1319], 4, f => ({ t: [[f, 3]] })),
+      wrong:     () => seq(24, i => ({ t: [[i % 4 < 2 ? 117 : 110, 3], [i % 4 < 2 ? 123 : 116, 5]] })),
+      death:     () => [...seq(70, i => ({ t: [[i % 2 ? 220 - i : 330 - i, 3]], n: [2, 8, 1] })), ...seq(26, i => ({ t: [[expo(700, 110, i / 25), 3 + i / 3 | 0]] }))],
+      exit:      () => seq(16, i => ({ t: [[expo(1200, 160, i / 15), 5]] })),
+      blip:      () => seq(2, () => ({ t: [[1400, 5]] })),
+      warp:      () => seq(42, i => ({ t: [[expo(220, 1760, (i % 14) / 13), 4], [expo(110, 880, i / 41), 8]] }))
+    },
+    arcade: {   // Robo-Lab
+      zap:      () => seq(7, i => ({ t: [[expo(2800, 420, i / 6), 0.9]] })),
+      robotZap: () => seq(9, i => ({ t: [[expo(1300, 330, i / 8), 0.6]], n: [6000, 0.12] })),
+      boom:     () => seq(34, i => ({ t: [[expo(320, 55, Math.min(1, i / 18)), 0.35 * (1 - i / 34)]], n: [expo(9000, 500, i / 33), 0.9 * (1 - i / 34)] })),
+      radical:  () => notes([880, 587, 880, 587, 880, 587, 880, 587], 5, f => ({ t: [[f, 0.6]] })),
+      bounce:   () => seq(4, i => ({ t: [[expo(150, 70, i / 3), 0.5]] })),
+      door:     () => seq(15, i => ({ t: [[300 + i * 70, 0.7]] })),
+      exit:     () => seq(19, i => ({ t: [[expo(1200, 160, i / 18), 0.55]] })),
+      correct:  () => notes([523, 659, 784, 1047, 1319], 4, f => ({ t: [[f, 0.6]] })),
+      wrong:    () => seq(24, i => ({ t: [[i % 4 < 2 ? 110 : 98, 0.8], [i % 4 < 2 ? 55 : 49, 0.4]] })),
+      death:    () => [...seq(80, i => ({ t: [[(i % 2 ? 0.35 : 1.6) * expo(220, 110, i / 79), 0.8]], n: [2500, 0.18] })), ...seq(27, i => ({ t: [[expo(700, 70, i / 26), 0.7]] }))],
+      blip:     () => seq(2, () => ({ t: [[1400, 0.5]] })),
+      warp:     () => seq(42, i => ({ t: [[expo(300, 2400, (i % 14) / 13), 0.5], [expo(150, 1200, i / 41), 0.3]] }))
+    }
+  };
+  // which chip voices a sound: the current stage's chip if it has the sound, otherwise its owner
+  const OWNER = {};
+  for (const chip in SFX) for (const name in SFX[chip]) if (!OWNER[name]) OWNER[name] = chip;
+  const chipFor = name => { const cur = G && G.stage && G.stage.chip; return cur && SFX[cur][name] ? cur : OWNER[name]; };
+  function playBuf(buf, gain = 1) {
     const s = ac.createBufferSource(); s.buffer = buf;
-    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = cutoff;
-    const g = ac.createGain(); g.gain.setValueAtTime(vol, t); g.gain.linearRampToValueAtTime(0, t + dur);
-    s.connect(lp); lp.connect(g); g.connect(master); s.start(t);
+    const g = ac.createGain(); g.gain.value = gain; s.connect(g); g.connect(master); s.start();
   }
-  function buzz({ f0, f1 = f0, dur, rate = 28, depth = 0.6, vol = 0.3, delay = 0 }) {
-    if (!ready()) return;
-    const t = ac.currentTime + delay, o = ac.createOscillator(), lfo = ac.createOscillator(), lg = ac.createGain(), g = ac.createGain();
-    o.type = 'square'; lfo.type = 'square';
-    o.frequency.setValueAtTime(f0, t); o.frequency.linearRampToValueAtTime(f1, t + dur);
-    lfo.frequency.setValueAtTime(rate, t); lfo.frequency.linearRampToValueAtTime(rate * 0.5, t + dur);
-    lg.gain.value = f0 * depth; lfo.connect(lg); lg.connect(o.frequency);
-    g.gain.setValueAtTime(vol, t); g.gain.setValueAtTime(vol, t + dur * 0.8); g.gain.linearRampToValueAtTime(0, t + dur);
-    o.connect(g); g.connect(master); o.start(t); lfo.start(t); o.stop(t + dur + 0.03); lfo.stop(t + dur + 0.03);
+  function playOn(chip, name) {
+    if (!ac || !on || !SFX[chip] || !SFX[chip][name]) return;
+    const key = chip + ':' + name;
+    if (!cache[key]) cache[key] = RENDER[chip](SFX[chip][name]());
+    playBuf(cache[key]);
   }
-  // Mole Hole's original tune, played one step at a time while the mole moves (MIDI numbers, 0 = rest)
+
+  // Mole Hole's original tune on the SN76489, one step at a time while the mole moves (MIDI, 0 = rest)
   const MEL = [72, 0, 76, 79, 77, 0, 74, 77, 76, 0, 72, 76, 74, 71, 67, 0, 72, 0, 76, 79, 81, 0, 79, 77, 76, 74, 76, 72, 74, 0, 72, 0];
   const BASS = [48, 55, 48, 55, 50, 57, 50, 57, 52, 55, 52, 55, 43, 50, 43, 50];
   const midi = m => 440 * Math.pow(2, (m - 69) / 12);
   let step = 0;
-  const fx = {
-    // shared
-    correct()  { [523, 659, 784, 1047, 1319].forEach((f, i) => sweep({ f0: f, dur: 0.07, vol: 0.22, steps: 1, delay: i * 0.065 })); },
-    wrong()    { buzz({ f0: 110, f1: 90, dur: 0.38, rate: 14, depth: 0.4, vol: 0.3 }); },
-    death()    { buzz({ f0: 220, f1: 110, dur: 1.35, rate: 26, depth: 0.7, vol: 0.32 }); noise({ dur: 1.35, vol: 0.12, hold0: 3, hold1: 20, cutoff: 3000 }); sweep({ f0: 700, f1: 70, dur: 0.45, vol: 0.25, steps: 14, delay: 1.3 }); },
-    blip()     { sweep({ f0: 1400, dur: 0.04, vol: 0.18, steps: 1 }); },
-    warp()     { for (let i = 0; i < 14; i++) sweep({ f0: 300 + i * 90, f1: 600 + i * 120, dur: 0.06, vol: 0.18, steps: 3, delay: i * 0.05 }); },
-    // Robo-Lab
-    zap()      { sweep({ f0: 2800, f1: 420, dur: 0.11, vol: 0.28, steps: 10 }); },
-    robotZap() { sweep({ type: 'sawtooth', f0: 1300, f1: 330, dur: 0.15, vol: 0.2, steps: 8 }); },
-    boom()     { noise({ dur: 0.55, vol: 0.55, hold0: 1, hold1: 40 }); sweep({ f0: 320, f1: 55, dur: 0.3, vol: 0.14, steps: 8 }); },
-    radical()  { for (let i = 0; i < 8; i++) sweep({ f0: i % 2 ? 587 : 880, dur: 0.08, vol: 0.22, steps: 1, delay: i * 0.085 }); },
-    bounce()   { sweep({ f0: 150, f1: 70, dur: 0.07, vol: 0.18, steps: 4 }); },
-    door()     { sweep({ type: 'triangle', f0: 300, f1: 1300, dur: 0.25, vol: 0.3, steps: 10, lin: true }); },
-    exit()     { sweep({ f0: 1200, f1: 160, dur: 0.32, vol: 0.2, steps: 16 }); },
-    // Mole Hole
-    throwBall(){ sweep({ f0: 500, f1: 1600, dur: 0.12, vol: 0.22, steps: 8 }); },
-    pop()      { sweep({ f0: 900, f1: 120, dur: 0.22, vol: 0.28, steps: 10 }); noise({ dur: 0.18, vol: 0.25, hold0: 1, hold1: 10 }); },
-    electron() { sweep({ f0: 1800, f1: 2400, dur: 0.05, vol: 0.14, steps: 2 }); },
-    wobble()   { for (let i = 0; i < 4; i++) sweep({ f0: i % 2 ? 140 : 170, dur: 0.07, vol: 0.18, steps: 1, delay: i * 0.12 }); },
-    thud()     { noise({ dur: 0.35, vol: 0.5, hold0: 6, hold1: 50, cutoff: 1500 }); sweep({ f0: 160, f1: 50, dur: 0.25, vol: 0.25, steps: 6 }); },
-    crumble()  { noise({ dur: 0.5, vol: 0.45, hold0: 2, hold1: 30 }); },
-    spawn()    { sweep({ type: 'sawtooth', f0: 200, f1: 400, dur: 0.18, vol: 0.15, steps: 6 }); },
-    digger()   { buzz({ f0: 300, f1: 340, dur: 0.4, rate: 40, depth: 0.3, vol: 0.18 }); },
-    clear()    { [523, 784, 659, 1047, 784, 1319, 1568].forEach((f, i) => sweep({ f0: f, dur: 0.09, vol: 0.2, steps: 1, delay: i * 0.09 })); },
+  function note(key, frames) { if (!cache[key]) cache[key] = renderSN(frames); playBuf(cache[key]); }
+
+  const api = {
+    init, get on() { return on; }, get music() { return music; },
+    toggle() { on = !on; store.set('ca_sound', on); return on; },
+    toggleMusic() { music = !music; store.set('ca_music', music); return music; },
+    playOn,
+    sounds: chip => Object.keys(SFX[chip] || {}),
+    _render: (chip, name) => RENDER[chip](SFX[chip][name]()),   // for automated tests
     musicStep() {
-      if (!ready() || !music) return;
+      if (!ac || !on || !music) return;
       const m = MEL[step % MEL.length], b = BASS[Math.floor(step / 2) % BASS.length];
-      if (m) sweep({ f0: midi(m), dur: 0.12, vol: 0.12, steps: 1 });
-      if (step % 2 === 0) sweep({ type: 'triangle', f0: midi(b), dur: 0.2, vol: 0.2, steps: 1 });
+      if (m) note('mel' + m, seq(7, i => ({ t: [[midi(m), i < 5 ? 6 : 9]] })));
+      if (step % 2 === 0) { let hz = midi(b); if (hz < 110) hz *= 2; note('bass' + b, seq(12, i => ({ t: [[hz, i < 8 ? 4 : 8]] }))); }
       step++;
     }
   };
-  return Object.assign({
-    init, get on() { return on; }, get music() { return music; },
-    toggle() { on = !on; store.set('ca_sound', on); return on; },
-    toggleMusic() { music = !music; store.set('ca_music', music); return music; }
-  }, fx);
+  for (const name in OWNER) api[name] = () => playOn(chipFor(name), name);
+  return api;
 })();
 
 // Optional robot voice for Robo-Lab: browser text-to-speech with original lines.
@@ -420,7 +545,7 @@ function cartSVG(s) {
     const px = Math.min(24 / cols, 15 / rows), ox = 22 - cols * px / 2, oy = 20.5 - rows * px / 2;
     icon.forEach((line, y) => [...line].forEach((ch, x) => { if (pal[ch]) out += r(ox + x * px, oy + y * px, px + 0.05, px + 0.05, pal[ch]); }));
   }
-  out += `<text x="22" y="35.6" text-anchor="middle" font-family="'Press Start 2P', monospace" font-size="3.2" fill="#000">${s.name}</text>`;
+  out += `<text x="22" y="35.6" text-anchor="middle" font-family="'Press Start 2P', monospace" font-size="${Math.min(3.2, 30 / s.name.length).toFixed(2)}" fill="#000">${s.name}</text>`;
   return `<svg viewBox="0 0 44 54" width="110" height="135" shape-rendering="crispEdges" aria-hidden="true">${out}</svg>`;
 }
 function updCount() {
@@ -448,17 +573,24 @@ function bootArcade() {
   document.getElementById('musicBtn').onclick = () => { Sound.toggleMusic(); syncButtons(); };
   document.getElementById('voiceBtn').onclick = () => { Voice.toggle(); syncButtons(); };
   document.getElementById('readBtn').onclick = () => { readFirst = !readFirst; store.set('ca_readfirst', readFirst); syncButtons(); };
-  const tests = [['LASER', 'zap'], ['ROBOT SHOT', 'robotZap'], ['EXPLOSION', 'boom'], ['RADICAL', 'radical'], ['DOORS', 'door'], ['EXIT', 'exit'],
-    ['CATALYST', 'throwBall'], ['POP', 'pop'], ['ELECTRON', 'electron'], ['WOBBLE', 'wobble'], ['THUD', 'thud'], ['CRUMBLE', 'crumble'], ['DIGGER', 'digger'],
-    ['CORRECT', 'correct'], ['WRONG', 'wrong'], ['DEATH', 'death'], ['WARP', 'warp']];
-  tests.forEach(([label, fn]) => {
-    const b = document.createElement('button'); b.className = 'small'; b.textContent = label;
-    b.onclick = () => { Sound.init(); if (!Sound.on) { Sound.toggle(); syncButtons(); } Sound[fn](); };
-    document.getElementById('soundTest').appendChild(b);
+  // sound test: each stage's sounds, played on that stage's emulated chip
+  const CHIP_NAMES = { arcade: 'arcade board', sn: 'SN76489', tia: 'Atari TIA' };
+  const soundOn = () => { Sound.init(); if (!Sound.on) { Sound.toggle(); syncButtons(); } };
+  const box = document.getElementById('soundTest'); box.style.display = 'block';
+  STAGES.forEach(s => {
+    const row = document.createElement('div'); row.className = 'row';
+    const lab = document.createElement('span'); lab.className = 'sub'; lab.style.minWidth = '170px';
+    lab.textContent = `${s.name} (${CHIP_NAMES[s.chip] || s.chip})`; lab.style.color = s.color; row.appendChild(lab);
+    Sound.sounds(s.chip).forEach(name => {
+      const b = document.createElement('button'); b.className = 'small'; b.textContent = name.replace(/([A-Z])/g, ' $1').toUpperCase();
+      b.onclick = () => { soundOn(); Sound.playOn(s.chip, name); }; row.appendChild(b);
+    });
+    if (s.chip === 'sn') {
+      const b = document.createElement('button'); b.className = 'small'; b.textContent = 'TUNE';
+      b.onclick = () => { soundOn(); for (let i = 0; i < 32; i++) setTimeout(() => Sound.musicStep(), i * 150); }; row.appendChild(b);
+    }
+    box.appendChild(row);
   });
-  const mb = document.createElement('button'); mb.className = 'small'; mb.textContent = 'MOLE TUNE';
-  mb.onclick = () => { Sound.init(); if (!Sound.on) { Sound.toggle(); syncButtons(); } for (let i = 0; i < 32; i++) setTimeout(() => Sound.musicStep(), i * 150); };
-  document.getElementById('soundTest').appendChild(mb);
   syncButtons(); buildMenu();
   let lastT = performance.now();
   (function frame(now) { const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now; update(dt); draw(); requestAnimationFrame(frame); })(lastT);

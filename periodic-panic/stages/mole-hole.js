@@ -288,7 +288,7 @@ function drawMonster(m) {
 }
 
 registerStage({
-  id: 'mole-hole', name: 'MOLE HOLE', color: '#ffb347', hudLabel: 'DIG TO THE TERM:', fourWay: true,
+  id: 'mole-hole', name: 'MOLE HOLE', color: '#ffb347', hudLabel: 'DIG TO THE TERM:', fourWay: true, chip: 'sn',
   cart: {   // pixel sprite for the Free Play cartridge label
     icon: ['....#####....',
            '..#########..',

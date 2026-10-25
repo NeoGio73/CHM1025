@@ -9,7 +9,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 | Scale, metric prefixes, scientific notation, atoms, ions, isotopes, and atomic mass | [Smaller Than Small](https://neogio73.github.io/CHM1025/smaller-than-small/) | Game (3D, WebGL) |
 | Bonding, shapes, polarity, and intermolecular forces (Ch. 10) | [Escape from Lewis Manor](https://neogio73.github.io/CHM1025/lewis-manor/) | Game (Halloween) |
 | Course policies in the syllabus | [Beaker Catch](https://neogio73.github.io/CHM1025/beaker-catch/) | Game (first week, ungraded) |
-| Key terms from Chapters 1–12 and 14 | [Periodic Panic](https://neogio73.github.io/CHM1025/periodic-panic/) | Game (vocabulary review, ungraded; Robo-Lab and Mole Hole in one) |
+| Key terms from Chapters 1–12 and 14 | [Periodic Panic](https://neogio73.github.io/CHM1025/periodic-panic/) | Game (vocabulary review, ungraded; three arcade games in one) |
 | Key terms from Chapters 1–12 and 14 | [Robo-Lab](https://neogio73.github.io/CHM1025/robo-lab/) | Game (vocabulary review, ungraded) |
 | Key terms from Chapters 1–12 and 14 | [Mole Hole](https://neogio73.github.io/CHM1025/mole-hole/) | Game (vocabulary review, ungraded) |
 
@@ -97,10 +97,20 @@ A short game for the first week that sends students to the syllabus. True and fa
 
 The vocabulary review games in one arcade game, using the 243 Key Terms of Chapters 1–12 and 14 of Timberlake, *Basic Chemistry*, 6th edition. Each stage is a different early-1980s style game, described in the sections below.
 
-- **Arcade mode** plays the stages in order: Robo-Lab, then Mole Hole. Four correct answers warp the player to the next stage, keeping the score, lives, and list of missed terms. After the last stage it loops back to the first, a little faster each time.
+- **Arcade mode** plays the stages in order: Robo-Lab, Mole Hole, then Jungle Jump. Four correct answers warp the player to the next stage, keeping the score, lives, and list of missed terms. After the last stage it loops back to the first, a little faster each time.
 - **Free play** lets students pick one game from a row of cartridges and practice it as long as they like.
 - Students choose the chapters, every round starts paused so they can read the clue, and the end screen lists every term they missed across the whole run, with its clue and textbook section.
+- **Sound** comes from emulations of the sound chips each game's era used (an early-80s arcade board for Robo-Lab, the ColecoVision's SN76489 for Mole Hole, the Atari 2600's TIA for Jungle Jump). No recordings are used, and every sound effect and tune is original.
 - **Nothing is recorded.** It is a practice tool.
+
+### Jungle Jump (stage 3)
+
+A jungle runner in the style of early-1980s home console games, so far only in Periodic Panic. Three metal ingots labeled with terms lie around the screen; grab the one whose term matches the clue, and the bushes on the right open onto the next screen.
+
+- **Run** with the arrow keys or <kbd>A</kbd> <kbd>D</kbd>, and **jump** with <kbd>Space</kbd> or the up arrow.
+- Each screen has one hazard in the middle: a swamp crossed on a swinging vine (jump to grab it, <kbd>Space</kbd> to let go), crocodile heads to hop across while their mouths are shut, or a tar pit that opens and closes. Falling in costs a life.
+- Rolling logs knock the explorer back and cost 50 points.
+- A wrong ingot crumbles and shows what its term means; after two misses the right one glows.
 
 ## Robo-Lab
 

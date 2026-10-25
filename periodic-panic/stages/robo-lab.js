@@ -156,7 +156,7 @@ function drawRadical(rd) {
 }
 
 registerStage({
-  id: 'robo-lab', name: 'ROBO-LAB', color: '#38f0c8', hudLabel: 'FIND THE TERM:', fourWay: false,
+  id: 'robo-lab', name: 'ROBO-LAB', color: '#38f0c8', hudLabel: 'FIND THE TERM:', fourWay: false, chip: 'arcade',
   cart: {   // pixel sprite for the Free Play cartridge label
     icon: ['.....r.....',
            '....rrr....',
