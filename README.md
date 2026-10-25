@@ -85,7 +85,7 @@ To check a later part without replaying from the start, add `?zone=1`, `?zone=2`
 
 Escape from Lewis Manor is a single file, [`lewis-manor/index.html`](lewis-manor/index.html), with its art and sound made in code; it loads three fonts from Google Fonts and opens straight from the file with a double-click.
 
-Beaker Catch is a single file, [`beaker-catch/index.html`](beaker-catch/index.html). The statements and settings are in a block at the top of the file: the link to the syllabus (`syllabusUrl`), the number of statements per game, and the bonus round. The bonus answer is caffeine, drawn small at the bottom of the Falcon Online Forgiveness section of the syllabus. If the syllabus in D2L doesn't have the drawing, set `bonus.enabled` to `false`. To show it in a D2L announcement, add this in the HTML editor:
+Beaker Catch is a single file, [`beaker-catch/index.html`](beaker-catch/index.html). The statements and settings are in a block at the top of the file: where students find the syllabus (`syllabusNote`), an optional direct link to it (`syllabusUrl`), the number of statements per game, and the bonus round. The bonus answer is caffeine, drawn small at the bottom of the Falcon Online Forgiveness section of the syllabus. If the syllabus in D2L doesn't have the drawing, set `bonus.enabled` to `false`. To show it in a D2L announcement, add this in the HTML editor:
 
 ```html
 <iframe src="https://neogio73.github.io/CHM1025/beaker-catch/" width="100%" height="560" style="border:0;max-width:720px" title="Beaker Catch"></iframe>

@@ -17,8 +17,11 @@
 const SETTINGS = {
   courseLine: "CHM 1025 · Syllabus Edition",
 
-  // Paste the link to the syllabus in your D2L course here (keep the quotes).
-  // Leave it "" and the game just tells students to find it in Content.
+  // Where students find the syllabus. Shown at the bottom of every screen.
+  syllabusNote: "The syllabus is under the Syllabus tab.",
+
+  // Optional: paste the link to the syllabus in your D2L course here (keep the quotes)
+  // to also add a "Peek at the syllabus" link. Leave it "" for no link.
   syllabusUrl: "",
 
   roundsPerGame: 10,        // statements per game
@@ -925,9 +928,8 @@ function setupText(){
   t.innerHTML = [...t.textContent].map(ch => ch === " " ? " " :
     `<span aria-hidden="true" style="color:${cols[n++ % cols.length]};animation-delay:${(n*0.12).toFixed(2)}s">${esc(ch)}</span>`).join("");
   document.querySelectorAll(".peek-slot").forEach(slot => {
-    slot.innerHTML = SETTINGS.syllabusUrl
-      ? `<a class="peek" href="${esc(SETTINGS.syllabusUrl)}" target="_blank" rel="noopener">Peek at the syllabus ↗</a>`
-      : `<div class="peek-note">The syllabus is in the course Content.</div>`;
+    slot.innerHTML = (SETTINGS.syllabusNote ? `<div class="peek-note">${esc(SETTINGS.syllabusNote)}</div>` : "")
+      + (SETTINGS.syllabusUrl ? `<a class="peek" href="${esc(SETTINGS.syllabusUrl)}" target="_blank" rel="noopener">Peek at the syllabus ↗</a>` : "");
   });
 }
 
