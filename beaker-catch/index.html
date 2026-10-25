@@ -1,0 +1,952 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beaker Catch</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<script>
+/* =====================================================================
+   BEAKER CATCH  ·  syllabus edition
+   ---------------------------------------------------------------------
+   Everything you may want to change each semester is in this block.
+   ===================================================================== */
+
+const SETTINGS = {
+  courseLine: "CHM 1025 · Syllabus Edition",
+
+  // Paste the link to the syllabus in your D2L course here (keep the quotes).
+  // Leave it "" and the game just tells students to find it in Content.
+  syllabusUrl: "",
+
+  roundsPerGame: 10,        // statements per game
+  fallSecondsStart: 6.5,    // seconds for the first drop to reach the beaker
+  fallSecondsEnd: 4.6,      // ...and for the last one (it speeds up a little)
+  endpointScore: 8,         // this score or better turns the beaker pink
+
+  bonus: {
+    enabled: true,          // set to false if you don't use the syllabus copy with the hidden molecule
+    answer: "caffeine",
+    question: "A molecule is hiding somewhere in the syllabus. Which one is it?",
+    choices: [
+      { id: "caffeine",    name: "Caffeine",    fun: "the wake-up molecule in your coffee" },
+      { id: "theobromine", name: "Theobromine", fun: "caffeine's cousin, found in chocolate" },
+      { id: "aspirin",     name: "Aspirin",     fun: "the headache pill, acetylsalicylic acid" },
+      { id: "vanillin",    name: "Vanillin",    fun: "the main flavor molecule of vanilla" }
+    ]
+  }
+};
+
+/* Each statement:
+   text    - what falls (keep it short, about 70 characters or less)
+   isTrue  - true = catch it, false = let it splash
+   fix     - what the syllabus actually says (shown when a student gets it wrong)
+   section - syllabus heading where the answer is
+   topic   - statements with the same topic never appear in the same game        */
+const STATEMENTS = [
+  { topic:"drop-exam", isTrue:true,  text:"Your lowest one-hour exam score gets dropped.",
+    fix:"Your lowest one-hour exam score is dropped.", section:"Missing an exam/quiz" },
+  { topic:"drop-exam", isTrue:false, text:"You can drop the final exam if it's your lowest score.",
+    fix:"The final exam is mandatory and can't be the dropped exam.", section:"Exams" },
+
+  { topic:"makeup", isTrue:true,  text:"There are no make-up exams.",
+    fix:"No early, late, or make-up exams. A missed exam becomes your dropped score.", section:"Missing an exam/quiz" },
+  { topic:"makeup", isTrue:false, text:"Missed an exam? Just ask for a make-up.",
+    fix:"There are no make-up exams. A missed exam is a zero, and that becomes your dropped score.", section:"Missing an exam/quiz" },
+
+  { topic:"two-exams", isTrue:false, text:"With a good reason, you can be excused from two exams.",
+    fix:"You won't be excused from two exams for any reason. Only one exam can be dropped.", section:"Missing an exam/quiz" },
+
+  { topic:"early", isTrue:false, text:"Leaving town on exam day? You can take it early.",
+    fix:"No early exams. Work out travel or job conflicts early. You can show your employer the syllabus.", section:"Missing an exam/quiz" },
+
+  { topic:"missed-final", isTrue:true, text:"Miss the final for extenuating circumstances? You get an Incomplete.",
+    fix:"You get an Incomplete and make up the final as soon as possible the next semester.", section:"Missing an exam/quiz" },
+
+  { topic:"exam-day", isTrue:true,  text:"Exams are always on Wednesdays.",
+    fix:"Exams are always on Wednesdays.", section:"Tentative Schedule" },
+  { topic:"exam-day", isTrue:false, text:"Exams are always on Fridays.",
+    fix:"Exams are always on Wednesdays.", section:"Tentative Schedule" },
+
+  { topic:"exam-points", isTrue:true, text:"Each one-hour exam is worth 100 points.",
+    fix:"Each one-hour exam is worth 100 points.", section:"Exams" },
+
+  { topic:"final-points", isTrue:true,  text:"The cumulative final is worth 200 points.",
+    fix:"The cumulative final is worth 200 points.", section:"Exams" },
+  { topic:"final-points", isTrue:false, text:"The final counts the same as one hour exam.",
+    fix:"The final is worth 200 points, twice as much as an hour exam (100).", section:"Exams" },
+
+  { topic:"final-format", isTrue:true, text:"The final exam is all multiple choice.",
+    fix:"The final exam is all multiple choice.", section:"Exams" },
+
+  { topic:"quizzes-count", isTrue:true,  text:"Only your 10 best quiz scores count.",
+    fix:"Your 10 highest quiz scores (out of 12 or 13) count.", section:"Quizzes" },
+  { topic:"quizzes-count", isTrue:false, text:"Every single quiz score counts toward your grade.",
+    fix:"Only your 10 highest quiz scores (out of 12 or 13) count.", section:"Quizzes" },
+
+  { topic:"quiz-points", isTrue:true, text:"Each quiz is worth 10 points.",
+    fix:"Each quiz is worth 10 points, and some include extra credit.", section:"Quizzes" },
+
+  { topic:"late-quiz", isTrue:false, text:"Arrive late to a quiz and you get extra time to finish.",
+    fix:"No extra time. Arrive on time and use the time you're given.", section:"Arriving late to an exam/quiz" },
+
+  { topic:"token", isTrue:true,  text:"Everyone gets ONE forgiveness token for a missed online deadline.",
+    fix:"Everyone gets one forgiveness token for a missed Falcon Online deadline.", section:"Falcon Online Forgiveness" },
+  { topic:"token", isTrue:false, text:"You get three forgiveness tokens per semester.",
+    fix:"Just one token, for things like a power outage or a computer meltdown. Talk to your instructor to use it.", section:"Falcon Online Forgiveness" },
+
+  { topic:"total", isTrue:true,  text:"The whole course is worth 800 points.",
+    fix:"The course is worth 800 points in total.", section:"Grading" },
+  { topic:"total", isTrue:false, text:"The whole course is worth 1,000 points.",
+    fix:"The course is worth 800 points in total.", section:"Grading" },
+
+  { topic:"calculator", isTrue:false, text:"Graphing calculators are fine during exams.",
+    fix:"Graphing calculators are strictly prohibited in the exam room. Bring a scientific calculator.", section:"Classroom etiquette" },
+  { topic:"calculator", isTrue:true,  text:"A scientific calculator is on the required materials list.",
+    fix:"A scientific calculator is required.", section:"Materials Required For This Class" },
+
+  { topic:"phones-exam", isTrue:false, text:"Your phone can stay on your desk during exams.",
+    fix:"Phones are prohibited in the exam room. If one rings or beeps, it's taken for the rest of the exam.", section:"Classroom etiquette" },
+
+  { topic:"lab-pass", isTrue:true,  text:"You need a minimum lab percentage to pass the course.",
+    fix:"Lab has its own required percentage to pass the course.", section:"Lab" },
+  { topic:"lab-pass", isTrue:false, text:"A high lecture grade makes up for a weak lab grade.",
+    fix:"Lab has its own required percentage to pass the course, no matter your lecture grade.", section:"Lab" },
+
+  { topic:"lab-attire", isTrue:false, text:"Sandals are OK in lab if you're careful.",
+    fix:"Closed-toed shoes are required for lab.", section:"Materials Required For This Class" },
+  { topic:"lab-attire", isTrue:true,  text:"Lab safety eyewear needs a Z87 rating.",
+    fix:"Safety eyewear with a Z87 rating is required for lab.", section:"Materials Required For This Class" },
+
+  { topic:"old-data", isTrue:false, text:"Reusing lab data from a past semester is fine.",
+    fix:"Using lab report data from previous semesters counts as plagiarism.", section:"Academic integrity" },
+
+  { topic:"homework", isTrue:true,  text:"Homework is worth 50 points.",
+    fix:"Homework is worth 50 points, mostly on Falcon Online.", section:"Homework" },
+  { topic:"homework", isTrue:false, text:"Extra publisher homework is required.",
+    fix:"Additional publisher homework is optional, for extra credit.", section:"Homework" },
+
+  { topic:"attendance", isTrue:true,  text:"Attendance is taken every class. Bring a device that can get online.",
+    fix:"Attendance is taken every day with a web-based program. Bring a device that connects to Wi-Fi or data.", section:"Attendance" },
+  { topic:"attendance", isTrue:false, text:"Attendance doesn't count toward your grade.",
+    fix:"Attendance is worth 50 points. About 90% attendance typically earns all 50.", section:"Attendance" },
+
+  { topic:"curve", isTrue:false, text:"Every exam is curved right after it's graded.",
+    fix:"Exam scores are given raw. A curve, if needed, comes at the end of the course.", section:"Grading (the Note about curves)" },
+  { topic:"curve", isTrue:true,  text:"If a curve is needed, it moves the class average to about 70%.",
+    fix:"If needed, an end-of-course curve shifts the class average to about 70%.", section:"Grading (the Note about curves)" },
+
+  { topic:"accommodations", isTrue:true,  text:"Accommodations start with a letter from Student Disability Services.",
+    fix:"Accommodations need a current letter from Student Disability Services.", section:"Students with Disabilities" },
+  { topic:"accommodations", isTrue:false, text:"For accommodations, show your instructor your medical records.",
+    fix:"Bring a current letter from Student Disability Services, and please don't share medical information.", section:"Students with Disabilities" },
+
+  { topic:"office", isTrue:true, text:"Office hours are in Building 410, Room 211.",
+    fix:"Office hours are in Building 410, Room 211.", section:"Office Hours" },
+
+  { topic:"study-groups", isTrue:true, text:"Study groups may be the most effective way to learn the material.",
+    fix:"Study groups may be the single most effective way to understand the material.", section:"Goals" }
+];
+</script>
+<style>
+:root{
+  --ink:#16323a;
+  --ink-soft:#4b6670;
+  --paper:#fffdf6;
+  --wall:#e3f1ef;
+  --sun:#ffc23d;
+  --teal:#13a89e;
+  --pink:#ff4f9a;
+  --blue:#3a86ff;
+  --green:#1f9d55;
+  --red:#e0453a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--wall)}
+body{font-family:"Nunito",system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);overflow:hidden;-webkit-tap-highlight-color:transparent}
+#game{position:relative;width:100%;height:100vh;min-height:420px;overflow:hidden;user-select:none;-webkit-user-select:none}
+canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.hidden{display:none !important}
+
+/* top bar */
+#hud{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:8px;padding:10px 12px;pointer-events:none;z-index:3}
+.chip{font-family:"Fredoka",system-ui,sans-serif;font-weight:600;font-size:15px;background:var(--paper);border:2.5px solid var(--ink);border-radius:999px;padding:4px 12px;box-shadow:2px 2px 0 var(--ink);white-space:nowrap}
+#hud .spacer{flex:1}
+#soundBtn{pointer-events:auto;cursor:pointer;color:var(--ink)}
+#soundBtn:focus-visible,.btn:focus-visible,.mol:focus-visible,#banner:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+
+/* feedback banner */
+#banner{position:absolute;left:50%;top:54px;transform:translate(-50%,-8px);opacity:0;width:min(440px,calc(100% - 24px));background:var(--paper);border:3px solid var(--ink);border-radius:16px;box-shadow:4px 4px 0 var(--ink);padding:12px 14px 10px;z-index:4;transition:opacity .2s,transform .2s;cursor:pointer;pointer-events:none}
+#banner.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#banner strong{display:block;font-family:"Fredoka",system-ui,sans-serif;font-weight:600;font-size:18px;color:var(--red);margin-bottom:4px}
+#banner p{margin:0 0 6px;font-size:15px;line-height:1.35}
+#banner .meta{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--ink-soft);font-weight:800}
+
+/* overlays */
+.overlay{position:absolute;inset:0;z-index:5;display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto;background:rgba(227,241,239,.62);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+.card{position:relative;margin:auto;width:100%;max-width:450px;background:var(--paper);border:3px solid var(--ink);border-radius:22px;box-shadow:6px 6px 0 var(--ink);padding:20px 18px 18px;text-align:center}
+.title{font-family:"Fredoka",system-ui,sans-serif;font-weight:700;font-size:clamp(34px,9vw,46px);line-height:1;margin:2px 0 6px;letter-spacing:.5px}
+.title span{display:inline-block;-webkit-text-stroke:1.5px var(--ink);paint-order:stroke fill;animation:bob 2.4s ease-in-out infinite}
+.course{margin:0 0 14px;font-weight:800;color:var(--ink-soft);font-size:14px;letter-spacing:.3px}
+.rules{display:grid;gap:8px;margin:0 0 12px;text-align:left}
+.rule{display:flex;align-items:center;gap:10px;background:#f2f8f7;border:2px solid #cfe3e0;border-radius:12px;padding:8px 10px;font-size:16px;font-weight:700}
+.rule svg{flex:0 0 auto}
+.hint{margin:0 0 14px;font-size:14px;color:var(--ink-soft);font-weight:700}
+.btn{font-family:"Fredoka",system-ui,sans-serif;font-weight:600;font-size:19px;color:var(--ink);background:var(--sun);border:3px solid var(--ink);border-radius:999px;padding:9px 22px;box-shadow:3px 3px 0 var(--ink);cursor:pointer;transition:transform .08s,box-shadow .08s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--ink)}
+.btn.alt{background:#c9f0ea}
+.row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:14px}
+.peek{display:inline-block;margin-top:12px;font-weight:800;font-size:14px;color:var(--blue)}
+.peek-note{margin-top:12px;font-weight:700;font-size:13.5px;color:var(--ink-soft)}
+.big{font-family:"Fredoka",system-ui,sans-serif;font-weight:700;font-size:54px;line-height:1}
+.big small{font-size:24px;color:var(--ink-soft)}
+h2{font-family:"Fredoka",system-ui,sans-serif;font-weight:600;font-size:24px;margin:6px 0 2px}
+#eMsg{margin:0 0 10px;font-weight:700;color:var(--ink-soft)}
+#eList{text-align:left;margin-top:6px}
+#eList h3{font-size:14px;margin:0 0 6px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--ink-soft)}
+#eList ul{list-style:none;margin:0;padding:0;display:grid;gap:6px;max-height:210px;overflow:auto}
+#eList li{background:#fff5f4;border:2px solid #f3cfcb;border-radius:10px;padding:7px 9px;font-size:14px;line-height:1.3}
+#eList li span{display:block;font-size:12px;font-weight:800;color:var(--ink-soft);margin-top:2px}
+.perfect{background:#eefaf3;border:2px solid #bfe7cf;border-radius:10px;padding:8px;font-weight:700;text-align:center}
+
+/* bonus */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0 8px}
+.mol{position:relative;background:#fff;border:3px solid var(--ink);border-radius:14px;box-shadow:3px 3px 0 var(--ink);padding:8px 6px 6px;cursor:pointer;min-height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;font:inherit;color:inherit}
+.mol svg{width:100%;height:84px}
+.mol .tag{position:absolute;left:7px;top:4px;font-family:"Fredoka",system-ui,sans-serif;font-weight:600;font-size:15px}
+.mol .nm{font-size:13px;font-weight:800;min-height:17px;margin-top:2px}
+.mol.right{background:#e7f8ee;border-color:var(--green);box-shadow:3px 3px 0 var(--green)}
+.mol.wrong{background:#fdecea;border-color:var(--red);box-shadow:3px 3px 0 var(--red);animation:shake .35s}
+.mol:disabled{cursor:default}
+#bMsg{min-height:44px;margin:4px 0 0;font-weight:700;font-size:15px;line-height:1.35}
+.confetti{position:absolute;top:-12px;width:9px;height:14px;border-radius:2px;pointer-events:none;animation:fall linear forwards}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes fall{to{transform:translateY(560px) rotate(540deg);opacity:.2}}
+@media (prefers-reduced-motion: reduce){.title span{animation:none}.mol.wrong{animation:none}}
+@media (max-height:620px){.big{font-size:44px}h2{font-size:21px}#eList ul{max-height:172px}}
+@media (max-height:520px){.card{padding:14px 14px 12px}.rules{gap:6px}.rule{padding:6px 8px;font-size:15px}.course{margin-bottom:10px}}
+</style>
+</head>
+<body>
+<div id="game">
+  <canvas id="c" aria-hidden="true"></canvas>
+
+  <div id="hud" class="hidden">
+    <span class="chip" id="round">Drop 1 of 10</span>
+    <span class="chip" id="score">✓ 0</span>
+    <span class="spacer"></span>
+    <button class="chip" id="soundBtn" type="button" aria-pressed="false">Sound: off</button>
+  </div>
+
+  <div id="banner" role="status" tabindex="-1">
+    <strong id="bTitle"></strong>
+    <p id="bBody"></p>
+    <div class="meta"><span id="bSec"></span><span>tap to continue</span></div>
+  </div>
+
+  <div class="overlay" id="start">
+    <div class="card">
+      <h1 class="title" id="titleLetters" aria-label="Beaker Catch">Beaker Catch</h1>
+      <p class="course" id="courseLine"></p>
+      <div class="rules">
+        <div class="rule">
+          <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><path d="M7 5h20M9 5v20a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4V5" fill="none" stroke="#16323a" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M10.4 17h13.2v8a2.6 2.6 0 0 1-2.6 2.6h-8a2.6 2.6 0 0 1-2.6-2.6z" fill="#13a89e"/></svg>
+          <span><b>Catch</b> the TRUE statements</span>
+        </div>
+        <div class="rule">
+          <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><path d="M17 6c4 5 6 8 6 11a6 6 0 0 1-12 0c0-3 2-6 6-11z" fill="#3a86ff" stroke="#16323a" stroke-width="2.2"/><circle cx="6" cy="27" r="2.4" fill="#3a86ff"/><circle cx="28" cy="26" r="2.4" fill="#3a86ff"/><path d="M4 31h26" stroke="#16323a" stroke-width="2.4" stroke-linecap="round"/></svg>
+          <span>Let the FALSE ones <b>splash</b></span>
+        </div>
+      </div>
+      <p class="hint">Every answer is in the syllabus.<br>Drag to move the beaker, or use the ← → keys.</p>
+      <button class="btn" id="playBtn" type="button">Play</button>
+      <div class="peek-slot"></div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="pause">
+    <div class="card">
+      <h2>Paused</h2>
+      <p class="hint">Your beaker is waiting.</p>
+      <button class="btn" id="resumeBtn" type="button">Resume</button>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="end">
+    <div class="card">
+      <div class="big" id="eScore"></div>
+      <h2 id="eRank"></h2>
+      <p id="eMsg"></p>
+      <div id="eList"></div>
+      <div class="row">
+        <button class="btn" id="againBtn" type="button">Play again</button>
+        <button class="btn alt" id="toBonusBtn" type="button">Bonus round</button>
+      </div>
+      <div class="peek-slot"></div>
+    </div>
+  </div>
+
+  <div class="overlay hidden" id="bonus">
+    <div class="card" id="bonusCard">
+      <h2>Bonus round</h2>
+      <p class="hint" id="bQuestion" style="margin:4px 0 0"></p>
+      <div class="grid" id="molGrid"></div>
+      <p id="bMsg" aria-live="polite"></p>
+      <div class="row">
+        <button class="btn alt" id="bonusBackBtn" type="button">Back</button>
+        <button class="btn" id="bonusAgainBtn" type="button">Play again</button>
+      </div>
+      <div class="peek-slot"></div>
+    </div>
+  </div>
+
+  <div class="sr" id="sr" aria-live="polite"></div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const $ = s => document.querySelector(s);
+const game = $("#game"), canvas = $("#c"), ctx = canvas.getContext("2d");
+const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const C = { ink:"#16323a", paper:"#fffdf6", sun:"#ffc23d", teal:"#13a89e", pink:"#ff4f9a",
+            blue:"#3a86ff", green:"#1f9d55", red:"#e0453a", murky:"#8c8a4a" };
+
+let W = 0, H = 0, DPR = 1, bg = null;
+const G = {};
+const S = {
+  mode:"start", paused:false, t:0,
+  queue:[], idx:0, score:0, caught:0, trueTotal:1, missed:[],
+  drop:null, spawnAt:0, bannerOpen:false, bannerUntil:0,
+  ending:false, endAt:0,
+  fillTarget:0, fillShown:0, endpoint:0, endpointTarget:0,
+  particles:[], floaters:[], puffClock:0,
+  beaker:{ x:0, tx:0, fizz:0, wob:0 },
+  keys:{ left:false, right:false },
+  drag:null, sound:false
+};
+
+/* ---------- helpers ---------- */
+const rand = (a,b) => a + Math.random()*(b-a);
+const lerp = (a,b,k) => a + (b-a)*k;
+const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function hexToRgb(h){ const n=parseInt(h.slice(1),16); return [n>>16&255, n>>8&255, n&255]; }
+function mix(h1,h2,k){ const a=hexToRgb(h1), b=hexToRgb(h2); return `rgb(${a.map((v,i)=>Math.round(lerp(v,b[i],k))).join(",")})`; }
+function mixRgb(c1,c2,k){ return c1.map((v,i)=>lerp(v,c2[i],k)); }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* ---------- layout ---------- */
+function layout(){
+  const r = game.getBoundingClientRect();
+  W = Math.max(1, r.width); H = Math.max(1, r.height);
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = Math.round(W*DPR); canvas.height = Math.round(H*DPR);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  G.benchH = clamp(H*0.11, 44, 68);
+  G.benchY = H - G.benchH;
+  G.bw = clamp(W*0.17, 76, 112);
+  G.bh = G.bw*1.02;
+  G.mouthY = G.benchY - G.bh;
+  G.top = 56;
+  G.font = W < 420 ? 14.5 : 16;
+  G.maxBubble = Math.min(290, W - 28);
+  if(!S.beaker.x){ S.beaker.x = S.beaker.tx = W/2; }
+  S.beaker.tx = clamp(S.beaker.tx, G.bw/2 + 6, W - G.bw/2 - 6);
+  S.beaker.x  = clamp(S.beaker.x,  G.bw/2 + 6, W - G.bw/2 - 6);
+  bg = null;
+}
+
+function buildBg(){
+  const c = document.createElement("canvas");
+  c.width = Math.round(W*DPR); c.height = Math.round(H*DPR);
+  const g = c.getContext("2d"); g.setTransform(DPR,0,0,DPR,0,0);
+  const grd = g.createLinearGradient(0,0,0,H);
+  grd.addColorStop(0,"#eef8f6"); grd.addColorStop(1,"#d6ebe8");
+  g.fillStyle = grd; g.fillRect(0,0,W,H);
+  // faint periodic-table tiles on the wall
+  const syms = [["H",1],["He",2],["Li",3],["Be",4],["B",5],["C",6],["N",7],["O",8],["F",9],["Ne",10],["Na",11],["Mg",12],["Al",13],["Si",14],["P",15],["S",16],["Cl",17],["Ar",18],["K",19],["Ca",20],["Fe",26],["Cu",29],["Zn",30],["Br",35],["Ag",47],["I",53],["Au",79],["Hg",80]];
+  const s = 38, gap = 10;
+  let k = 0;
+  for(let y = 70; y < G.benchY - 30; y += s + gap){
+    for(let x = 12 + ((y/(s+gap))%2)*24; x < W - s; x += s + gap){
+      k++;
+      if((k*7) % 5 > 1) continue;
+      g.globalAlpha = 0.09;
+      g.strokeStyle = C.ink; g.lineWidth = 2;
+      g.strokeRect(x, y, s, s);
+      g.fillStyle = C.ink;
+      g.font = '700 15px "Fredoka", system-ui, sans-serif';
+      g.textAlign = "center"; g.textBaseline = "middle";
+      const [sym, z] = syms[k % syms.length];
+      g.fillText(sym, x + s/2, y + s/2 + 2);
+      g.font = '700 8px system-ui, sans-serif';
+      g.textAlign = "left";
+      g.fillText(String(z), x + 4, y + 8);
+    }
+  }
+  g.globalAlpha = 1;
+  // bench
+  g.fillStyle = "#23414a"; g.fillRect(0, G.benchY, W, H - G.benchY);
+  g.fillStyle = "#2f5a66"; g.fillRect(0, G.benchY, W, 7);
+  g.fillStyle = "rgba(255,255,255,.12)"; g.fillRect(0, G.benchY, W, 2);
+  bg = c;
+}
+
+/* ---------- statements ---------- */
+function pickRound(){
+  const n = Math.min(SETTINGS.roundsPerGame, STATEMENTS.length);
+  const trueTarget = Math.round(n*0.55), falseTarget = n - trueTarget;
+  const pool = shuffle(STATEMENTS.slice());
+  const used = new Set(), t = [], f = [];
+  for(const s of pool){
+    if(used.has(s.topic)) continue;
+    if(s.isTrue && t.length < trueTarget){ t.push(s); used.add(s.topic); }
+    else if(!s.isTrue && f.length < falseTarget){ f.push(s); used.add(s.topic); }
+  }
+  for(const s of pool){
+    if(t.length + f.length >= n) break;
+    if(used.has(s.topic)) continue;
+    (s.isTrue ? t : f).push(s); used.add(s.topic);
+  }
+  return shuffle(t.concat(f));
+}
+
+function wrap(text, maxW){
+  const words = text.split(/\s+/), lines = [];
+  let line = "";
+  for(const w of words){
+    const test = line ? line + " " + w : w;
+    if(ctx.measureText(test).width > maxW && line){ lines.push(line); line = w; }
+    else line = test;
+  }
+  if(line) lines.push(line);
+  return lines;
+}
+function measureDrop(d){
+  if(d.m && d.m.W === W) return d.m;
+  ctx.font = `800 ${G.font}px "Nunito", system-ui, sans-serif`;
+  const lines = wrap(d.s.text, G.maxBubble - 30);
+  const lh = G.font*1.3;
+  const w = Math.min(G.maxBubble, Math.max(...lines.map(l => ctx.measureText(l).width)) + 30);
+  const h = lines.length*lh + 22;
+  d.m = { W, lines, lh, w, h };
+  return d.m;
+}
+const fallSeconds = () => {
+  const n = S.queue.length || 1;
+  return lerp(SETTINGS.fallSecondsStart, SETTINGS.fallSecondsEnd, n > 1 ? (S.idx-1)/(n-1) : 0);
+};
+const dropStartY = d => G.top + 6;
+const dropBottom = d => lerp(dropStartY(d), G.mouthY, d.prog);
+
+/* ---------- game flow ---------- */
+function startGame(){
+  S.queue = pickRound();
+  S.idx = 0; S.score = 0; S.caught = 0; S.missed = [];
+  S.trueTotal = Math.max(1, S.queue.filter(s => s.isTrue).length);
+  S.drop = null; S.spawnAt = S.t + 0.7;
+  S.fillTarget = 0; S.endpointTarget = 0; S.endpoint = 0;
+  S.ending = false; S.bannerOpen = false;
+  S.beaker.fizz = 0; S.beaker.wob = 0;
+  S.mode = "play"; S.paused = false;
+  ["#start","#end","#bonus","#pause"].forEach(id => $(id).classList.add("hidden"));
+  $("#hud").classList.remove("hidden");
+  hideBanner();
+  updateHud();
+  canvas.focus && canvas.focus();
+}
+
+function spawn(){
+  const s = S.queue[S.idx]; S.idx++;
+  const d = { s, prog:0, alpha:0, state:"fall", checked:false };
+  const m = measureDrop(d);
+  const margin = m.w/2 + 10;
+  d.xf = (margin*2 >= W ? W/2 : rand(margin, W - margin)) / W;
+  S.drop = d;
+  $("#sr").textContent = `Drop ${S.idx}: ${s.text}`;
+  updateHud();
+}
+
+function updateDrop(dt){
+  const d = S.drop; if(!d) return;
+  if(d.state === "fall"){
+    d.prog += dt / fallSeconds();
+    d.alpha = Math.min(1, d.alpha + dt*4);
+    const x = d.xf*W, yb = dropBottom(d);
+    if(!d.checked && d.prog >= 1){
+      d.checked = true;
+      if(Math.abs(S.beaker.x - x) <= G.bw/2 + 12){
+        d.state = "absorb"; d.absT = 0; d.absFrom = { x, y: yb };
+      }
+    }
+    if(d.state === "fall" && d.checked && yb >= G.benchY - 2){
+      splash(x, G.benchY);
+      S.drop = null;
+      resolve(d, false, x);
+    }
+  } else if(d.state === "absorb"){
+    d.absT += dt;
+    if(d.absT >= 0.36){ S.drop = null; resolve(d, true, S.beaker.x); }
+  }
+}
+
+const BAD_CATCH = ["Fizz! That one was FALSE.", "Uh-oh, your beaker is fizzing.", "Contaminated! That was false.", "Lab safety would like a word."];
+const BAD_MISS  = ["Splash! That one was TRUE.", "Whoops, a true one hit the floor.", "That fact was true. Mop, please."];
+const GOOD_CATCH = ["True!", "Got it!", "Nice catch!", "Into the beaker!"];
+const GOOD_DODGE = ["Nice dodge!", "False. Splash!", "Good call!", "Let it go!"];
+
+function resolve(d, caught, x){
+  const s = d.s, correct = (caught === s.isTrue);
+  if(correct){
+    S.score++;
+    if(caught){
+      S.caught++;
+      S.fillTarget = S.caught / S.trueTotal;
+      sparkle(S.beaker.x, G.mouthY + 6);
+      floater("+1 " + pick(GOOD_CATCH), S.beaker.x, G.mouthY - 14, C.green);
+      sound("catch");
+    } else {
+      floater(pick(GOOD_DODGE), clamp(x, 70, W-70), G.benchY - 34, C.teal);
+      sound("dodge");
+    }
+    S.spawnAt = S.t + 0.75;
+  } else {
+    S.missed.push(s);
+    if(caught){ S.beaker.fizz = 1.7; S.beaker.wob = 1; }
+    sound("bad");
+    showBanner(caught ? pick(BAD_CATCH) : pick(BAD_MISS), s);
+  }
+  updateHud();
+}
+
+function showBanner(title, s){
+  $("#bTitle").textContent = title;
+  $("#bBody").textContent = "The syllabus says: " + s.fix;
+  $("#bSec").textContent = "📄 " + s.section;
+  $("#banner").classList.add("show");
+  S.bannerOpen = true;
+  S.bannerUntil = S.t + clamp(2.2 + s.fix.length*0.028, 3.2, 5.2);
+}
+function hideBanner(){ $("#banner").classList.remove("show"); }
+function closeBanner(){
+  if(!S.bannerOpen) return;
+  S.bannerOpen = false; hideBanner();
+  S.spawnAt = S.t + 0.45;
+}
+
+function beginEnd(){
+  S.ending = true;
+  const good = S.score >= SETTINGS.endpointScore;
+  if(good){
+    S.endpointTarget = 1;
+    floater("Endpoint reached!", S.beaker.x, G.mouthY - 34, C.pink, 1.6);
+    sound("end");
+  }
+  S.endAt = S.t + (good ? 1.7 : 0.7);
+}
+
+function showEnd(){
+  S.mode = "end"; S.ending = false;
+  $("#hud").classList.add("hidden");
+  const n = S.queue.length;
+  $("#eScore").innerHTML = `${S.score}<small> / ${n}</small>`;
+  let rank, msg;
+  if(S.score === n){ rank = "Syllabus Savant"; msg = "A perfect titration. You clearly read it."; }
+  else if(S.score >= SETTINGS.endpointScore){ rank = "Lab Ready"; msg = "Endpoint reached. Nicely done!"; }
+  else if(S.score >= Math.ceil(n/2)){ rank = "Almost at the Endpoint"; msg = "A quick read of the syllabus will top you off."; }
+  else { rank = "Beaker Got Spicy"; msg = "Time to open the syllabus. Every answer is in there."; }
+  $("#eRank").textContent = rank;
+  $("#eMsg").textContent = msg;
+  if(S.missed.length){
+    $("#eList").innerHTML = `<h3>Double-check these in the syllabus</h3><ul>${
+      S.missed.map(s => `<li>${esc(s.fix)}<span>📄 ${esc(s.section)}</span></li>`).join("")}</ul>`;
+  } else {
+    $("#eList").innerHTML = `<div class="perfect">Nothing to double-check. Perfect run!</div>`;
+  }
+  $("#toBonusBtn").classList.toggle("hidden", !SETTINGS.bonus.enabled);
+  $("#end").classList.remove("hidden");
+  $("#againBtn").focus({ preventScroll:true });
+}
+
+function updateHud(){
+  const n = S.queue.length || SETTINGS.roundsPerGame;
+  $("#round").textContent = `Drop ${clamp(S.idx,1,n)} of ${n}`;
+  $("#score").textContent = `✓ ${S.score}`;
+}
+
+/* ---------- effects ---------- */
+function splash(x, y){
+  const n = reduceMotion ? 6 : 16;
+  for(let i=0;i<n;i++) S.particles.push({ type:"dot", x, y:y-2, vx:rand(-170,170), vy:rand(-300,-110), r:rand(2.5,5), life:0, max:rand(.55,.9), col:"#5aa2ff" });
+}
+function sparkle(x, y){
+  const n = reduceMotion ? 6 : 14, cols = [C.sun, C.pink, C.teal, C.blue];
+  for(let i=0;i<n;i++) S.particles.push({ type:"spark", x:x+rand(-G.bw*.3,G.bw*.3), y, vx:rand(-80,80), vy:rand(-220,-90), r:rand(3,5.5), life:0, max:rand(.6,1), col:pick(cols), rot:rand(0,6) });
+}
+function puff(x, y){
+  S.particles.push({ type:"puff", x:x+rand(-10,10), y, vx:rand(-18,18), vy:rand(-60,-35), r:rand(6,9), life:0, max:rand(.9,1.3), col:"rgba(120,126,84," });
+}
+function floater(text, x, y, col, dur){
+  S.floaters.push({ text, x, y, col, life:0, max:dur || 1.1 });
+}
+function updateFx(dt){
+  for(const p of S.particles){
+    p.life += dt; p.x += p.vx*dt; p.y += p.vy*dt;
+    if(p.type === "dot"){ p.vy += 760*dt; if(p.y > G.benchY + 3){ p.y = G.benchY + 3; p.vy *= -.25; p.vx *= .6; } }
+    else if(p.type === "spark"){ p.vy += 260*dt; p.rot += dt*6; }
+    else if(p.type === "puff"){ p.r += dt*14; }
+  }
+  S.particles = S.particles.filter(p => p.life < p.max);
+  for(const f of S.floaters) f.life += dt;
+  S.floaters = S.floaters.filter(f => f.life < f.max);
+  const b = S.beaker;
+  if(b.fizz > 0){
+    b.fizz = Math.max(0, b.fizz - dt);
+    S.puffClock += dt;
+    if(S.puffClock > (reduceMotion ? .25 : .08)){ S.puffClock = 0; puff(b.x, G.mouthY + 4); }
+  }
+  b.wob = Math.max(0, b.wob - dt*1.6);
+  S.fillShown += (S.fillTarget - S.fillShown) * Math.min(1, dt*3.5);
+  S.endpoint  += (S.endpointTarget - S.endpoint) * Math.min(1, dt*2.2);
+}
+
+/* ---------- drawing ---------- */
+function beakerPath(cx, top, bot, bw){
+  const L = cx - bw/2, R = cx + bw/2, r = 12;
+  const p = new Path2D();
+  p.moveTo(L - 8, top - 2);
+  p.quadraticCurveTo(L - 1, top + 1, L, top + 9);
+  p.lineTo(L, bot - r);
+  p.quadraticCurveTo(L, bot, L + r, bot);
+  p.lineTo(R - r, bot);
+  p.quadraticCurveTo(R, bot, R, bot - r);
+  p.lineTo(R, top + 6);
+  p.quadraticCurveTo(R, top, R + 4, top - 1);
+  return p;
+}
+function drawBeaker(){
+  const b = S.beaker, bw = G.bw;
+  const cx = b.x + Math.sin(S.t*34)*b.wob*3.5;
+  const top = G.mouthY, bot = G.benchY - 2;
+  const path = beakerPath(cx, top, bot, bw);
+  // shadow
+  ctx.fillStyle = "rgba(0,0,0,.22)";
+  ctx.beginPath(); ctx.ellipse(cx, G.benchY + 4, bw*0.56, 5, 0, 0, Math.PI*2); ctx.fill();
+  // glass tint
+  ctx.fillStyle = "rgba(255,255,255,.42)"; ctx.fill(path);
+  // liquid
+  ctx.save(); ctx.clip(path);
+  const lvl = 0.12 + S.fillShown*0.7;
+  const ly = bot - (bot - top - 6)*lvl;
+  let col = mixRgb(hexToRgb(C.teal), hexToRgb(C.pink), S.endpoint);
+  if(b.fizz > 0) col = mixRgb(col, hexToRgb(C.murky), Math.min(1, b.fizz)*0.8);
+  const fill = `rgb(${col.map(Math.round).join(",")})`;
+  ctx.fillStyle = fill;
+  ctx.beginPath(); ctx.moveTo(cx - bw, bot + 4);
+  for(let x = cx - bw/2 - 2; x <= cx + bw/2 + 2; x += 5){
+    ctx.lineTo(x, ly + Math.sin(x*0.09 + S.t*3.2)*2.2 + (b.fizz>0 ? Math.sin(x*.5+S.t*20)*1.5 : 0));
+  }
+  ctx.lineTo(cx + bw, bot + 4); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,.22)";
+  ctx.fillRect(cx - bw/2, ly + 3, bw, 4);
+  // rising bubbles
+  ctx.fillStyle = "rgba(255,255,255,.55)";
+  for(let i=0;i<5;i++){
+    const ph = (S.t*0.45 + i*0.21) % 1;
+    const by = lerp(bot - 6, ly + 6, ph);
+    if(by > ly + 4){ ctx.beginPath(); ctx.arc(cx - bw*0.3 + i*bw*0.15, by, 1.6 + (i%2), 0, Math.PI*2); ctx.fill(); }
+  }
+  ctx.restore();
+  // graduations
+  ctx.strokeStyle = "rgba(22,50,58,.45)"; ctx.lineWidth = 1.6;
+  for(let i=1;i<=4;i++){
+    const gy = bot - (bot-top)*(i*0.19);
+    const len = i%2 ? 9 : 15;
+    ctx.beginPath(); ctx.moveTo(cx + bw/2 - 6, gy); ctx.lineTo(cx + bw/2 - 6 - len, gy); ctx.stroke();
+  }
+  // highlight
+  ctx.strokeStyle = "rgba(255,255,255,.85)"; ctx.lineWidth = 3; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(cx - bw/2 + 8, top + 18); ctx.lineTo(cx - bw/2 + 8, bot - 18); ctx.stroke();
+  // outline
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 3; ctx.lineJoin = "round";
+  ctx.stroke(path);
+}
+
+function bubblePath(w, h, r){
+  const p = new Path2D(), L = -w/2, R = w/2, T = -h, B = 0, tw = 11;
+  p.moveTo(L + r, T);
+  p.lineTo(R - r, T); p.quadraticCurveTo(R, T, R, T + r);
+  p.lineTo(R, B - r); p.quadraticCurveTo(R, B, R - r, B);
+  p.lineTo(tw, B); p.quadraticCurveTo(3, B + 2, 0, B + 14); p.quadraticCurveTo(-3, B + 2, -tw, B);
+  p.lineTo(L + r, B); p.quadraticCurveTo(L, B, L, B - r);
+  p.lineTo(L, T + r); p.quadraticCurveTo(L, T, L + r, T);
+  p.closePath();
+  return p;
+}
+function drawDrop(d){
+  const m = measureDrop(d);
+  let x = d.xf*W, yb = dropBottom(d), sc = 1, a = d.alpha;
+  if(d.state === "absorb"){
+    const k = Math.min(1, d.absT/0.36), e = k*k;
+    x = lerp(d.absFrom.x, S.beaker.x, e);
+    yb = lerp(d.absFrom.y, G.mouthY + G.bh*0.35, e);
+    sc = 1 - 0.86*e; a = 1 - 0.8*e;
+  }
+  ctx.save();
+  ctx.globalAlpha = a;
+  ctx.translate(x, yb - 14*sc);
+  ctx.scale(sc, sc);
+  const p = bubblePath(m.w, m.h, 16);
+  ctx.save(); ctx.translate(3, 3); ctx.fillStyle = C.ink; ctx.fill(p); ctx.restore();
+  ctx.fillStyle = "#ffffff"; ctx.fill(p);
+  ctx.strokeStyle = C.ink; ctx.lineWidth = 3; ctx.lineJoin = "round"; ctx.stroke(p);
+  ctx.fillStyle = "rgba(58,134,255,.12)";
+  ctx.fillRect(-m.w/2 + 3, -m.h + 3, m.w - 6, 5);
+  ctx.fillStyle = C.ink;
+  ctx.font = `800 ${G.font}px "Nunito", system-ui, sans-serif`;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  m.lines.forEach((l, i) => ctx.fillText(l, 0, -m.h + 11 + m.lh*(i + 0.5)));
+  ctx.restore();
+}
+function drawFx(){
+  for(const p of S.particles){
+    const k = p.life/p.max;
+    if(p.type === "dot"){
+      ctx.globalAlpha = 1 - k*0.7; ctx.fillStyle = p.col;
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+    } else if(p.type === "spark"){
+      ctx.globalAlpha = 1 - k; ctx.fillStyle = p.col;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.beginPath();
+      for(let i=0;i<8;i++){ const rr = i%2 ? p.r*0.42 : p.r; const an = i*Math.PI/4; ctx.lineTo(Math.cos(an)*rr, Math.sin(an)*rr); }
+      ctx.closePath(); ctx.fill(); ctx.restore();
+    } else {
+      ctx.globalAlpha = 1; ctx.fillStyle = p.col + (0.55*(1-k)).toFixed(3) + ")";
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2); ctx.fill();
+    }
+  }
+  ctx.globalAlpha = 1;
+  for(const f of S.floaters){
+    const k = f.life/f.max;
+    ctx.globalAlpha = k < .75 ? 1 : 1 - (k - .75)/.25;
+    ctx.font = `600 ${W < 420 ? 18 : 21}px "Fredoka", system-ui, sans-serif`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    const y = f.y - k*36;
+    ctx.lineWidth = 5; ctx.strokeStyle = C.paper; ctx.strokeText(f.text, f.x, y);
+    ctx.fillStyle = f.col; ctx.fillText(f.text, f.x, y);
+  }
+  ctx.globalAlpha = 1;
+}
+function draw(){
+  if(!bg) buildBg();
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.drawImage(bg, 0, 0);
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  drawBeaker();
+  if(S.drop) drawDrop(S.drop);
+  drawFx();
+}
+
+/* ---------- loop ---------- */
+let last = performance.now();
+function frame(now){
+  const dt = Math.min(0.05, (now - last)/1000); last = now;
+  if(!S.paused){
+    S.t += dt;
+    const b = S.beaker, sp = W*1.15;
+    if(S.keys.left)  b.tx -= sp*dt;
+    if(S.keys.right) b.tx += sp*dt;
+    b.tx = clamp(b.tx, G.bw/2 + 6, W - G.bw/2 - 6);
+    b.x += (b.tx - b.x) * Math.min(1, dt*14);
+    updateFx(dt);
+    if(S.mode === "play"){
+      if(S.bannerOpen && S.t >= S.bannerUntil) closeBanner();
+      if(!S.drop && !S.bannerOpen && !S.ending && S.t >= S.spawnAt){
+        if(S.idx < S.queue.length) spawn(); else beginEnd();
+      }
+      updateDrop(dt);
+      if(S.ending && S.t >= S.endAt) showEnd();
+    } else if(S.mode === "start"){
+      // idle: beaker drifts gently on the title screen
+      b.tx = W/2 + Math.sin(S.t*0.7)*Math.min(90, W*0.18);
+    }
+  }
+  draw();
+  requestAnimationFrame(frame);
+}
+
+/* ---------- input ---------- */
+canvas.addEventListener("pointerdown", e => {
+  if(S.mode !== "play") return;
+  S.drag = { id:e.pointerId, x:e.clientX, tx:S.beaker.tx, type:e.pointerType };
+  if(e.pointerType !== "mouse") canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener("pointermove", e => {
+  if(S.mode !== "play") return;
+  const r = canvas.getBoundingClientRect();
+  if(e.pointerType === "mouse"){ S.beaker.tx = e.clientX - r.left; return; }
+  if(S.drag && S.drag.id === e.pointerId){ S.beaker.tx = S.drag.tx + (e.clientX - S.drag.x)*1.25; }
+});
+const endDrag = () => { S.drag = null; };
+canvas.addEventListener("pointerup", endDrag);
+canvas.addEventListener("pointercancel", endDrag);
+
+window.addEventListener("keydown", e => {
+  const k = e.key;
+  if(S.mode === "play" && !S.paused){
+    if(k === "ArrowLeft" || k === "a" || k === "A"){ S.keys.left = true; e.preventDefault(); }
+    if(k === "ArrowRight" || k === "d" || k === "D"){ S.keys.right = true; e.preventDefault(); }
+    if((k === "Enter" || k === " ") && S.bannerOpen){ closeBanner(); e.preventDefault(); }
+  }
+});
+window.addEventListener("keyup", e => {
+  const k = e.key;
+  if(k === "ArrowLeft" || k === "a" || k === "A") S.keys.left = false;
+  if(k === "ArrowRight" || k === "d" || k === "D") S.keys.right = false;
+});
+$("#banner").addEventListener("click", closeBanner);
+
+document.addEventListener("visibilitychange", () => {
+  if(document.hidden && S.mode === "play" && !S.paused){
+    S.paused = true; S.keys.left = S.keys.right = false;
+    $("#pause").classList.remove("hidden");
+  }
+});
+$("#resumeBtn").addEventListener("click", () => {
+  $("#pause").classList.add("hidden");
+  S.paused = false; last = performance.now();
+});
+
+$("#playBtn").addEventListener("click", () => { warmAudio(); startGame(); });
+$("#againBtn").addEventListener("click", startGame);
+$("#bonusAgainBtn").addEventListener("click", startGame);
+$("#toBonusBtn").addEventListener("click", openBonus);
+$("#bonusBackBtn").addEventListener("click", () => {
+  $("#bonus").classList.add("hidden"); $("#end").classList.remove("hidden");
+});
+$("#soundBtn").addEventListener("click", () => {
+  S.sound = !S.sound;
+  $("#soundBtn").textContent = S.sound ? "Sound: on" : "Sound: off";
+  $("#soundBtn").setAttribute("aria-pressed", String(S.sound));
+  if(S.sound){ warmAudio(); sound("dodge"); }
+});
+
+/* ---------- sound (off by default) ---------- */
+let AC = null;
+function warmAudio(){
+  if(!S.sound) return;
+  try{ AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if(AC.state === "suspended") AC.resume(); }catch(_){ AC = null; }
+}
+function tone(f1, f2, dur, type, vol, delay){
+  const t0 = AC.currentTime + (delay || 0);
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.setValueAtTime(f1, t0); o.frequency.exponentialRampToValueAtTime(f2, t0 + dur);
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vol, t0 + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g).connect(AC.destination); o.start(t0); o.stop(t0 + dur + 0.02);
+}
+function sound(kind){
+  if(!S.sound) return;
+  warmAudio(); if(!AC) return;
+  if(kind === "catch"){ tone(520, 880, .16, "sine", .18); tone(780, 1320, .14, "sine", .1, .07); }
+  else if(kind === "dodge"){ tone(320, 170, .14, "triangle", .2); }
+  else if(kind === "bad"){ tone(190, 90, .32, "sawtooth", .07); }
+  else if(kind === "end"){ [523, 659, 784, 1047].forEach((f,i) => tone(f, f*1.01, .22, "sine", .14, i*.11)); }
+}
+
+/* ---------- bonus round ---------- */
+let bonusBuilt = false, bonusSolved = false;
+function openBonus(){
+  $("#end").classList.add("hidden");
+  $("#bonus").classList.remove("hidden");
+  if(!bonusBuilt) buildBonus();
+}
+function buildBonus(){
+  bonusBuilt = true;
+  $("#bQuestion").textContent = SETTINGS.bonus.question;
+  const grid = $("#molGrid"); grid.innerHTML = "";
+  const letters = "ABCD";
+  shuffle(SETTINGS.bonus.choices.slice()).forEach((c, i) => {
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.className = "mol";
+    btn.setAttribute("aria-label", "Molecule " + letters[i]);
+    btn.innerHTML = `<span class="tag">${letters[i]}</span>${(window.MOLECULE_ART || {})[c.id] || ""}<span class="nm"></span>`;
+    btn.addEventListener("click", () => chooseMol(btn, c));
+    grid.appendChild(btn);
+  });
+}
+function chooseMol(btn, c){
+  if(bonusSolved) return;
+  const nm = btn.querySelector(".nm");
+  nm.textContent = c.name;
+  btn.disabled = true;
+  if(c.id === SETTINGS.bonus.answer){
+    bonusSolved = true;
+    btn.classList.add("right");
+    $("#molGrid").querySelectorAll(".mol").forEach(b => b.disabled = true);
+    $("#bMsg").textContent = `Yes! It's ${c.name.toLowerCase()}, ${c.fun}. You really opened the syllabus!`;
+    confetti(); sound("end");
+  } else {
+    btn.classList.add("wrong");
+    $("#bMsg").textContent = `That's ${c.name.toLowerCase()}, ${c.fun}. It's not the one hiding in the syllabus. Go look!`;
+    sound("bad");
+  }
+}
+function confetti(){
+  if(reduceMotion) return;
+  const card = $("#bonusCard"), cols = [C.sun, C.pink, C.teal, C.blue, C.green];
+  for(let i=0;i<46;i++){
+    const s = document.createElement("span");
+    s.className = "confetti";
+    s.style.left = rand(2, 96) + "%";
+    s.style.background = pick(cols);
+    s.style.animationDuration = rand(1.4, 2.6) + "s";
+    s.style.animationDelay = rand(0, .35) + "s";
+    card.appendChild(s);
+    setTimeout(() => s.remove(), 3200);
+  }
+}
+
+/* ---------- setup ---------- */
+function setupText(){
+  $("#courseLine").textContent = SETTINGS.courseLine;
+  const cols = [C.blue, C.pink, C.sun, C.teal, C.green];
+  const t = $("#titleLetters");
+  let n = 0;
+  t.innerHTML = [...t.textContent].map(ch => ch === " " ? " " :
+    `<span aria-hidden="true" style="color:${cols[n++ % cols.length]};animation-delay:${(n*0.12).toFixed(2)}s">${esc(ch)}</span>`).join("");
+  document.querySelectorAll(".peek-slot").forEach(slot => {
+    slot.innerHTML = SETTINGS.syllabusUrl
+      ? `<a class="peek" href="${esc(SETTINGS.syllabusUrl)}" target="_blank" rel="noopener">Peek at the syllabus ↗</a>`
+      : `<div class="peek-note">The syllabus is in the course Content.</div>`;
+  });
+}
+
+setupText();
+layout();
+window.addEventListener("resize", layout);
+if(window.ResizeObserver) new ResizeObserver(layout).observe(game);
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => { bg = null; if(S.drop) S.drop.m = null; });
+requestAnimationFrame(t => { last = t; frame(t); });
+})();
+</script>
+<script>
+/* Molecule drawings for the bonus round (made with RDKit). */
+window.MOLECULE_ART = {
+ "caffeine": "<svg aria-hidden='true' preserveAspectRatio='xMidYMid meet' version='1.1' baseProfile='full' xmlns='http://www.w3.org/2000/svg' xmlns:rdkit='http://www.rdkit.org/xml' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' viewBox='0 0 98 97'> <path class='bond-0 atom-0 atom-1' d='M 89.6,34.6 L 75.7,40.8' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-1 atom-1 atom-2' d='M 68.2,39.7 L 56.3,31.1' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-2 atom-2 atom-3' d='M 57.7,32.1 L 59.2,17.0' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-2 atom-2 atom-3' d='M 54.8,31.8 L 56.4,16.7' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-3 atom-2 atom-4' d='M 56.3,31.1 L 38.7,39.0' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-4 atom-4 atom-5' d='M 38.7,39.0 L 36.7,58.2' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-4 atom-4 atom-5' d='M 41.4,40.9 L 39.7,56.8' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-5 atom-5 atom-6' d='M 36.7,58.2 L 21.5,61.4' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-6 atom-6 atom-7' d='M 15.0,57.5 L 8.1,45.5' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-6 atom-6 atom-7' d='M 17.5,56.0 L 11.7,45.9' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-7 atom-7 atom-8' d='M 8.1,45.5 L 17.3,35.3' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-8 atom-8 atom-9' d='M 20.0,26.4 L 17.0,12.2' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-9 atom-5 atom-10' d='M 36.7,58.2 L 48.5,66.8' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-10 atom-10 atom-11' d='M 51.8,74.3 L 50.3,88.8' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-11 atom-10 atom-12' d='M 56.0,67.9 L 69.9,61.7' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-12 atom-12 atom-13' d='M 68.4,62.4 L 80.3,71.0' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-12 atom-12 atom-13' d='M 70.1,60.0 L 82.0,68.7' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-13 atom-12 atom-1' d='M 69.9,61.7 L 71.4,47.2' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-14 atom-8 atom-4' d='M 24.8,32.8 L 38.7,39.0' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path d='M 56.9,31.5 L 56.3,31.1 L 55.4,31.5' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path d='M 8.4,46.1 L 8.1,45.5 L 8.6,45.0' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path d='M 69.2,62.0 L 69.9,61.7 L 70.0,61.0' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path class='atom-1' d='M 70.1 38.4 L 72.8 42.7 Q 73.1 43.1, 73.5 43.9 Q 73.9 44.7, 74.0 44.7 L 74.0 38.4 L 75.0 38.4 L 75.0 46.6 L 73.9 46.6 L 71.0 41.8 Q 70.7 41.3, 70.3 40.6 Q 70.0 40.0, 69.9 39.8 L 69.9 46.6 L 68.8 46.6 L 68.8 38.4 L 70.1 38.4 ' fill='#000000'/> <path class='atom-3' d='M 54.6 11.9 Q 54.6 10.0, 55.5 8.9 Q 56.5 7.8, 58.3 7.8 Q 60.1 7.8, 61.1 8.9 Q 62.1 10.0, 62.1 11.9 Q 62.1 13.9, 61.1 15.1 Q 60.1 16.2, 58.3 16.2 Q 56.5 16.2, 55.5 15.1 Q 54.6 13.9, 54.6 11.9 M 58.3 15.2 Q 59.6 15.2, 60.2 14.4 Q 60.9 13.6, 60.9 11.9 Q 60.9 10.3, 60.2 9.5 Q 59.6 8.7, 58.3 8.7 Q 57.1 8.7, 56.4 9.5 Q 55.7 10.3, 55.7 11.9 Q 55.7 13.6, 56.4 14.4 Q 57.1 15.2, 58.3 15.2 ' fill='#000000'/> <path class='atom-6' d='M 16.0 58.1 L 18.6 62.5 Q 18.9 62.9, 19.3 63.7 Q 19.8 64.4, 19.8 64.5 L 19.8 58.1 L 20.9 58.1 L 20.9 66.3 L 19.7 66.3 L 16.9 61.6 Q 16.5 61.0, 16.2 60.4 Q 15.8 59.8, 15.7 59.6 L 15.7 66.3 L 14.7 66.3 L 14.7 58.1 L 16.0 58.1 ' fill='#000000'/> <path class='atom-8' d='M 19.2 27.0 L 21.9 31.4 Q 22.2 31.8, 22.6 32.6 Q 23.0 33.4, 23.0 33.4 L 23.0 27.0 L 24.1 27.0 L 24.1 35.2 L 23.0 35.2 L 20.1 30.5 Q 19.8 29.9, 19.4 29.3 Q 19.1 28.7, 19.0 28.5 L 19.0 35.2 L 17.9 35.2 L 17.9 27.0 L 19.2 27.0 ' fill='#000000'/> <path class='atom-10' d='M 50.5 65.4 L 53.2 69.8 Q 53.4 70.2, 53.9 71.0 Q 54.3 71.8, 54.3 71.8 L 54.3 65.4 L 55.4 65.4 L 55.4 73.6 L 54.3 73.6 L 51.4 68.9 Q 51.1 68.3, 50.7 67.7 Q 50.4 67.1, 50.2 66.9 L 50.2 73.6 L 49.2 73.6 L 49.2 65.4 L 50.5 65.4 ' fill='#000000'/> <path class='atom-13' d='M 81.8 73.0 Q 81.8 71.1, 82.8 70.0 Q 83.8 68.9, 85.6 68.9 Q 87.4 68.9, 88.4 70.0 Q 89.3 71.1, 89.3 73.0 Q 89.3 75.0, 88.3 76.2 Q 87.4 77.3, 85.6 77.3 Q 83.8 77.3, 82.8 76.2 Q 81.8 75.0, 81.8 73.0 M 85.6 76.4 Q 86.8 76.4, 87.5 75.5 Q 88.2 74.7, 88.2 73.0 Q 88.2 71.4, 87.5 70.6 Q 86.8 69.8, 85.6 69.8 Q 84.3 69.8, 83.6 70.6 Q 83.0 71.4, 83.0 73.0 Q 83.0 74.7, 83.6 75.5 Q 84.3 76.4, 85.6 76.4 ' fill='#000000'/> </svg>",
+ "theobromine": "<svg aria-hidden='true' preserveAspectRatio='xMidYMid meet' version='1.1' baseProfile='full' xmlns='http://www.w3.org/2000/svg' xmlns:rdkit='http://www.rdkit.org/xml' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' viewBox='0 0 97 97'> <path class='bond-0 atom-0 atom-1' d='M 16.6,12.4 L 19.6,26.5' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-1 atom-1 atom-2' d='M 16.9,35.3 L 7.8,45.5' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-2 atom-2 atom-3' d='M 7.8,45.5 L 14.7,57.5' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-2 atom-2 atom-3' d='M 11.3,45.9 L 17.2,56.0' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-3 atom-3 atom-4' d='M 21.1,61.4 L 36.2,58.2' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-4 atom-4 atom-5' d='M 36.2,58.2 L 38.2,39.0' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-4 atom-4 atom-5' d='M 33.6,55.8 L 35.1,40.8' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-5 atom-5 atom-6' d='M 38.2,39.0 L 55.8,31.2' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-6 atom-6 atom-7' d='M 57.2,32.1 L 58.8,17.1' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-6 atom-6 atom-7' d='M 54.3,31.8 L 55.9,16.8' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-7 atom-6 atom-8' d='M 55.8,31.2 L 67.7,39.8' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-8 atom-8 atom-9' d='M 70.9,47.2 L 69.4,61.6' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-9 atom-9 atom-10' d='M 67.9,62.3 L 79.8,70.9' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-9 atom-9 atom-10' d='M 69.6,60.0 L 81.5,68.6' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-10 atom-9 atom-11' d='M 69.4,61.6 L 55.6,67.8' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-11 atom-11 atom-12' d='M 51.3,74.2 L 49.8,88.6' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-12 atom-5 atom-1' d='M 38.2,39.0 L 24.4,32.8' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-13 atom-11 atom-4' d='M 48.1,66.8 L 36.2,58.2' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path d='M 8.2,45.0 L 7.8,45.5 L 8.1,46.1' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path d='M 55.0,31.6 L 55.8,31.2 L 56.4,31.6' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path d='M 69.5,60.9 L 69.4,61.6 L 68.7,61.9' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path class='atom-1' d='M 18.8 27.1 L 21.5 31.4 Q 21.8 31.9, 22.2 32.6 Q 22.6 33.4, 22.7 33.4 L 22.7 27.1 L 23.7 27.1 L 23.7 35.3 L 22.6 35.3 L 19.7 30.5 Q 19.4 30.0, 19.1 29.4 Q 18.7 28.7, 18.6 28.5 L 18.6 35.3 L 17.5 35.3 L 17.5 27.1 L 18.8 27.1 ' fill='#000000'/> <path class='atom-3' d='M 15.6 58.1 L 18.3 62.4 Q 18.5 62.9, 19.0 63.6 Q 19.4 64.4, 19.4 64.4 L 19.4 58.1 L 20.5 58.1 L 20.5 66.3 L 19.4 66.3 L 16.5 61.5 Q 16.2 61.0, 15.8 60.4 Q 15.5 59.7, 15.4 59.5 L 15.4 66.3 L 14.3 66.3 L 14.3 58.1 L 15.6 58.1 ' fill='#000000'/> <path class='atom-7' d='M 54.1 12.0 Q 54.1 10.1, 55.1 9.0 Q 56.0 7.9, 57.8 7.9 Q 59.6 7.9, 60.6 9.0 Q 61.6 10.1, 61.6 12.0 Q 61.6 14.0, 60.6 15.1 Q 59.6 16.3, 57.8 16.3 Q 56.0 16.3, 55.1 15.1 Q 54.1 14.0, 54.1 12.0 M 57.8 15.3 Q 59.1 15.3, 59.7 14.5 Q 60.4 13.7, 60.4 12.0 Q 60.4 10.4, 59.7 9.6 Q 59.1 8.8, 57.8 8.8 Q 56.6 8.8, 55.9 9.6 Q 55.2 10.4, 55.2 12.0 Q 55.2 13.7, 55.9 14.5 Q 56.6 15.3, 57.8 15.3 ' fill='#000000'/> <path class='atom-8' d='M 69.6 38.4 L 72.3 42.7 Q 72.6 43.1, 73.0 43.9 Q 73.4 44.7, 73.4 44.7 L 73.4 38.4 L 74.5 38.4 L 74.5 46.6 L 73.4 46.6 L 70.5 41.8 Q 70.2 41.3, 69.8 40.6 Q 69.5 40.0, 69.4 39.8 L 69.4 46.6 L 68.3 46.6 L 68.3 38.4 L 69.6 38.4 ' fill='#000000'/> <path class='atom-8' d='M 76.1 38.4 L 77.2 38.4 L 77.2 41.9 L 81.4 41.9 L 81.4 38.4 L 82.5 38.4 L 82.5 46.6 L 81.4 46.6 L 81.4 42.8 L 77.2 42.8 L 77.2 46.6 L 76.1 46.6 L 76.1 38.4 ' fill='#000000'/> <path class='atom-10' d='M 81.3 73.0 Q 81.3 71.0, 82.2 69.9 Q 83.2 68.8, 85.0 68.8 Q 86.8 68.8, 87.8 69.9 Q 88.8 71.0, 88.8 73.0 Q 88.8 75.0, 87.8 76.1 Q 86.8 77.2, 85.0 77.2 Q 83.2 77.2, 82.2 76.1 Q 81.3 75.0, 81.3 73.0 M 85.0 76.3 Q 86.3 76.3, 86.9 75.5 Q 87.6 74.6, 87.6 73.0 Q 87.6 71.4, 86.9 70.6 Q 86.3 69.7, 85.0 69.7 Q 83.8 69.7, 83.1 70.6 Q 82.4 71.4, 82.4 73.0 Q 82.4 74.6, 83.1 75.5 Q 83.8 76.3, 85.0 76.3 ' fill='#000000'/> <path class='atom-11' d='M 50.0 65.4 L 52.7 69.7 Q 53.0 70.2, 53.4 70.9 Q 53.8 71.7, 53.8 71.7 L 53.8 65.4 L 54.9 65.4 L 54.9 73.6 L 53.8 73.6 L 50.9 68.8 Q 50.6 68.3, 50.2 67.6 Q 49.9 67.0, 49.8 66.8 L 49.8 73.6 L 48.7 73.6 L 48.7 65.4 L 50.0 65.4 ' fill='#000000'/> </svg>",
+ "aspirin": "<svg aria-hidden='true' preserveAspectRatio='xMidYMid meet' version='1.1' baseProfile='full' xmlns='http://www.w3.org/2000/svg' xmlns:rdkit='http://www.rdkit.org/xml' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' viewBox='0 0 114 86'> <path class='bond-0 atom-0 atom-1' d='M 9.1,40.0 L 25.8,49.7' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-1 atom-1 atom-2' d='M 24.4,48.9 L 24.3,64.2' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-1 atom-1 atom-2' d='M 27.2,48.9 L 27.2,64.2' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-2 atom-1 atom-3' d='M 25.8,49.7 L 38.1,42.6' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-3 atom-3 atom-4' d='M 46.9,42.6 L 59.2,49.8' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-4 atom-4 atom-5' d='M 59.2,49.8 L 59.2,69.0' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-4 atom-4 atom-5' d='M 62.1,51.4 L 62.1,67.4' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-5 atom-5 atom-6' d='M 59.2,69.0 L 75.8,78.7' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-6 atom-6 atom-7' d='M 75.8,78.7 L 92.6,69.1' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-6 atom-6 atom-7' d='M 75.8,75.4 L 89.7,67.4' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-7 atom-7 atom-8' d='M 92.6,69.1 L 92.6,49.8' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-8 atom-8 atom-9' d='M 92.6,49.8 L 75.9,40.1' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-8 atom-8 atom-9' d='M 89.7,51.5 L 75.9,43.5' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-9 atom-9 atom-10' d='M 75.9,40.1 L 76.0,20.9' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-10 atom-10 atom-11' d='M 77.4,20.0 L 64.4,12.5' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-10 atom-10 atom-11' d='M 76.0,22.5 L 62.9,15.0' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-11 atom-10 atom-12' d='M 76.0,20.9 L 88.3,13.8' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-12 atom-9 atom-4' d='M 75.9,40.1 L 59.2,49.8' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path d='M 25.0,49.2 L 25.8,49.7 L 26.4,49.3' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path d='M 59.2,68.1 L 59.2,69.0 L 60.0,69.5' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path d='M 75.0,78.2 L 75.8,78.7 L 76.7,78.2' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path d='M 91.7,69.6 L 92.6,69.1 L 92.6,68.1' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path d='M 92.6,50.8 L 92.6,49.8 L 91.8,49.3' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path d='M 76.0,21.8 L 76.0,20.9 L 76.6,20.5' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path class='atom-2' d='M 22.0 69.0 Q 22.0 67.0, 23.0 65.9 Q 23.9 64.8, 25.8 64.8 Q 27.6 64.8, 28.5 65.9 Q 29.5 67.0, 29.5 69.0 Q 29.5 71.0, 28.5 72.1 Q 27.6 73.2, 25.8 73.2 Q 24.0 73.2, 23.0 72.1 Q 22.0 71.0, 22.0 69.0 M 25.8 72.3 Q 27.0 72.3, 27.7 71.5 Q 28.4 70.6, 28.4 69.0 Q 28.4 67.4, 27.7 66.6 Q 27.0 65.8, 25.8 65.8 Q 24.5 65.8, 23.8 66.6 Q 23.2 67.4, 23.2 69.0 Q 23.2 70.7, 23.8 71.5 Q 24.5 72.3, 25.8 72.3 ' fill='#000000'/> <path class='atom-3' d='M 38.8 40.1 Q 38.8 38.1, 39.7 37.0 Q 40.7 35.9, 42.5 35.9 Q 44.3 35.9, 45.3 37.0 Q 46.3 38.1, 46.3 40.1 Q 46.3 42.1, 45.3 43.2 Q 44.3 44.3, 42.5 44.3 Q 40.7 44.3, 39.7 43.2 Q 38.8 42.1, 38.8 40.1 M 42.5 43.4 Q 43.8 43.4, 44.4 42.6 Q 45.1 41.7, 45.1 40.1 Q 45.1 38.5, 44.4 37.7 Q 43.8 36.9, 42.5 36.9 Q 41.3 36.9, 40.6 37.7 Q 39.9 38.5, 39.9 40.1 Q 39.9 41.8, 40.6 42.6 Q 41.3 43.4, 42.5 43.4 ' fill='#000000'/> <path class='atom-11' d='M 55.5 11.2 Q 55.5 9.2, 56.5 8.1 Q 57.5 7.0, 59.3 7.0 Q 61.1 7.0, 62.1 8.1 Q 63.0 9.2, 63.0 11.2 Q 63.0 13.2, 62.1 14.3 Q 61.1 15.5, 59.3 15.5 Q 57.5 15.5, 56.5 14.3 Q 55.5 13.2, 55.5 11.2 M 59.3 14.5 Q 60.5 14.5, 61.2 13.7 Q 61.9 12.9, 61.9 11.2 Q 61.9 9.6, 61.2 8.8 Q 60.5 8.0, 59.3 8.0 Q 58.0 8.0, 57.3 8.8 Q 56.7 9.6, 56.7 11.2 Q 56.7 12.9, 57.3 13.7 Q 58.0 14.5, 59.3 14.5 ' fill='#000000'/> <path class='atom-12' d='M 88.9 11.3 Q 88.9 9.3, 89.9 8.2 Q 90.9 7.1, 92.7 7.1 Q 94.5 7.1, 95.5 8.2 Q 96.4 9.3, 96.4 11.3 Q 96.4 13.3, 95.5 14.4 Q 94.5 15.5, 92.7 15.5 Q 90.9 15.5, 89.9 14.4 Q 88.9 13.3, 88.9 11.3 M 92.7 14.6 Q 93.9 14.6, 94.6 13.8 Q 95.3 12.9, 95.3 11.3 Q 95.3 9.7, 94.6 8.9 Q 93.9 8.0, 92.7 8.0 Q 91.4 8.0, 90.7 8.9 Q 90.1 9.7, 90.1 11.3 Q 90.1 12.9, 90.7 13.8 Q 91.4 14.6, 92.7 14.6 ' fill='#000000'/> <path class='atom-12' d='M 97.7 7.2 L 98.8 7.2 L 98.8 10.7 L 103.0 10.7 L 103.0 7.2 L 104.1 7.2 L 104.1 15.4 L 103.0 15.4 L 103.0 11.6 L 98.8 11.6 L 98.8 15.4 L 97.7 15.4 L 97.7 7.2 ' fill='#000000'/> </svg>",
+ "vanillin": "<svg aria-hidden='true' preserveAspectRatio='xMidYMid meet' version='1.1' baseProfile='full' xmlns='http://www.w3.org/2000/svg' xmlns:rdkit='http://www.rdkit.org/xml' xmlns:xlink='http://www.w3.org/1999/xlink' xml:space='preserve' viewBox='0 0 124 56'> <path class='bond-0 atom-0 atom-1' d='M 113.6,37.6 L 101.3,44.7' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-1 atom-1 atom-2' d='M 92.5,44.7 L 80.1,37.6' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-2 atom-2 atom-3' d='M 80.1,37.6 L 63.4,47.2' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-3 atom-3 atom-4' d='M 63.4,47.2 L 46.7,37.6' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-3 atom-3 atom-4' d='M 63.4,43.9 L 49.6,35.9' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-4 atom-4 atom-5' d='M 46.7,37.6 L 30.0,47.3' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-5 atom-5 atom-6' d='M 30.0,47.3 L 17.7,40.2' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-5 atom-5 atom-6' d='M 30.0,43.9 L 19.2,37.7' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-6 atom-4 atom-7' d='M 46.7,37.6 L 46.7,18.3' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-7 atom-7 atom-8' d='M 46.7,18.3 L 63.4,8.7' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-7 atom-7 atom-8' d='M 49.6,20.0 L 63.4,12.0' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-8 atom-8 atom-9' d='M 63.4,8.7 L 80.1,18.3' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-9 atom-9 atom-10' d='M 80.1,18.3 L 92.4,11.2' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-10 atom-9 atom-2' d='M 80.1,18.3 L 80.1,37.6' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path class='bond-10 atom-9 atom-2' d='M 77.2,20.0 L 77.3,35.9' style='fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1' /> <path d='M 64.3,46.8 L 63.4,47.2 L 62.6,46.8' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path d='M 30.9,46.8 L 30.0,47.3 L 29.4,46.9' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path d='M 46.7,19.3 L 46.7,18.3 L 47.6,17.8' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path d='M 62.6,9.1 L 63.4,8.7 L 64.3,9.1' style='fill:none;stroke:#000000;stroke-width:2.0px;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:10;stroke-opacity:1;' /> <path class='atom-1' d='M 93.1 47.2 Q 93.1 45.3, 94.1 44.2 Q 95.0 43.1, 96.9 43.1 Q 98.7 43.1, 99.7 44.2 Q 100.6 45.3, 100.6 47.2 Q 100.6 49.2, 99.6 50.4 Q 98.7 51.5, 96.9 51.5 Q 95.1 51.5, 94.1 50.4 Q 93.1 49.2, 93.1 47.2 M 96.9 50.6 Q 98.1 50.6, 98.8 49.7 Q 99.5 48.9, 99.5 47.2 Q 99.5 45.6, 98.8 44.8 Q 98.1 44.0, 96.9 44.0 Q 95.6 44.0, 94.9 44.8 Q 94.3 45.6, 94.3 47.2 Q 94.3 48.9, 94.9 49.7 Q 95.6 50.6, 96.9 50.6 ' fill='#000000'/> <path class='atom-6' d='M 10.3 36.4 Q 10.3 34.4, 11.3 33.3 Q 12.2 32.2, 14.0 32.2 Q 15.9 32.2, 16.8 33.3 Q 17.8 34.4, 17.8 36.4 Q 17.8 38.4, 16.8 39.5 Q 15.8 40.6, 14.0 40.6 Q 12.2 40.6, 11.3 39.5 Q 10.3 38.4, 10.3 36.4 M 14.0 39.7 Q 15.3 39.7, 16.0 38.9 Q 16.6 38.0, 16.6 36.4 Q 16.6 34.8, 16.0 34.0 Q 15.3 33.2, 14.0 33.2 Q 12.8 33.2, 12.1 34.0 Q 11.4 34.8, 11.4 36.4 Q 11.4 38.1, 12.1 38.9 Q 12.8 39.7, 14.0 39.7 ' fill='#000000'/> <path class='atom-10' d='M 93.1 8.6 Q 93.1 6.7, 94.0 5.6 Q 95.0 4.5, 96.8 4.5 Q 98.6 4.5, 99.6 5.6 Q 100.6 6.7, 100.6 8.6 Q 100.6 10.6, 99.6 11.8 Q 98.6 12.9, 96.8 12.9 Q 95.0 12.9, 94.0 11.8 Q 93.1 10.6, 93.1 8.6 M 96.8 12.0 Q 98.1 12.0, 98.8 11.1 Q 99.4 10.3, 99.4 8.6 Q 99.4 7.0, 98.8 6.2 Q 98.1 5.4, 96.8 5.4 Q 95.6 5.4, 94.9 6.2 Q 94.2 7.0, 94.2 8.6 Q 94.2 10.3, 94.9 11.1 Q 95.6 12.0, 96.8 12.0 ' fill='#000000'/> <path class='atom-10' d='M 101.9 4.6 L 103.0 4.6 L 103.0 8.1 L 107.2 8.1 L 107.2 4.6 L 108.3 4.6 L 108.3 12.8 L 107.2 12.8 L 107.2 9.0 L 103.0 9.0 L 103.0 12.8 L 101.9 12.8 L 101.9 4.6 ' fill='#000000'/> </svg>"
+};
+</script>
+</body>
+</html>

@@ -8,6 +8,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 | --- | --- | --- |
 | Scale, metric prefixes, scientific notation, atoms, and ions | [Smaller Than Small](https://neogio73.github.io/CHM1025/smaller-than-small/) | Game (3D, WebGL) |
 | Bonding, shapes, polarity, and intermolecular forces (Ch. 10) | [Escape from Lewis Manor](https://neogio73.github.io/CHM1025/lewis-manor/) | Game (Halloween) |
+| Course policies in the syllabus | [Beaker Catch](https://neogio73.github.io/CHM1025/beaker-catch/) | Game (first week, ungraded) |
 
 ## Smaller Than Small
 
@@ -66,6 +67,16 @@ Breaking all seven seals ends with a Certificate of Escape: your name, the date,
 
 The game has sound, so turn it on. It contains mild, cartoon-style jump scares. A version for General Chemistry I, built on a different chapter, is in the CHM1045 repository; the two keep separate progress.
 
+## Beaker Catch
+
+A short game for the first week that sends students to the syllabus. True and false statements about course policies fall from the top of the screen. Catch the true ones in the beaker and let the false ones splash on the bench. Each game draws 10 statements from a pool of 38, so it changes every time.
+
+- **Move** the beaker by dragging, or with the <kbd>←</kbd> <kbd>→</kbd> keys. It works on phones and computers.
+- **Wrong answers** show what the syllabus says and which section to read. The end screen lists them again.
+- **Eight or more right** turns the beaker pink, like a titration reaching its endpoint.
+- **Bonus round:** a molecule is hidden in the syllabus posted in D2L, and students pick it from four look-alikes.
+- **Nothing is recorded.** It is just for fun.
+
 ## For instructors
 
 The repository is published with GitHub Pages from the `main` branch, so every file is served at `https://neogio73.github.io/CHM1025/` followed by its path.
@@ -73,6 +84,15 @@ The repository is published with GitHub Pages from the `main` branch, so every f
 To check a later part without replaying from the start, add `?zone=1`, `?zone=2`, or `?zone=3` to the address to start Level 1 in a later world, or `?level=2` to start at Level 2. For example, [`smaller-than-small/?level=2`](https://neogio73.github.io/CHM1025/smaller-than-small/?level=2) opens the Atom Forge.
 
 Escape from Lewis Manor is a single file, [`lewis-manor/index.html`](lewis-manor/index.html), with its art and sound made in code; it loads three fonts from Google Fonts and opens straight from the file with a double-click.
+
+Beaker Catch is a single file, [`beaker-catch/index.html`](beaker-catch/index.html). The statements and settings are in a block at the top of the file: the link to the syllabus (`syllabusUrl`), the number of statements per game, and the bonus round. The bonus answer is caffeine, drawn small at the bottom of the Falcon Online Forgiveness section of the syllabus. If the syllabus in D2L doesn't have the drawing, set `bonus.enabled` to `false`. To show it in a D2L announcement, add this in the HTML editor:
+
+```html
+<iframe src="https://neogio73.github.io/CHM1025/beaker-catch/" width="100%" height="560" style="border:0;max-width:720px" title="Beaker Catch"></iframe>
+<p><a href="https://neogio73.github.io/CHM1025/beaker-catch/" target="_blank">Play Beaker Catch</a></p>
+```
+
+The plain link is for students who read the announcement by email or in the Pulse app, where the game may not show.
 
 Smaller Than Small is a finished build of a Unity project that is kept outside this repository. Its folder is replaced as a whole when the game changes, so edits made to its files here would be lost. To run a copy on your own computer, serve the folder with a web server, for example `python -m http.server 8000`, then open `http://localhost:8000/smaller-than-small/`.
 
