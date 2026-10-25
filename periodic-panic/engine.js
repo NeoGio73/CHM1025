@@ -195,7 +195,12 @@ const Sound = (() => {
       explode:    () => seq(30, i => ({ t: [[expo(200, 50, i / 29), 6 + i * 0.3 | 0]], n: [i < 10 ? 0 : 1, 1 + i * 0.45 | 0, 1] })),
       fuel:       () => notes([392, 523, 659, 784], 4, f => ({ t: [[f, 4], [f * 1.5, 8]] })),
       lowFuel:    () => seq(10, i => ({ t: [[880, i < 5 ? 5 : 15]] })),
-      zapField:   () => seq(16, i => ({ t: [[i % 2 ? 600 : 900, 4]], n: [0, 6, 1] }))
+      zapField:   () => seq(16, i => ({ t: [[i % 2 ? 600 : 900, 4]], n: [0, 6, 1] })),
+      // Zip Sort
+      zipEdge:    () => [...seq(2, () => ({ t: [[1320, 6]] })), ...seq(2, () => ({ t: [[1760, 7]] }))],
+      fillBox:    () => seq(8, i => ({ t: [[expo(330, 1320, i / 7), 4]] })),
+      power:      () => notes([523, 659, 784, 1047, 784, 1047, 1319], 3, f => ({ t: [[f, 3], [f / 2, 6]] })),
+      eat:        () => seq(10, i => ({ t: [[expo(1500, 200, i / 9), 3]] }))
     },
     arcade: {   // Robo-Lab
       zap:      () => seq(7, i => ({ t: [[expo(2800, 420, i / 6), 0.9]] })),
@@ -364,17 +369,17 @@ const E = {   // what stages call
   wrong(term, penalty) {
     E.addScore(-penalty); Sound.wrong();
     G.missed.set(G.target.id, G.target);
-    G.queue.splice(Math.min(3, G.queue.length), 0, G.target);   // it comes back soon
+    if (!G.target.group) G.queue.splice(Math.min(3, G.queue.length), 0, G.target);   // it comes back soon (category questions are picked by their stage)
     E.banner('NOPE: ' + term.term.toUpperCase(), '#ff4d6d', term.clue, 4.2);
   },
   mistake(text, sub, penalty) {   // a slip that isn't choosing another term (e.g. a wrong letter)
     E.addScore(-penalty); Sound.wrong();
-    if (!G.missed.has(G.target.id)) { G.missed.set(G.target.id, G.target); G.queue.splice(Math.min(3, G.queue.length), 0, G.target); }
+    if (!G.missed.has(G.target.id)) { G.missed.set(G.target.id, G.target); if (!G.target.group) G.queue.splice(Math.min(3, G.queue.length), 0, G.target); }
     E.banner(text, '#ff4d6d', sub, 2.2);
   },
   skip() {   // left the round without answering
     G.missed.set(G.target.id, G.target);
-    G.queue.splice(Math.min(2, G.queue.length), 0, G.target);
+    if (!G.target.group) G.queue.splice(Math.min(2, G.queue.length), 0, G.target);
   },
   kill(why) { G.lives--; Sound.death(); E.banner('OUCH', '#ff4d6d', why, 1.7); },
   deathDone() { if (G.lives <= 0) return gameOver(); G.stage.respawn(); setReady(); },
@@ -395,6 +400,7 @@ const E = {   // what stages call
 
 // Next question. A stage can limit which terms suit it (stage.accepts); others wait in the queue.
 function nextTarget() {
+  if (G.stage && G.stage.pickTarget) { const t = G.stage.pickTarget(); if (t) return t; }   // e.g. Zip Sort asks about a category
   const ok = t => !G.stage || !G.stage.accepts || G.stage.accepts(t);
   if (!G.queue.length) G.queue = shuffle(G.pool.slice());
   for (let i = 0; i < G.queue.length; i++) if (ok(G.queue[i])) return G.queue.splice(i, 1)[0];
@@ -524,8 +530,8 @@ function gameOver() {
     const li = document.createElement('li');
     li.innerHTML = '<b></b> <span class="sub"></span><br><span class="c"></span>';
     li.querySelector('b').textContent = t.term;
-    li.querySelector('.sub').textContent = `(Section ${t.section})`;
-    li.querySelector('.c').textContent = t.clue;
+    li.querySelector('.sub').textContent = t.group ? `(${t.where})` : `(Section ${t.section})`;
+    li.querySelector('.c').textContent = t.review || t.clue;
     ul.appendChild(li);
   });
   document.getElementById('over').classList.remove('hidden');
