@@ -6,7 +6,7 @@ const PIT_L = 320, PIT_R = 520;    // the hazard in the middle of every screen
 const WATER_Y = 488;               // water / tar surface
 const EXIT_X = 770;                // bushes block the way out until the answer is found
 const CROCS = [360, 420, 480];     // crocodile head centres
-const HEAD_W = 34, HEAD_Y = 480;
+const HEAD_W = 40, HEAD_Y = 480;
 const METALS = [['#ffd23f', '#fff1a8'], ['#c9d1da', '#ffffff'], ['#e08a4a', '#ffc79a']];   // gold, silver, copper ingots
 let S = null, P = null;            // screen and player
 
@@ -35,7 +35,17 @@ function vineState() {
   const th = A * Math.sin(S.t * w), dth = A * w * Math.cos(S.t * w);
   return { ax, ay, L, th, x: ax + L * Math.sin(th), y: ay + L * Math.cos(th), vx: L * Math.cos(th) * dth, vy: -L * Math.sin(th) * dth };
 }
-function crocOpen() { const per = 2.8 / (1 + lv() * 0.06); return (S.t % per) > per * 0.6; }
+// How far the crocodiles' jaws are open, 0 to 1. Shut ~3 s, creep open ~0.8 s (a warning, still safe),
+// fully open ~1 s (dangerous), then snap shut. Speeds up a little with each level.
+function crocJaw() {
+  const sp = 1 + lv() * 0.03, shut = 3.0 / sp, opening = 0.8 / sp, open = 1.0 / sp, closing = 0.3 / sp;
+  const k = S.t % (shut + opening + open + closing);
+  if (k < shut) return 0;
+  if (k < shut + opening) return (k - shut) / opening * 0.85;   // creeping open: not dangerous yet
+  if (k < shut + opening + open) return 1;
+  return 1 - (k - shut - opening - open) / closing;
+}
+const crocOpen = () => crocJaw() >= 1;   // only a fully open mouth bites
 function tarHalf() {   // the tar pit opens and closes: 0 = closed, 100 = fully open
   const per = 4.5, k = S.t % per;
   if (k < 1.3) return 0; if (k < 1.8) return (k - 1.3) / 0.5 * 100; if (k < 4.0) return 100; return (1 - (k - 4.0) / 0.5) * 100;
@@ -118,14 +128,17 @@ function drawHazard() {
   ctx.fillStyle = '#5a9be8';
   for (let x = PIT_L; x < PIT_R; x += 16) ctx.fillRect(x + ((t * 20) % 16), WATER_Y + 2 + Math.sin(t * 3 + x) * 1.5, 8, 2);
   if (S.kind === 'croc') {
-    const open = crocOpen();
+    const jaw = crocJaw(), bite = jaw >= 1;
     for (const c of CROCS) {
       ctx.fillStyle = '#2f7d32'; ctx.fillRect(c - HEAD_W / 2, HEAD_Y, HEAD_W, 9);          // lower jaw / head
-      ctx.fillStyle = '#ffffff'; for (let i = 0; i < 4; i++) ctx.fillRect(c - 12 + i * 7, HEAD_Y - 2, 3, 3);
-      ctx.fillStyle = '#3c9a3e';
-      if (open) { ctx.save(); ctx.translate(c - HEAD_W / 2, HEAD_Y); ctx.rotate(-0.55); ctx.fillRect(0, -8, HEAD_W, 8); ctx.restore(); }
-      else ctx.fillRect(c - HEAD_W / 2, HEAD_Y - 8, HEAD_W, 7);
-      ctx.fillStyle = '#ffd23f'; ctx.fillRect(c - HEAD_W / 2 + 4, open ? HEAD_Y - 18 : HEAD_Y - 7, 4, 3);   // eye
+      ctx.fillStyle = '#ffffff'; for (let i = 0; i < 5; i++) ctx.fillRect(c - 15 + i * 7, HEAD_Y - 2, 3, 3);
+      // upper jaw hinges open from the back of the head; the eye turns red while it is dangerous
+      ctx.save(); ctx.translate(c - HEAD_W / 2, HEAD_Y); ctx.rotate(-0.6 * jaw);
+      ctx.fillStyle = '#3c9a3e'; ctx.fillRect(0, -8, HEAD_W, 7);
+      ctx.fillStyle = '#ffffff'; for (let i = 0; i < 5; i++) ctx.fillRect(5 + i * 7, -1, 3, 3);
+      ctx.fillStyle = bite ? '#ff4d6d' : (jaw > 0 && Math.floor(E.time * 10) % 2 ? '#ff8c42' : '#ffd23f');
+      ctx.fillRect(4, -12, 5, 4);
+      ctx.restore();
     }
   }
 }
