@@ -100,7 +100,7 @@ The vocabulary review games in one arcade game, using the 243 Key Terms of Chapt
 
 - **Arcade mode** plays the stages in order: Robo-Lab, Mole Hole, Jungle Jump, Shield Spell, Isotope, then the finale, Zip Sort. Four correct answers warp the player to the next stage, keeping the score, lives, and list of missed terms. After the last stage it loops back to the first, a little faster each time.
 - **Free play** lets students pick one game from a row of cartridges and practice it as long as they like.
-- Students choose the chapters, every round starts paused so they can read the clue, and the end screen lists every term they missed across the whole run, with its clue and textbook section.
+- Students choose the chapters, each stage opens with a screen of instructions that stays up until they press a key or tap, every round starts paused so they can read the clue, and the end screen lists every term they missed across the whole run, with its clue and textbook section.
 - **Sound** comes from emulations of the sound chips each game's era used (an early-80s arcade board for Robo-Lab, the ColecoVision's SN76489 for Mole Hole, Isotope, and Zip Sort, the Atari 2600's TIA for Jungle Jump and Shield Spell). No recordings are used, and every sound effect and tune is original.
 - **Nothing is recorded.** It is a practice tool.
 
@@ -117,7 +117,7 @@ A jungle runner in the style of early-1980s home console games, so far only in P
 
 The spelling stage, in the style of early-1980s home console shooters. A reactor core hides behind a shield of blocks, some of them carrying letters. Fly a little bug into the letters of the term **in order**, as a spelling bar under the clue fills in; then a cannon appears on the left edge, and firing it at the core finishes the round.
 
-- **Move** with the arrow keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>; the screen wraps from top to bottom. <kbd>Space</kbd> shoots blank blocks to reach letters deeper in the shield, and fires the cannon once the word is spelled.
+- **Move** with the arrow keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>; the bug flies and faces in all 8 directions (hold two arrows for a diagonal), and the screen wraps from top to bottom. <kbd>Space</kbd> shoots the way the bug faces, clearing blank blocks to reach letters deeper in the shield, and fires the cannon once the word is spelled.
 - A wrong letter flashes and gives a hint ("The next letter isn't A"); after three, the next correct letter glows. Spaces and hyphens fill in by themselves.
 - A slow homing missile chases the bug, except inside the shimmering zone in the middle of the screen. From level 2, the core sometimes spins up and lunges at the bug.
 - Only terms that make sense to spell are used here (182 of the 243; those with subscripts or symbols, such as K<sub>a</sub>, and very long names appear in the other stages).

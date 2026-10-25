@@ -422,7 +422,7 @@ function startStage(idx, warp) {
   G.stageIdx = idx; G.stage = STAGES[idx]; G.stageSolved = 0;
   G.target = nextTarget();
   G.stage.start(G.target, { fresh: true });
-  G.state = 'card'; G.cardT = 2.8; G.warp = warp; G.banner = null; G.startReq = false; pressLatch = false;
+  G.state = 'card'; G.cardT = 0; G.warp = warp; G.banner = null; G.startReq = false; pressLatch = false;
   if (warp) Sound.warp();
 }
 
@@ -432,9 +432,9 @@ function update(dt) {
   G.particles = G.particles.filter(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.95; p.vy *= 0.95; return (p.life -= dt) > 0; });
   if (G.banner && (G.banner.t -= dt) <= 0) G.banner = null;
   if (G.state === 'card') {
-    G.cardT -= dt;
-    // a key press can skip the title card after a moment
-    if (G.cardT <= 0 || (G.cardT < 2 && (pressLatch || G.startReq))) { G.state = 'play'; setReady(); }
+    G.cardT += dt;   // time the title card has been up
+    // the card stays until a key press or tap; presses in the first moment don't count (no accidental skips)
+    if (G.cardT > 0.8 && (pressLatch || G.startReq || touchVec.fire)) { G.state = 'play'; setReady(); Sound.blip(); }
     pressLatch = false; G.startReq = false;
     return;
   }
@@ -484,7 +484,7 @@ function drawBanner() {
 }
 function drawCard() {
   // stage title card (start of game and every warp)
-  const S = G.stage, k = clamp((2.8 - G.cardT) * 3, 0, 1);
+  const S = G.stage, k = clamp(G.cardT * 3, 0, 1);
   ctx.fillStyle = `rgba(0,0,0,${0.85 * k})`; ctx.fillRect(0, 0, W, H);
   if (G.warp) {   // streaking stars for the warp
     for (let i = 0; i < 60; i++) {
@@ -500,6 +500,11 @@ function drawCard() {
   ctx.font = '26px VT323'; ctx.fillStyle = '#e8f6ff';
   S.howTo.forEach((l, i) => ctx.fillText(l, W / 2, 285 + i * 30));
   if (G.mode === 'arcade') { ctx.fillStyle = '#5d6b80'; ctx.fillText(`${ROUNDS_PER_STAGE} correct answers warp you to the next stage.`, W / 2, 285 + S.howTo.length * 30 + 20); }
+  // stays up until the player is ready
+  if (G.cardT > 0.8 && Math.floor(G.t * 2.5) % 2) {
+    ctx.font = '14px "Press Start 2P"'; ctx.fillStyle = '#ffd23f';
+    ctx.fillText(touchUsed ? 'TAP TO START' : 'PRESS SPACE TO START', W / 2, 470);
+  }
   ctx.textAlign = 'left'; ctx.globalAlpha = 1;
 }
 function draw() {

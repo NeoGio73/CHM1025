@@ -51,7 +51,7 @@ function buildRound(target) {
 }
 function skipAuto() { while (S.pos < S.word.length && isAuto(S.word[S.pos])) S.pos++; }
 function resetPlayer() {
-  P = { x: 70, y: (TOP + BOT) / 2, face: { x: 1, y: 0 }, dead: 0, burst: false, inv: 1.2, flap: 0 };
+  P = { x: 70, y: (TOP + BOT) / 2, face: { x: 1, y: 0, flip: 1 }, dead: 0, burst: false, inv: 1.2, flap: 0 };
   S.missile = { x: CORE_X, y: S.shieldY, };
   S.swirl.state = 'home'; S.swirl.t = rand(9, 13); S.shot = null;
 }
@@ -82,8 +82,11 @@ function eatCell(cl) {
 
 // ---------- drawing
 function drawBug(x, y, face, flap, col) {
-  // a little winged bug (original sprite), facing left or right
-  ctx.save(); ctx.translate(x, y); ctx.scale(face.x < 0 ? -1 : 1, 1);
+  // a little winged bug (original sprite). It turns to face any of 8 directions, mirrored for
+  // leftward directions so it never flies upside-down.
+  const flip = face.x < 0 || (face.x === 0 && face.flip < 0) ? -1 : 1;
+  const ang = Math.atan2(face.y || 0, Math.abs(face.x || 0));
+  ctx.save(); ctx.translate(x, y); ctx.scale(flip, 1); ctx.rotate(ang);
   const w = Math.sin(flap) * 7;
   ctx.fillStyle = col || 'rgba(200,240,255,.75)';
   ctx.beginPath(); ctx.ellipse(-4, -6 - w * 0.3, 9, 4 + Math.abs(w) * 0.4, -0.5, 0, Math.PI * 2); ctx.fill();
@@ -148,7 +151,8 @@ registerStage({
     if (inp.x || inp.y) {
       const len = Math.hypot(inp.x, inp.y);
       P.x += inp.x / len * 170 * dt; P.y += inp.y / len * 170 * dt;
-      if (inp.x) P.face = { x: inp.x, y: 0 };
+      // face the way it flies, diagonals included; remember the last left/right for straight up/down
+      P.face = { x: inp.x, y: inp.y, flip: inp.x ? inp.x : P.face.flip };
     }
     P.flap += dt * 30;
     P.x = clamp(P.x, 14, SX + SCOLS * CELL - 11);   // can reach every block; only the core itself is solid
@@ -159,10 +163,18 @@ registerStage({
     const pr = { x: P.x - 11, y: P.y - 9, w: 22, h: 18 };
     for (const cl of S.cells) if (hit(pr, cellRect(cl))) { eatCell(cl); P.x -= 14; break; }
     // shoot blank blocks (before the word is spelled); not inside the safe zone
-    if (inp.fire && !S.armed && !S.shot && !inZone(P.x)) { S.shot = { x: P.x + 10 * P.face.x, y: P.y, vx: 420 * P.face.x }; Sound.shot(); }
+    if (inp.fire && !S.armed && !S.shot && !inZone(P.x)) {
+      // shots fly the way the bug faces (any of 8 directions)
+      const fx = P.face.x || 0, fy = P.face.y || 0, l = Math.hypot(fx, fy);
+      const dx = l ? fx / l : (P.face.flip || 1), dy = l ? fy / l : 0;
+      S.shot = { x: P.x + 10 * dx, y: P.y + 10 * dy, vx: 420 * dx, vy: 420 * dy }; Sound.shot();
+    }
     if (S.shot) {
-      S.shot.x += S.shot.vx * dt;
-      const sr = { x: S.shot.x - 4, y: S.shot.y - 1, w: 8, h: 3 };
+      S.shot.x += S.shot.vx * dt; S.shot.y += S.shot.vy * dt;
+      if (S.shot.y < TOP - 10 || S.shot.y > BOT + 10) { S.shot = null; }
+    }
+    if (S.shot) {
+      const sr = { x: S.shot.x - 3, y: S.shot.y - 3, w: 6, h: 6 };
       const cl = S.cells.find(c => hit(sr, cellRect(c)));
       if (cl) { if (!cl.ch) { S.cells = S.cells.filter(x => x !== cl); E.addScore(10); Sound.nibble(); } S.shot = null; }
       else if (S.swirl.state === 'fly' && Math.hypot(S.shot.x - S.swirl.x, S.shot.y - S.swirl.y) < 18) { S.swirl.state = 'home'; S.swirl.t = rand(9, 13); E.addScore(500); E.particles(S.shot.x, S.shot.y, '#ff4d6d', 24, 160); S.shot = null; }
@@ -246,7 +258,7 @@ registerStage({
     // missile
     if (Math.floor(t * 8) % 2) { ctx.fillStyle = '#ffffff'; ctx.fillRect(S.missile.x - 3, S.missile.y - 1, 6, 3); }
     // player's shot and the cannon
-    if (S.shot) { ctx.fillStyle = '#ffd23f'; ctx.fillRect(S.shot.x - 4, S.shot.y - 1, 8, 3); }
+    if (S.shot) { ctx.fillStyle = '#ffd23f'; ctx.fillRect(S.shot.x - 3, S.shot.y - 3, 6, 6); }
     if (S.armed && !S.solved) {
       const y = S.cannonY, glow = Math.floor(t * 6) % 2;
       ctx.fillStyle = glow ? '#38f0c8' : '#7bdff2'; ctx.fillRect(4, y - 10, 16, 20); ctx.fillRect(20, y - 4, 8, 8);
