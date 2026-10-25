@@ -9,6 +9,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 | Scale, metric prefixes, scientific notation, atoms, ions, isotopes, and atomic mass | [Smaller Than Small](https://neogio73.github.io/CHM1025/smaller-than-small/) | Game (3D, WebGL) |
 | Bonding, shapes, polarity, and intermolecular forces (Ch. 10) | [Escape from Lewis Manor](https://neogio73.github.io/CHM1025/lewis-manor/) | Game (Halloween) |
 | Course policies in the syllabus | [Beaker Catch](https://neogio73.github.io/CHM1025/beaker-catch/) | Game (first week, ungraded) |
+| Key terms from Chapters 1–12 and 14 | [Robo-Lab](https://neogio73.github.io/CHM1025/robo-lab/) | Game (vocabulary review, ungraded) |
 
 ## Smaller Than Small
 
@@ -90,6 +91,19 @@ A short game for the first week that sends students to the syllabus. True and fa
 - **Bonus round:** a molecule is hidden in the syllabus posted in D2L, and students pick it from four look-alikes.
 - **Nothing is recorded.** It is just for fun.
 
+## Robo-Lab
+
+A vocabulary review game in the style of early-1980s maze shooters. A clue appears at the top of the screen, and robots wander the maze carrying key terms. Zap the robot whose term matches the clue to unlock the doors, then move on to the next room. The terms are the Key Terms of Chapters 1–12 and 14 of Timberlake, *Basic Chemistry*, 6th edition (243 terms), and students choose which chapters to play.
+
+- **Move** with the arrow keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> and fire with <kbd>Space</kbd>, in the direction you face. On a phone, an on-screen stick and fire button appear at the first touch.
+- **Each room starts paused** so students can read the clue and scan the robots' terms; moving, firing, or tapping starts it. The menu can turn this off.
+- **Wrong answers** make the robot say what its own term means, and it gets angry. After three misses the right robot glows. Missed terms come back a few rooms later.
+- **The walls are electrified**, and waiting too long brings the Free Radical, which cannot be shot. When it appears the doors unlock so students can escape.
+- **Five lives**, plus a bonus life every 5,000 points. The end screen lists every term the student missed, with its clue and textbook section, to review.
+- **Nothing is recorded.** It is a practice tool.
+
+The clues are written for this game in plain language, not quoted from the textbook.
+
 ## For instructors
 
 The repository is published with GitHub Pages from the `main` branch, so every file is served at `https://neogio73.github.io/CHM1025/` followed by its path.
@@ -108,6 +122,8 @@ Beaker Catch is a single file, [`beaker-catch/index.html`](beaker-catch/index.ht
 ```
 
 The plain link is for students who read the announcement by email or in the Pulse app, where the game may not show.
+
+Robo-Lab is two files: [`robo-lab/index.html`](robo-lab/index.html), the game, with its art and sound made in code, and [`robo-lab/terms.js`](robo-lab/terms.js), the term bank. The term bank is generated from source files kept outside this repository, so the folder is replaced as a whole when the terms change. The game loads two fonts from Google Fonts and opens straight from the file with a double-click.
 
 Smaller Than Small is a finished build of a Unity project that is kept outside this repository. Its folder is replaced as a whole when the game changes, so edits made to its files here would be lost. To run a copy on your own computer, serve the folder with a web server, for example `python -m http.server 8000`, then open `http://localhost:8000/smaller-than-small/`.
 
