@@ -51,7 +51,8 @@ Atomic-mass answers must be within 0.02 amu, because a 2% margin would also acce
 - **Use** a terminal, pad, or the Atom Forge console with <kbd>E</kbd>. <kbd>Space</kbd> or a click moves BOHR's dialogue along. In the Atom Forge, hold a **+** or **-** button to change a count quickly, and press **Lock in** or <kbd>Enter</kbd>.
 - **Wrong answers** give a hint, then a worked example with different numbers. Typed answers are accepted within 2%, except atomic masses, which must be within 0.02 amu.
 - **Sound** is on by default. Press <kbd>M</kbd> to mute or unmute.
-- **Nothing is recorded.** The mission report at the end of each level shows how many checkpoints were right on the first try.
+- **Nothing is sent anywhere.** The mission report at the end of each level shows how many checkpoints were right on the first try. The browser remembers which levels are finished, so students can stop and come back later on the same computer and browser.
+- **Extra credit.** After the last level, a student who has finished every level types their D2L username and gets a completion code (like `STS-XXXX-XXXX`) that only matches that username. They submit the username and code in D2L.
 
 The game needs a computer with a browser that supports WebGL 2, which covers current versions of Chrome, Edge, Firefox, and Safari. The first load downloads about 50 MB.
 
@@ -92,6 +93,8 @@ A short game for the first week that sends students to the syllabus. True and fa
 ## For instructors
 
 The repository is published with GitHub Pages from the `main` branch, so every file is served at `https://neogio73.github.io/CHM1025/` followed by its path.
+
+Completion codes are checked with a private checker page kept by the instructor; it is not part of this repository.
 
 To check a later part without replaying from the start, add `?zone=1`, `?zone=2`, or `?zone=3` to the address to start Level 1 in a later world, or `?level=2` or `?level=3` to start at Level 2 or 3. For example, [`smaller-than-small/?level=3`](https://neogio73.github.io/CHM1025/smaller-than-small/?level=3) opens the Isotope Vault.
 
