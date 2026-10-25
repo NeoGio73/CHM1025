@@ -163,7 +163,15 @@ const Sound = (() => {
       death:   () => [...seq(66, i => [T(1, Math.floor(i / 3) % 2 ? 8 : 15, 12), T(8, 4, 5)]), ...seq(24, i => T(12, 6 + i, 10 - i * 0.4))],
       exit:    () => seq(12, i => T(4, 6 + i * 1.2, 9)),
       blip:    () => seq(2, () => T(4, 5, 8)),
-      warp:    () => seq(42, i => [T(12, 31 - i * 0.74, 10), T(4, 31 - i * 0.6, 4)])
+      warp:    () => seq(42, i => [T(12, 31 - i * 0.74, 10), T(4, 31 - i * 0.6, 4)]),
+      // Shield Spell
+      nibble:     () => seq(2, () => T(15, 5, 8)),
+      letter:     () => notes([12, 9, 7], 3, f => T(4, f, 11)),
+      shot:       () => seq(4, i => T(8, 3 + i, 8)),
+      cannonReady:() => seq(24, i => T(12, 28 - i, 6 + i * 0.2)),
+      cannonFire: () => seq(18, i => [T(8, 2 + i * 0.8, 14 - i * 0.5), T(6, 4 + i, 10)]),
+      coreBoom:   () => seq(110, i => [T(8, (i * 3) % 31, 15 - i * 0.13), T(3, 31 - (i % 31), 11 - i * 0.1)]),
+      swirl:      () => seq(30, i => T(1, 4 + (i % 8), 10))
     },
     sn: {    // Mole Hole
       throwBall: () => seq(7, i => ({ t: [[expo(500, 1600, i / 6), 2]] })),
@@ -352,6 +360,11 @@ const E = {   // what stages call
     G.queue.splice(Math.min(3, G.queue.length), 0, G.target);   // it comes back soon
     E.banner('NOPE: ' + term.term.toUpperCase(), '#ff4d6d', term.clue, 4.2);
   },
+  mistake(text, sub, penalty) {   // a slip that isn't choosing another term (e.g. a wrong letter)
+    E.addScore(-penalty); Sound.wrong();
+    if (!G.missed.has(G.target.id)) { G.missed.set(G.target.id, G.target); G.queue.splice(Math.min(3, G.queue.length), 0, G.target); }
+    E.banner(text, '#ff4d6d', sub, 2.2);
+  },
   skip() {   // left the round without answering
     G.missed.set(G.target.id, G.target);
     G.queue.splice(Math.min(2, G.queue.length), 0, G.target);
@@ -373,7 +386,14 @@ const E = {   // what stages call
   get time() { return G.t; }
 };
 
-function nextTarget() { if (!G.queue.length) G.queue = shuffle(G.pool.slice()); return G.queue.shift(); }
+// Next question. A stage can limit which terms suit it (stage.accepts); others wait in the queue.
+function nextTarget() {
+  const ok = t => !G.stage || !G.stage.accepts || G.stage.accepts(t);
+  if (!G.queue.length) G.queue = shuffle(G.pool.slice());
+  for (let i = 0; i < G.queue.length; i++) if (ok(G.queue[i])) return G.queue.splice(i, 1)[0];
+  const fits = G.pool.filter(ok);
+  return fits.length ? pick(fits) : G.queue.shift();
+}
 function setReady() { G.ready = readFirst; G.armed = false; G.startReq = false; }
 let selected = new Set(store.get('ca_chapters', [...new Set(BANK.map(t => t.chapter))]));
 
