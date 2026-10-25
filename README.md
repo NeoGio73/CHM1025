@@ -9,7 +9,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 | Scale, metric prefixes, scientific notation, atoms, ions, isotopes, and atomic mass | [Smaller Than Small](https://neogio73.github.io/CHM1025/smaller-than-small/) | Game (3D, WebGL) |
 | Bonding, shapes, polarity, and intermolecular forces (Ch. 10) | [Escape from Lewis Manor](https://neogio73.github.io/CHM1025/lewis-manor/) | Game (Halloween) |
 | Course policies in the syllabus | [Beaker Catch](https://neogio73.github.io/CHM1025/beaker-catch/) | Game (first week, ungraded) |
-| Key terms from Chapters 1–12 and 14 | [Periodic Panic](https://neogio73.github.io/CHM1025/periodic-panic/) | Game (vocabulary review, ungraded; four arcade games in one) |
+| Key terms from Chapters 1–12 and 14 | [Periodic Panic](https://neogio73.github.io/CHM1025/periodic-panic/) | Game (vocabulary review, ungraded; five arcade games in one) |
 | Key terms from Chapters 1–12 and 14 | [Robo-Lab](https://neogio73.github.io/CHM1025/robo-lab/) | Game (vocabulary review, ungraded) |
 | Key terms from Chapters 1–12 and 14 | [Mole Hole](https://neogio73.github.io/CHM1025/mole-hole/) | Game (vocabulary review, ungraded) |
 | Acids and bases (Ch. 14) | [Spring to Sea](https://neogio73.github.io/CHM1025/spring-to-sea/) | Game (3D, WebGL) — in progress |
@@ -98,10 +98,10 @@ A short game for the first week that sends students to the syllabus. True and fa
 
 The vocabulary review games in one arcade game, using the 243 Key Terms of Chapters 1–12 and 14 of Timberlake, *Basic Chemistry*, 6th edition. Each stage is a different early-1980s style game, described in the sections below.
 
-- **Arcade mode** plays the stages in order: Robo-Lab, Mole Hole, Jungle Jump, then Shield Spell. Four correct answers warp the player to the next stage, keeping the score, lives, and list of missed terms. After the last stage it loops back to the first, a little faster each time.
+- **Arcade mode** plays the stages in order: Robo-Lab, Mole Hole, Jungle Jump, Shield Spell, then Isotope. Four correct answers warp the player to the next stage, keeping the score, lives, and list of missed terms. After the last stage it loops back to the first, a little faster each time.
 - **Free play** lets students pick one game from a row of cartridges and practice it as long as they like.
 - Students choose the chapters, every round starts paused so they can read the clue, and the end screen lists every term they missed across the whole run, with its clue and textbook section.
-- **Sound** comes from emulations of the sound chips each game's era used (an early-80s arcade board for Robo-Lab, the ColecoVision's SN76489 for Mole Hole, the Atari 2600's TIA for Jungle Jump and Shield Spell). No recordings are used, and every sound effect and tune is original.
+- **Sound** comes from emulations of the sound chips each game's era used (an early-80s arcade board for Robo-Lab, the ColecoVision's SN76489 for Mole Hole and Isotope, the Atari 2600's TIA for Jungle Jump and Shield Spell). No recordings are used, and every sound effect and tune is original.
 - **Nothing is recorded.** It is a practice tool.
 
 ### Jungle Jump (stage 3)
@@ -121,6 +121,14 @@ The spelling stage, in the style of early-1980s home console shooters. A reactor
 - A wrong letter flashes and gives a hint ("The next letter isn't A"); after three, the next correct letter glows. Spaces and hyphens fill in by themselves.
 - A slow homing missile chases the bug, except inside the shimmering zone in the middle of the screen. From level 2, the core sometimes spins up and lunges at the bug.
 - Only terms that make sense to spell are used here (182 of the 243; those with subscripts or symbols, such as K<sub>a</sub>, and very long names appear in the other stages).
+
+### Isotope (stage 5)
+
+A fortress flyer in the style of early-1980s isometric arcade games, seen from a slanted 3D view. Each force-field wall has three openings at different heights, each in its own colour; a legend under the clue shows which term goes with which colour. Fly through the opening whose term matches the clue.
+
+- **Steer** with the left and right arrows (or <kbd>A</kbd> <kbd>D</kbd>), **climb and dive** with up and down (or <kbd>W</kbd> <kbd>S</kbd>), and **fire** with <kbd>Space</kbd>. The ship's shadow and the altitude meter on the left show its height; the meter also marks the height of each opening in its colour.
+- A wrong opening zaps the ship, shows what that term means, and the wall is rebuilt ahead with one fewer choice; after two misses the right opening glows. Hitting the solid wall, an electric barrier, or a turret's shot costs a life.
+- Fuel runs down while flying. Diving low to shoot the orange fuel tanks refills it, and so does a correct gate.
 
 ## Robo-Lab
 
