@@ -9,7 +9,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 | Scale, metric prefixes, scientific notation, atoms, ions, isotopes, and atomic mass | [Smaller Than Small](https://neogio73.github.io/CHM1025/smaller-than-small/) | Game (3D, WebGL) |
 | Bonding, shapes, polarity, and intermolecular forces (Ch. 10) | [Escape from Lewis Manor](https://neogio73.github.io/CHM1025/lewis-manor/) | Game (Halloween) |
 | Course policies in the syllabus | [Beaker Catch](https://neogio73.github.io/CHM1025/beaker-catch/) | Game (first week, ungraded) |
-| Key terms from Chapters 1–12 and 14 | [Periodic Panic](https://neogio73.github.io/CHM1025/periodic-panic/) | Game (vocabulary review, ungraded; five arcade games in one) |
+| Key terms from Chapters 1–12 and 14 | [Periodic Panic](https://neogio73.github.io/CHM1025/periodic-panic/) | Game (vocabulary review, ungraded; six arcade games in one) |
 | Key terms from Chapters 1–12 and 14 | [Robo-Lab](https://neogio73.github.io/CHM1025/robo-lab/) | Game (vocabulary review, ungraded) |
 | Key terms from Chapters 1–12 and 14 | [Mole Hole](https://neogio73.github.io/CHM1025/mole-hole/) | Game (vocabulary review, ungraded) |
 | Acids and bases (Ch. 14) | [Spring to Sea](https://neogio73.github.io/CHM1025/spring-to-sea/) | Game (3D, WebGL) — in progress |
@@ -96,12 +96,12 @@ A short game for the first week that sends students to the syllabus. True and fa
 
 ## Periodic Panic
 
-The vocabulary review games in one arcade game, using the 243 Key Terms of Chapters 1–12 and 14 of Timberlake, *Basic Chemistry*, 6th edition. Each stage is a different early-1980s style game, described in the sections below.
+The vocabulary review games in one arcade game, using the 243 Key Terms of Chapters 1–12 and 14 of Timberlake, *Basic Chemistry*, 6th edition. Each stage is a different early-1980s style game, described in the sections below. The stages build on each other: the first five work on single terms (recognizing what a term means, and in Shield Spell spelling it exactly), and the last, Zip Sort, ties them together by asking which terms belong together.
 
-- **Arcade mode** plays the stages in order: Robo-Lab, Mole Hole, Jungle Jump, Shield Spell, then Isotope. Four correct answers warp the player to the next stage, keeping the score, lives, and list of missed terms. After the last stage it loops back to the first, a little faster each time.
+- **Arcade mode** plays the stages in order: Robo-Lab, Mole Hole, Jungle Jump, Shield Spell, Isotope, then the finale, Zip Sort. Four correct answers warp the player to the next stage, keeping the score, lives, and list of missed terms. After the last stage it loops back to the first, a little faster each time.
 - **Free play** lets students pick one game from a row of cartridges and practice it as long as they like.
 - Students choose the chapters, every round starts paused so they can read the clue, and the end screen lists every term they missed across the whole run, with its clue and textbook section.
-- **Sound** comes from emulations of the sound chips each game's era used (an early-80s arcade board for Robo-Lab, the ColecoVision's SN76489 for Mole Hole and Isotope, the Atari 2600's TIA for Jungle Jump and Shield Spell). No recordings are used, and every sound effect and tune is original.
+- **Sound** comes from emulations of the sound chips each game's era used (an early-80s arcade board for Robo-Lab, the ColecoVision's SN76489 for Mole Hole, Isotope, and Zip Sort, the Atari 2600's TIA for Jungle Jump and Shield Spell). No recordings are used, and every sound effect and tune is original.
 - **Nothing is recorded.** It is a practice tool.
 
 ### Jungle Jump (stage 3)
@@ -129,6 +129,15 @@ A fortress flyer in the style of early-1980s isometric arcade games, seen from a
 - **Steer** with the left and right arrows (or <kbd>A</kbd> <kbd>D</kbd>), **climb and dive** with up and down (or <kbd>W</kbd> <kbd>S</kbd>), and **fire** with <kbd>Space</kbd>. The ship's shadow and the altitude meter on the left show its height; the meter also marks the height of each opening in its colour.
 - A wrong opening zaps the ship, shows what that term means, and the wall is rebuilt ahead with one fewer choice; after two misses the right opening glows. Hitting the solid wall, an electric barrier, or a turret's shot costs a life.
 - Fuel runs down while flying. Diving low to shoot the orange fuel tanks refills it, and so does a correct gate.
+
+### Zip Sort (stage 6, the finale)
+
+The finale, in the style of early-1980s box-zipping maze games, and the stage that ties the others together. Stages 1–5 ask what single terms mean; Zip Sort asks **which terms belong together**. The clue names a category, such as "a gas law", "a type of chemical reaction", or "an intermolecular force", and students zip shut every box whose term fits it, while avoiding tricky lookalikes (Henry's law among the gas laws, hydrogen bond among the chemical bonds). Sorting the vocabulary into groups, often across chapters, turns a list of definitions into connected concepts, so the last stage reviews how everything in the earlier stages fits together.
+
+- **Move** a zipper pull along the lines of the maze with the arrow keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>. Tracing all four sides of a box zips it shut.
+- A box that fits the category turns green, and a counter shows how many are left; a box that does not turns red and shows what its term means. After two wrong boxes, the remaining right ones glow.
+- Roaming eyes chase the zipper pull. Closing the pitchfork box lets it chase them for a few seconds.
+- There are 24 categories, built only from the Key Terms already in the game. A missed category appears on the end screen with all of its members.
 
 ## Robo-Lab
 
