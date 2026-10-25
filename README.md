@@ -7,6 +7,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 | Topic | Activity | Type |
 | --- | --- | --- |
 | Scale, metric prefixes, scientific notation, atoms, and ions | [Smaller Than Small](https://neogio73.github.io/CHM1025/smaller-than-small/) | Game (3D, WebGL) |
+| Bonding, shapes, polarity, and intermolecular forces (Ch. 10) | [Escape from Lewis Manor](https://neogio73.github.io/CHM1025/lewis-manor/) | Game (Halloween) |
 
 ## Smaller Than Small
 
@@ -41,11 +42,37 @@ Four multiple-choice checkpoints sit between the builds: what a new proton does,
 
 The game needs a computer with a browser that supports WebGL 2, which covers current versions of Chrome, Edge, Firefox, and Safari. The first load downloads about 45 MB.
 
+## Escape from Lewis Manor
+
+A Halloween escape-room game for Chapter 10, Bonding and Properties of Solids and Liquids (Timberlake, *Basic Chemistry*, 6th edition). You play a chemistry student locked in a haunted manor at night. Walk the hall with the arrow keys (or the on-screen buttons on a phone), and enter a room with the up arrow. Each room's puzzles break one of the seven wax seals on the front door.
+
+| Room | Section | Topic | Points |
+| --- | --- | --- | --- |
+| I. The Foyer | 10.1 | Lewis symbols and bonding patterns | ½ |
+| II. The Crypt | 10.1 | Lewis structures of molecules, polyatomic ions, and ionic compounds | ½ |
+| III. The Phantom Gallery | 10.2 | Resonance structures | ½ |
+| IV. The Topiary Garden | 10.3 | Shapes of molecules (VSEPR), up to four electron groups | ½ |
+| V. The Séance Parlor | 10.4 | Electronegativity and bond polarity | ½ |
+| VI. The Hall of Mirrors | 10.5 | Polarity of molecules | ½ |
+| VII. The Tower | 10.6 | Intermolecular forces | 1 |
+
+The game follows the book's values and wording: the electronegativities of Figure 10.2, the bond-type ranges of Table 10.7 (0.0–0.4 nonpolar covalent, 0.5–1.8 polar covalent, 1.9–3.3 ionic), and the shapes and 180°, 120°, and 109° angles of Table 10.6.
+
+Each room has three candles. A wrong answer blows one out with a hint, and losing all three restarts the room with new questions. The questions change every time. Your browser remembers which seals you have broken, so you can stop and come back with Continue.
+
+Breaking all seven seals ends with a Certificate of Escape: your name, the date, each room's points out of 4, and a verification code. Download it and upload it to the Lewis Manor assignment in D2L. If you stop early, the Certificate button in the corner gives a Record of Progress for the seals you have broken.
+
+**Instructors:** the "Instructor: check a certificate code" link on the title screen confirms a code. Type the student's name exactly as printed and the code; a valid code shows the score and the date it was issued. An edited certificate will not match.
+
+The game has sound, so turn it on. It contains mild, cartoon-style jump scares. A version for General Chemistry I, built on a different chapter, is in the CHM1045 repository; the two keep separate progress.
+
 ## For instructors
 
 The repository is published with GitHub Pages from the `main` branch, so every file is served at `https://neogio73.github.io/CHM1025/` followed by its path.
 
 To check a later part without replaying from the start, add `?zone=1`, `?zone=2`, or `?zone=3` to the address to start Level 1 in a later world, or `?level=2` to start at Level 2. For example, [`smaller-than-small/?level=2`](https://neogio73.github.io/CHM1025/smaller-than-small/?level=2) opens the Atom Forge.
+
+Escape from Lewis Manor is a single file, [`lewis-manor/index.html`](lewis-manor/index.html), with its art and sound made in code; it loads three fonts from Google Fonts and opens straight from the file with a double-click.
 
 Smaller Than Small is a finished build of a Unity project that is kept outside this repository. Its folder is replaced as a whole when the game changes, so edits made to its files here would be lost. To run a copy on your own computer, serve the folder with a web server, for example `python -m http.server 8000`, then open `http://localhost:8000/smaller-than-small/`.
 
