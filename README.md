@@ -12,6 +12,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 | Key terms from Chapters 1–12 and 14 | [Periodic Panic](https://neogio73.github.io/CHM1025/periodic-panic/) | Game (vocabulary review, ungraded; three arcade games in one) |
 | Key terms from Chapters 1–12 and 14 | [Robo-Lab](https://neogio73.github.io/CHM1025/robo-lab/) | Game (vocabulary review, ungraded) |
 | Key terms from Chapters 1–12 and 14 | [Mole Hole](https://neogio73.github.io/CHM1025/mole-hole/) | Game (vocabulary review, ungraded) |
+| Acids and bases (Ch. 14) | [Spring to Sea](https://neogio73.github.io/CHM1025/spring-to-sea/) | Game (3D, WebGL) — in progress |
 
 ## Smaller Than Small
 
@@ -137,6 +138,24 @@ A vocabulary review game in the style of early-1980s digging games, using the sa
 - **Five lives**, plus a bonus life every 5,000 points. The end screen lists every term the student missed, with its clue and textbook section, to review.
 - **Nothing is recorded.** It is a practice tool.
 
+## Spring to Sea (in progress)
+
+A 3D paddleboarding game for Chapter 14, Acids and Bases (Timberlake, *Basic Chemistry*, 6th edition). You paddle Florida water from a clear spring, down a tannin-stained blackwater river, across a seagrass lagoon, through an inlet, and out to a coral reef — with the dog Alastair riding the nose of the board. He is happy at the spring, hides from the acid rain, and at the reef he sits with his back to the ocean, because he hates it. Each zone has a stop with questions from the chapter, and the numbers change every play.
+
+| Zone | Sections | Chemistry |
+| --- | --- | --- |
+| The spring | 14.1 | litmus, properties of acids and bases, names and formulas, CO2 making carbonic acid |
+| The river | 14.3, 14.7, 14.8 | strong and weak acids, acid rain, neutralization, titrating a river sample |
+| The seagrass lagoon | 14.2 | proton donors and acceptors, conjugate acid-base pairs, bicarbonate acting both ways |
+| The reef | 14.6 | pH and [H3O+], the tenfold rule, ocean acidification |
+
+- **Paddle** with <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>. Hold <kbd>C</kbd> to dip the camera under the surface, and hold <kbd>E</kbd> to anchor the board and snorkel (<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> swims, the mouse looks, <kbd>Space</kbd> rises).
+- **Answer questions** with <kbd>Q</kbd> at a stop. **Scoop a sample** with <kbd>R</kbd>: predict acid, base, or neutral first, then the meter shows the reading. **Take photos** with <kbd>P</kbd>; they appear in the trip summary.
+- **Ask Alastair** for one hint per question; a question answered with his help earns half points.
+- **Nothing is sent anywhere.** The trip summary at the end shows the score and a completion code (like `SEA-XXXX`) to enter in D2L.
+
+The game is being built; this is an early test build. It needs a browser that supports WebGL 2, and the first load downloads about 31 MB.
+
 ## For instructors
 
 The repository is published with GitHub Pages from the `main` branch, so every file is served at `https://neogio73.github.io/CHM1025/` followed by its path.
@@ -162,8 +181,11 @@ Robo-Lab is two files: [`robo-lab/index.html`](robo-lab/index.html), the game, w
 
 Smaller Than Small is a finished build of a Unity project that is kept outside this repository. Its folder is replaced as a whole when the game changes, so edits made to its files here would be lost. To run a copy on your own computer, serve the folder with a web server, for example `python -m http.server 8000`, then open `http://localhost:8000/smaller-than-small/`.
 
+Spring to Sea, in [`spring-to-sea/`](spring-to-sea/), is built the same way: a Unity WebGL build from a project kept outside this repository, replaced as a whole when the game changes. Its completion codes are checked with the instructor's private checker, like the others.
+
 ## Credits
 
 - Sound effects are from Kenney's [Interface Sounds](https://opengameart.org/content/interface-sounds) and [Sci-Fi Sounds](https://opengameart.org/content/sci-fi-sounds) (CC0, www.kenney.nl).
 - Particle effects are from Unity Technologies' [Particle Pack](https://assetstore.unity.com/packages/vfx/particles/particle-pack-starter-assets-127325) on the Unity Asset Store.
 - The hero is the [Sci Fi Space Soldier](https://assetstore.unity.com/packages/3d/characters/humanoids/sci-fi/sci-fi-space-soldier-polygonr-66384) model by PolygonR from the Unity Asset Store, recolored. Its animations are from [Mixamo](https://www.mixamo.com/).
+- In Spring to Sea, the paddleboard is "Colorfull sup board with fin" by Ernest Szarek ([BlendKit](https://blendkit.art/), royalty free); the paddler and the base paddling motion are from [Mixamo](https://www.mixamo.com/); the water, river, and grass rendering use [Stylized Water 3](https://assetstore.unity.com/packages/vfx/shaders/stylized-water-3-287769) and the [Stylized Grass Shader](https://assetstore.unity.com/packages/vfx/shaders/stylized-grass-shader-143830) by Staggart Creations from the Unity Asset Store. Alastair is a real dog.
