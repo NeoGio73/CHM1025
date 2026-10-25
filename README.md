@@ -32,6 +32,8 @@ The game needs a computer with a browser that supports WebGL 2, which covers cur
 
 The repository is published with GitHub Pages from the `main` branch, so every file is served at `https://neogio73.github.io/CHM1025/` followed by its path.
 
+To check a later world without replaying the level, add `?zone=1`, `?zone=2`, or `?zone=3` to the address; for example, [`smaller-than-small/?zone=2`](https://neogio73.github.io/CHM1025/smaller-than-small/?zone=2) starts in Micrometer World.
+
 Smaller Than Small is a finished build of a Unity project that is kept outside this repository. Its folder is replaced as a whole when the game changes, so edits made to its files here would be lost. To run a copy on your own computer, serve the folder with a web server, for example `python -m http.server 8000`, then open `http://localhost:8000/smaller-than-small/`.
 
 ## Credits
