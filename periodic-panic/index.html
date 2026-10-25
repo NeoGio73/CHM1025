@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Periodic Panic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#05060a; --fg:#e8f6ff; --accent:#38f0c8; --warn:#ff4d6d; --gold:#ffd23f; --dim:#5d6b80; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--fg); overflow:hidden;
+    font-family:'VT323', monospace; -webkit-user-select:none; user-select:none; touch-action:none; }
+  #wrap { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; }
+  canvas { image-rendering: pixelated; background:#000; max-width:100vw; max-height:100vh; }
+  .overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(2,3,8,.93); z-index:5; padding:16px; }
+  .overlay.hidden { display:none; }
+  .panel { max-width:780px; width:100%; max-height:100%; overflow:auto; border:3px solid var(--accent);
+    padding:20px 24px; background:#070a12; box-shadow:0 0 0 3px #000, 0 0 30px rgba(56,240,200,.25); }
+  h1 { font-family:'Press Start 2P', monospace; font-size:clamp(20px,5vw,38px); margin:4px 0 6px; color:var(--accent);
+    text-shadow:3px 3px 0 #0b3d33; letter-spacing:2px; }
+  h2 { font-family:'Press Start 2P', monospace; font-size:13px; color:var(--gold); margin:18px 0 10px; }
+  p { font-size:22px; line-height:1.15; margin:6px 0; }
+  .sub { color:var(--dim); font-size:20px; }
+  .chapters { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:6px; }
+  .chapters label { display:flex; gap:8px; align-items:center; font-size:21px; cursor:pointer; padding:4px 6px; border:1px solid #1d2636; }
+  .chapters label:hover { border-color:var(--accent); }
+  .chapters input { accent-color:var(--accent); width:18px; height:18px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
+  button { font-family:'Press Start 2P', monospace; font-size:13px; padding:12px 16px; background:#000; color:var(--accent);
+    border:3px solid var(--accent); cursor:pointer; }
+  button:hover:not(:disabled), button:focus-visible { background:var(--accent); color:#000 !important; outline:none; }
+  button:disabled { opacity:.4; cursor:default; }
+  button.big { font-size:16px; padding:16px 22px; }
+  button.small { font-size:10px; padding:8px 10px; color:var(--fg); border-color:var(--dim); }
+  .modes { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:8px; }
+  .mode { border:1px solid #1d2636; padding:10px 12px; }
+  .mode p { font-size:20px; color:var(--dim); }
+  @media (max-width:600px) { .modes { grid-template-columns:1fr; } }
+  /* Free Play cartridges */
+  #freePlay { gap:16px; align-items:flex-end; }
+  button.cart { background:none; border:none; padding:0; cursor:pointer; line-height:0;
+    filter:drop-shadow(0 4px 0 #000); transition:transform .12s ease-out, filter .12s ease-out; }
+  button.cart:hover:not(:disabled), button.cart:focus-visible { background:none; transform:translateY(-6px);
+    filter:drop-shadow(0 10px 0 #000) drop-shadow(0 0 10px var(--c)); }
+  button.cart:active:not(:disabled) { transform:translateY(2px); }
+  .keys { color:var(--dim); font-size:19px; margin-top:12px; }
+  details summary { cursor:pointer; font-family:'Press Start 2P'; font-size:11px; color:var(--dim); margin-top:14px; }
+  .missed { margin:0; padding:0; list-style:none; }
+  .missed li { border-left:3px solid var(--warn); padding:4px 10px; margin:6px 0; font-size:21px; }
+  .missed li b { color:var(--gold); font-weight:normal; }
+  .stat { font-family:'Press Start 2P', monospace; font-size:12px; color:var(--fg); }
+  #touch { position:fixed; inset:auto 0 0 0; height:42vh; display:none; z-index:3; pointer-events:none; }
+  #touch.on { display:block; }
+  #stick { position:absolute; left:4vw; bottom:4vh; width:150px; height:150px; border-radius:50%;
+    border:3px solid rgba(56,240,200,.5); pointer-events:auto; }
+  #knob { position:absolute; left:50%; top:50%; width:60px; height:60px; margin:-30px; border-radius:50%; background:rgba(56,240,200,.35); }
+  #fire { position:absolute; right:5vw; bottom:6vh; width:110px; height:110px; border-radius:50%;
+    border:3px solid rgba(255,77,109,.7); background:rgba(255,77,109,.2); pointer-events:auto;
+    font-family:'Press Start 2P'; font-size:12px; color:#fff; display:flex; align-items:center; justify-content:center; }
+  .credits { color:var(--dim); font-size:17px; margin-top:16px; border-top:1px solid #1d2636; padding-top:8px; }
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="game" width="800" height="600"></canvas></div>
+<div id="touch"><div id="stick"><div id="knob"></div></div><div id="fire">FIRE</div></div>
+
+<div class="overlay" id="menu">
+  <div class="panel">
+    <h1>PERIODIC PANIC</h1>
+    <p class="sub">Chemistry vocabulary, early-80s arcade style. Every stage is a different game; every answer is a key term.</p>
+    <div class="modes">
+      <div class="mode">
+        <h2>ARCADE MODE</h2>
+        <p>Play the stages in order. Four correct answers warp you to the next game, keeping your score and lives.</p>
+        <div class="row"><button class="big" id="startBtn">START</button></div>
+      </div>
+      <div class="mode">
+        <h2>FREE PLAY</h2>
+        <p>Pick a cartridge and practice one game as long as you like.</p>
+        <div class="row" id="freePlay"></div>
+      </div>
+    </div>
+    <h2>CHAPTERS</h2>
+    <div class="chapters" id="chapterList"></div>
+    <div class="row">
+      <button class="small" id="allBtn">ALL</button>
+      <button class="small" id="noneBtn">NONE</button>
+      <span class="sub" id="poolCount"></span>
+    </div>
+    <div class="row">
+      <button class="small" id="soundBtn">SOUND: ON</button>
+      <button class="small" id="musicBtn">MUSIC: ON</button>
+      <button class="small" id="voiceBtn">ROBOT VOICE: ON</button>
+      <button class="small" id="readBtn">PAUSE TO READ: ON</button>
+    </div>
+    <p class="keys">Arrows or WASD move, Space fires, P pauses, M mutes. Each round starts paused so you can read the clue.
+      A wrong answer tells you what that term means. The end screen lists every term you missed.</p>
+    <details><summary>SOUND TEST</summary><div class="row" id="soundTest"></div></details>
+    <p class="stat" id="hiScore"></p>
+    <p class="credits">Original games, art, music, and sounds, inspired by early-1980s arcade games. Clues are written for this game and are not quoted from any textbook.</p>
+  </div>
+</div>
+
+<div class="overlay hidden" id="over">
+  <div class="panel">
+    <h1 id="overTitle">GAME OVER</h1>
+    <p class="stat" id="overStats"></p>
+    <h2 id="missedHead">REVIEW THESE</h2>
+    <ul class="missed" id="missedList"></ul>
+    <div class="row"><button id="againBtn">PLAY AGAIN</button><button class="small" id="menuBtn">MENU</button></div>
+  </div>
+</div>
+
+<script src="terms.js"></script>
+<script src="engine.js"></script>
+<!-- stages play in this order in arcade mode -->
+<script src="stages/robo-lab.js"></script>
+<script src="stages/mole-hole.js"></script>
+<script>bootArcade();</script>
+</body>
+</html>

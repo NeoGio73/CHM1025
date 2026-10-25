@@ -9,6 +9,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 | Scale, metric prefixes, scientific notation, atoms, ions, isotopes, and atomic mass | [Smaller Than Small](https://neogio73.github.io/CHM1025/smaller-than-small/) | Game (3D, WebGL) |
 | Bonding, shapes, polarity, and intermolecular forces (Ch. 10) | [Escape from Lewis Manor](https://neogio73.github.io/CHM1025/lewis-manor/) | Game (Halloween) |
 | Course policies in the syllabus | [Beaker Catch](https://neogio73.github.io/CHM1025/beaker-catch/) | Game (first week, ungraded) |
+| Key terms from Chapters 1–12 and 14 | [Periodic Panic](https://neogio73.github.io/CHM1025/periodic-panic/) | Game (vocabulary review, ungraded; Robo-Lab and Mole Hole in one) |
 | Key terms from Chapters 1–12 and 14 | [Robo-Lab](https://neogio73.github.io/CHM1025/robo-lab/) | Game (vocabulary review, ungraded) |
 | Key terms from Chapters 1–12 and 14 | [Mole Hole](https://neogio73.github.io/CHM1025/mole-hole/) | Game (vocabulary review, ungraded) |
 
@@ -92,6 +93,15 @@ A short game for the first week that sends students to the syllabus. True and fa
 - **Bonus round:** a molecule is hidden in the syllabus posted in D2L, and students pick it from four look-alikes.
 - **Nothing is recorded.** It is just for fun.
 
+## Periodic Panic
+
+The vocabulary review games in one arcade game, using the 243 Key Terms of Chapters 1–12 and 14 of Timberlake, *Basic Chemistry*, 6th edition. Each stage is a different early-1980s style game, described in the sections below.
+
+- **Arcade mode** plays the stages in order: Robo-Lab, then Mole Hole. Four correct answers warp the player to the next stage, keeping the score, lives, and list of missed terms. After the last stage it loops back to the first, a little faster each time.
+- **Free play** lets students pick one game from a row of cartridges and practice it as long as they like.
+- Students choose the chapters, every round starts paused so they can read the clue, and the end screen lists every term they missed across the whole run, with its clue and textbook section.
+- **Nothing is recorded.** It is a practice tool.
+
 ## Robo-Lab
 
 A vocabulary review game in the style of early-1980s maze shooters. A clue appears at the top of the screen, and robots wander the maze carrying key terms. Zap the robot whose term matches the clue to unlock the doors, then move on to the next room. The terms are the Key Terms of Chapters 1–12 and 14 of Timberlake, *Basic Chemistry*, 6th edition (243 terms), and students choose which chapters to play.
@@ -135,6 +145,8 @@ Beaker Catch is a single file, [`beaker-catch/index.html`](beaker-catch/index.ht
 ```
 
 The plain link is for students who read the announcement by email or in the Pulse app, where the game may not show.
+
+Periodic Panic is in [`periodic-panic/`](periodic-panic/index.html): `index.html`, the shared `engine.js` (sound, controls, clue bar, scoring, menus), one file per stage in `stages/` (their order in `index.html` is the order of arcade mode), and the same generated `terms.js` as the stand-alone games. Like them, it is built outside this repository and replaced as a whole, and it opens straight from the file with a double-click.
 
 Robo-Lab is two files: [`robo-lab/index.html`](robo-lab/index.html), the game, with its art and sound made in code, and [`robo-lab/terms.js`](robo-lab/terms.js), the term bank. The term bank is generated from source files kept outside this repository, so the folder is replaced as a whole when the terms change. The game loads two fonts from Google Fonts and opens straight from the file with a double-click. Mole Hole, in [`mole-hole/`](mole-hole/index.html), is built the same way and shares the same term bank.
 
