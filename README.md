@@ -6,7 +6,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 
 | Topic | Activity | Type |
 | --- | --- | --- |
-| Scale, metric prefixes, scientific notation, atoms, and ions | [Smaller Than Small](https://neogio73.github.io/CHM1025/smaller-than-small/) | Game (3D, WebGL) |
+| Scale, metric prefixes, scientific notation, atoms, ions, isotopes, and atomic mass | [Smaller Than Small](https://neogio73.github.io/CHM1025/smaller-than-small/) | Game (3D, WebGL) |
 | Bonding, shapes, polarity, and intermolecular forces (Ch. 10) | [Escape from Lewis Manor](https://neogio73.github.io/CHM1025/lewis-manor/) | Game (Halloween) |
 | Course policies in the syllabus | [Beaker Catch](https://neogio73.github.io/CHM1025/beaker-catch/) | Game (first week, ungraded) |
 
@@ -14,7 +14,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 
 A 3D game about the size of things. You play Ångström, a scientist in a shrinking suit, guided by BOHR, the suit's lab assistant. Each trip on a shrink pad makes you 1000 times smaller, from a chemistry lab down to the sodium and chloride ions of a single grain of salt.
 
-The game is being built one level at a time. Levels 1 and 2 are playable now; finishing Level 1 leads straight into Level 2.
+The game is being built one level at a time. Levels 1 to 3 are playable now; finishing each level leads straight into the next.
 
 **Level 1: Scale Drop**
 
@@ -36,9 +36,20 @@ The game is being built one level at a time. Levels 1 and 2 are playable now; fi
 
 Four multiple-choice checkpoints sit between the builds: what a new proton does, mass number, what changes when an atom becomes an ion, and finding a charge. A wrong build gets a hint for the count that is off, then a worked example with a different ion.
 
+**Level 3: Isotope Vault** (1.85 pm). Isotopes are written as full atomic symbols, with the mass number at the upper left and the atomic number at the lower left.
+
+| Part | What it practices |
+| --- | --- |
+| Build hydrogen-1, hydrogen-2, and oxygen-18 | Isotopes: same number of protons, different numbers of neutrons |
+| Checkpoints on iodine-131 and calcium isotopes | Counting neutrons and recognizing isotopes from atomic symbols |
+| Isotope sorter (a model of a mass spectrometer) | Percent abundance, using samples of gallium and rubidium |
+| Gallium, step by step, then rubidium (boss) | Typed atomic mass as a weighted average, in amu |
+
+Atomic-mass answers must be within 0.02 amu, because a 2% margin would also accept wrong methods, such as averaging the two isotope masses. Isotope masses and abundances come from the NIST [Atomic Weights and Isotopic Compositions](https://www.nist.gov/pml/atomic-weights-and-isotopic-compositions-relative-atomic-masses) tables, rounded to two decimal places.
+
 - **Move** with <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or the arrow keys, hold <kbd>Shift</kbd> to walk, and press <kbd>Space</kbd> to jump. Hold the right mouse button and drag to look around, and scroll to zoom.
 - **Use** a terminal, pad, or the Atom Forge console with <kbd>E</kbd>. <kbd>Space</kbd> or a click moves BOHR's dialogue along. In the Atom Forge, hold a **+** or **-** button to change a count quickly, and press **Lock in** or <kbd>Enter</kbd>.
-- **Wrong answers** give a hint, then a worked example with different numbers. Typed answers are accepted within 2%.
+- **Wrong answers** give a hint, then a worked example with different numbers. Typed answers are accepted within 2%, except atomic masses, which must be within 0.02 amu.
 - **Nothing is recorded.** The mission report at the end of each level shows how many checkpoints were right on the first try.
 
 The game needs a computer with a browser that supports WebGL 2, which covers current versions of Chrome, Edge, Firefox, and Safari. The first load downloads about 45 MB.
@@ -81,7 +92,7 @@ A short game for the first week that sends students to the syllabus. True and fa
 
 The repository is published with GitHub Pages from the `main` branch, so every file is served at `https://neogio73.github.io/CHM1025/` followed by its path.
 
-To check a later part without replaying from the start, add `?zone=1`, `?zone=2`, or `?zone=3` to the address to start Level 1 in a later world, or `?level=2` to start at Level 2. For example, [`smaller-than-small/?level=2`](https://neogio73.github.io/CHM1025/smaller-than-small/?level=2) opens the Atom Forge.
+To check a later part without replaying from the start, add `?zone=1`, `?zone=2`, or `?zone=3` to the address to start Level 1 in a later world, or `?level=2` or `?level=3` to start at Level 2 or 3. For example, [`smaller-than-small/?level=3`](https://neogio73.github.io/CHM1025/smaller-than-small/?level=3) opens the Isotope Vault.
 
 Escape from Lewis Manor is a single file, [`lewis-manor/index.html`](lewis-manor/index.html), with its art and sound made in code; it loads three fonts from Google Fonts and opens straight from the file with a double-click.
 
