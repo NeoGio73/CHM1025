@@ -198,7 +198,7 @@ const Sound = (() => {
 })();
 
 // ============================================================ term bank & menu
-const BANK = (window.TERMS || []).filter(t => !(window.SKIP_SECTIONS || []).includes(t.section));
+const BANK = (window.TERMS || []).filter(t => !(window.SKIP_SECTIONS || []).includes(t.section) && !(window.SKIP_TERMS || []).includes(t.id));
 const CH_NAMES = window.CHAPTER_NAMES || {};
 let selected = new Set(store.get('mh_chapters', [...new Set(BANK.map(t => t.chapter))]));
 function buildMenu() {

@@ -12,7 +12,8 @@ let S = null, P = null, recent = [];
 // ---------- the question: a category (group) whose members are in the chosen chapters
 function pickGroup() {
   const pool = new Set(G.pool.map(t => t.id));
-  const ok = (window.GROUPS || []).filter(g => g.members.filter(id => pool.has(id)).length >= 2);
+  // a category plays only with at least 3 of its terms in play (skipped sections can empty a group)
+  const ok = (window.GROUPS || []).filter(g => g.members.filter(id => pool.has(id)).length >= 3);
   if (!ok.length) return null;
   const fresh = ok.filter(g => !recent.includes(g.id));
   const g = pick(fresh.length ? fresh : ok);

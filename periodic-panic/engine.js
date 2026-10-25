@@ -279,7 +279,7 @@ const Voice = (() => {
 })();
 
 // ============================================================ term bank
-const BANK = (window.TERMS || []).filter(t => !(window.SKIP_SECTIONS || []).includes(t.section));
+const BANK = (window.TERMS || []).filter(t => !(window.SKIP_SECTIONS || []).includes(t.section) && !(window.SKIP_TERMS || []).includes(t.id));
 const CH_NAMES = window.CHAPTER_NAMES || {};
 
 // ============================================================ input

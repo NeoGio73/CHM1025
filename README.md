@@ -96,7 +96,7 @@ A short game for the first week that sends students to the syllabus. True and fa
 
 ## Periodic Panic
 
-The vocabulary review games in one arcade game, using the 243 Key Terms of Chapters 1–12 and 14 of Timberlake, *Basic Chemistry*, 6th edition. Each stage is a different early-1980s style game, described in the sections below. The stages build on each other: the first five work on single terms (recognizing what a term means, and in Shield Spell spelling it exactly), and the last, Zip Sort, ties them together by asking which terms belong together.
+The vocabulary review games in one arcade game, using the Key Terms of Chapters 1–12 and 14 of Timberlake, *Basic Chemistry*, 6th edition, except those from sections this course does not cover (204 terms). Each stage is a different early-1980s style game, described in the sections below. The stages build on each other: the first five work on single terms (recognizing what a term means, and in Shield Spell spelling it exactly), and the last, Zip Sort, ties them together by asking which terms belong together.
 
 - **Arcade mode** plays the stages in order: Robo-Lab, Mole Hole, Jungle Jump, Shield Spell, Isotope, then the finale, Zip Sort. Four correct answers warp the player to the next stage, keeping the score, lives, and list of missed terms. After the last stage it loops back to the first, a little faster each time.
 - **Free play** lets students pick one game from a row of cartridges and practice it as long as they like.
@@ -120,7 +120,7 @@ The spelling stage, in the style of early-1980s home console shooters. A reactor
 - **Move** with the arrow keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>; the bug flies and faces in all 8 directions (hold two arrows for a diagonal), and the screen wraps from top to bottom. <kbd>Space</kbd> shoots the way the bug faces, clearing blank blocks to reach letters deeper in the shield, and fires the cannon once the word is spelled.
 - A wrong letter flashes and gives a hint ("The next letter isn't A"); after three, the next correct letter glows. Spaces and hyphens fill in by themselves.
 - A slow homing missile chases the bug, except inside the shimmering zone in the middle of the screen. From level 2, the core sometimes spins up and lunges at the bug.
-- Only terms that make sense to spell are used here (182 of the 243; those with subscripts or symbols, such as K<sub>a</sub>, and very long names appear in the other stages).
+- Only terms that make sense to spell are used here (153 of the 204; those with subscripts or symbols, such as H<sub>3</sub>O<sup>+</sup>, and very long names appear in the other stages).
 
 ### Isotope (stage 5)
 
@@ -137,11 +137,11 @@ The finale, in the style of early-1980s box-zipping maze games, and the stage th
 - **Move** a zipper pull along the lines of the maze with the arrow keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>. Tracing all four sides of a box zips it shut.
 - A box that fits the category turns green, and a counter shows how many are left; a box that does not turns red and shows what its term means. After two wrong boxes, the remaining right ones glow.
 - Roaming eyes chase the zipper pull. Closing the pitchfork box lets it chase them for a few seconds.
-- There are 24 categories, built only from the Key Terms already in the game. A missed category appears on the end screen with all of its members.
+- There are 19 categories, built only from the Key Terms already in the game (a category is used only when at least three of its terms are in the course). A missed category appears on the end screen with all of its members.
 
 ## Robo-Lab
 
-A vocabulary review game in the style of early-1980s maze shooters. A clue appears at the top of the screen, and robots wander the maze carrying key terms. Zap the robot whose term matches the clue to unlock the doors, then move on to the next room. The terms are the Key Terms of Chapters 1–12 and 14 of Timberlake, *Basic Chemistry*, 6th edition (243 terms), and students choose which chapters to play.
+A vocabulary review game in the style of early-1980s maze shooters. A clue appears at the top of the screen, and robots wander the maze carrying key terms. Zap the robot whose term matches the clue to unlock the doors, then move on to the next room. The terms are the Key Terms of Chapters 1–12 and 14 of Timberlake, *Basic Chemistry*, 6th edition, except those from sections this course does not cover (204 terms), and students choose which chapters to play.
 
 - **Move** with the arrow keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> and fire with <kbd>Space</kbd>, in the direction you face. On a phone, an on-screen stick and fire button appear at the first touch.
 - **Each room starts paused** so students can read the clue and scan the robots' terms; moving, firing, or tapping starts it. The menu can turn this off.
@@ -154,7 +154,7 @@ The clues are written for this game in plain language, not quoted from the textb
 
 ## Mole Hole
 
-A vocabulary review game in the style of early-1980s digging games, using the same 243 Key Terms as Robo-Lab. You play a mole in goggles. A clue appears at the top of the screen, and four crystals labeled with terms are buried in the dirt. Tunnel to the crystal whose term matches the clue to clear the field and get a new one.
+A vocabulary review game in the style of early-1980s digging games, using the same 204 Key Terms as Robo-Lab. You play a mole in goggles. A clue appears at the top of the screen, and four crystals labeled with terms are buried in the dirt. Tunnel to the crystal whose term matches the clue to clear the field and get a new one.
 
 - **Dig** with the arrow keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>. On a phone, an on-screen stick and throw button appear at the first touch.
 - **Each field starts paused** so students can read the clue and the crystal labels; moving or tapping starts it. The menu can turn this off.
