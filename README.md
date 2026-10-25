@@ -50,9 +50,10 @@ Atomic-mass answers must be within 0.02 amu, because a 2% margin would also acce
 - **Move** with <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or the arrow keys, hold <kbd>Shift</kbd> to walk, and press <kbd>Space</kbd> to jump. Hold the right mouse button and drag to look around, and scroll to zoom.
 - **Use** a terminal, pad, or the Atom Forge console with <kbd>E</kbd>. <kbd>Space</kbd> or a click moves BOHR's dialogue along. In the Atom Forge, hold a **+** or **-** button to change a count quickly, and press **Lock in** or <kbd>Enter</kbd>.
 - **Wrong answers** give a hint, then a worked example with different numbers. Typed answers are accepted within 2%, except atomic masses, which must be within 0.02 amu.
+- **Sound** is on by default. Press <kbd>M</kbd> to mute or unmute.
 - **Nothing is recorded.** The mission report at the end of each level shows how many checkpoints were right on the first try.
 
-The game needs a computer with a browser that supports WebGL 2, which covers current versions of Chrome, Edge, Firefox, and Safari. The first load downloads about 45 MB.
+The game needs a computer with a browser that supports WebGL 2, which covers current versions of Chrome, Edge, Firefox, and Safari. The first load downloads about 50 MB.
 
 ## Escape from Lewis Manor
 
@@ -109,4 +110,6 @@ Smaller Than Small is a finished build of a Unity project that is kept outside t
 
 ## Credits
 
+- Sound effects are from Kenney's [Interface Sounds](https://opengameart.org/content/interface-sounds) and [Sci-Fi Sounds](https://opengameart.org/content/sci-fi-sounds) (CC0, www.kenney.nl).
+- Particle effects are from Unity Technologies' [Particle Pack](https://assetstore.unity.com/packages/vfx/particles/particle-pack-starter-assets-127325) on the Unity Asset Store.
 - The hero is the [Sci Fi Space Soldier](https://assetstore.unity.com/packages/3d/characters/humanoids/sci-fi/sci-fi-space-soldier-polygonr-66384) model by PolygonR from the Unity Asset Store, recolored. Its animations are from [Mixamo](https://www.mixamo.com/).
