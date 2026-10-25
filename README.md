@@ -10,6 +10,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 | Bonding, shapes, polarity, and intermolecular forces (Ch. 10) | [Escape from Lewis Manor](https://neogio73.github.io/CHM1025/lewis-manor/) | Game (Halloween) |
 | Course policies in the syllabus | [Beaker Catch](https://neogio73.github.io/CHM1025/beaker-catch/) | Game (first week, ungraded) |
 | Key terms from Chapters 1–12 and 14 | [Robo-Lab](https://neogio73.github.io/CHM1025/robo-lab/) | Game (vocabulary review, ungraded) |
+| Key terms from Chapters 1–12 and 14 | [Mole Hole](https://neogio73.github.io/CHM1025/mole-hole/) | Game (vocabulary review, ungraded) |
 
 ## Smaller Than Small
 
@@ -104,6 +105,18 @@ A vocabulary review game in the style of early-1980s maze shooters. A clue appea
 
 The clues are written for this game in plain language, not quoted from the textbook.
 
+## Mole Hole
+
+A vocabulary review game in the style of early-1980s digging games, using the same 243 Key Terms as Robo-Lab. You play a mole in goggles. A clue appears at the top of the screen, and four crystals labeled with terms are buried in the dirt. Tunnel to the crystal whose term matches the clue to clear the field and get a new one.
+
+- **Dig** with the arrow keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>. On a phone, an on-screen stick and throw button appear at the first touch.
+- **Each field starts paused** so students can read the clue and the crystal labels; moving or tapping starts it. The menu can turn this off.
+- **Wrong crystals** shatter, show what their term means, and let out another grime blob. After two misses the right crystal glows. Missed terms come back a few fields later.
+- **Grime blobs** chase the mole through its tunnels, and now and then one turns into a digger that burrows straight through the dirt. Dig under a boulder to drop it on them, or press <kbd>Space</kbd> to throw the catalyst, which bounces through the tunnels and recharges after a hit. Boulders can flatten the mole too.
+- **Electrons** in the dirt are worth points, with a bonus for collecting them all. A tune plays only while the mole is moving; the menu can turn it off.
+- **Five lives**, plus a bonus life every 5,000 points. The end screen lists every term the student missed, with its clue and textbook section, to review.
+- **Nothing is recorded.** It is a practice tool.
+
 ## For instructors
 
 The repository is published with GitHub Pages from the `main` branch, so every file is served at `https://neogio73.github.io/CHM1025/` followed by its path.
@@ -123,7 +136,7 @@ Beaker Catch is a single file, [`beaker-catch/index.html`](beaker-catch/index.ht
 
 The plain link is for students who read the announcement by email or in the Pulse app, where the game may not show.
 
-Robo-Lab is two files: [`robo-lab/index.html`](robo-lab/index.html), the game, with its art and sound made in code, and [`robo-lab/terms.js`](robo-lab/terms.js), the term bank. The term bank is generated from source files kept outside this repository, so the folder is replaced as a whole when the terms change. The game loads two fonts from Google Fonts and opens straight from the file with a double-click.
+Robo-Lab is two files: [`robo-lab/index.html`](robo-lab/index.html), the game, with its art and sound made in code, and [`robo-lab/terms.js`](robo-lab/terms.js), the term bank. The term bank is generated from source files kept outside this repository, so the folder is replaced as a whole when the terms change. The game loads two fonts from Google Fonts and opens straight from the file with a double-click. Mole Hole, in [`mole-hole/`](mole-hole/index.html), is built the same way and shares the same term bank.
 
 Smaller Than Small is a finished build of a Unity project that is kept outside this repository. Its folder is replaced as a whole when the game changes, so edits made to its files here would be lost. To run a copy on your own computer, serve the folder with a web server, for example `python -m http.server 8000`, then open `http://localhost:8000/smaller-than-small/`.
 

@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>Mole Hole</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#07050a; --fg:#fff4e6; --accent:#ffb347; --warn:#ff4d6d; --gold:#ffd23f; --dim:#7a6a5d; --teal:#38f0c8; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--fg); overflow:hidden;
+    font-family:'VT323', monospace; -webkit-user-select:none; user-select:none; touch-action:none; }
+  #wrap { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; }
+  canvas { image-rendering: pixelated; background:#000; max-width:100vw; max-height:100vh; }
+  .overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(5,3,8,.92); z-index:5; padding:16px; }
+  .overlay.hidden { display:none; }
+  .panel { max-width:760px; width:100%; max-height:100%; overflow:auto; border:3px solid var(--accent);
+    padding:20px 24px; background:#0d0907; box-shadow:0 0 0 3px #000, 0 0 30px rgba(255,179,71,.25); }
+  h1 { font-family:'Press Start 2P', monospace; font-size:clamp(20px,5vw,38px); margin:4px 0 6px; color:var(--accent);
+    text-shadow:3px 3px 0 #5a3410; letter-spacing:2px; }
+  h2 { font-family:'Press Start 2P', monospace; font-size:14px; color:var(--gold); margin:18px 0 10px; }
+  p { font-size:22px; line-height:1.15; margin:6px 0; }
+  .sub { color:var(--dim); font-size:20px; }
+  .chapters { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px,1fr)); gap:6px; }
+  .chapters label { display:flex; gap:8px; align-items:center; font-size:21px; cursor:pointer; padding:4px 6px; border:1px solid #2e241c; }
+  .chapters label:hover { border-color:var(--accent); }
+  .chapters input { accent-color:var(--accent); width:18px; height:18px; }
+  .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:14px; }
+  button { font-family:'Press Start 2P', monospace; font-size:13px; padding:12px 16px; background:#000; color:var(--accent);
+    border:3px solid var(--accent); cursor:pointer; }
+  button:hover, button:focus-visible { background:var(--accent); color:#000; outline:none; }
+  button:disabled { opacity:.4; cursor:default; }
+  button.small { font-size:10px; padding:8px 10px; color:var(--fg); border-color:var(--dim); }
+  .keys { color:var(--dim); font-size:19px; margin-top:12px; }
+  .keys b { color:var(--fg); font-weight:normal; }
+  .missed { margin:0; padding:0; list-style:none; }
+  .missed li { border-left:3px solid var(--warn); padding:4px 10px; margin:6px 0; font-size:21px; }
+  .missed li b { color:var(--gold); font-weight:normal; }
+  .stat { font-family:'Press Start 2P', monospace; font-size:12px; color:var(--fg); }
+  #touch { position:fixed; inset:auto 0 0 0; height:42vh; display:none; z-index:3; pointer-events:none; }
+  #touch.on { display:block; }
+  #stick { position:absolute; left:4vw; bottom:4vh; width:150px; height:150px; border-radius:50%;
+    border:3px solid rgba(255,179,71,.5); pointer-events:auto; }
+  #knob { position:absolute; left:50%; top:50%; width:60px; height:60px; margin:-30px; border-radius:50%; background:rgba(255,179,71,.35); }
+  #fire { position:absolute; right:5vw; bottom:6vh; width:110px; height:110px; border-radius:50%;
+    border:3px solid rgba(255,210,63,.7); background:rgba(255,210,63,.2); pointer-events:auto;
+    font-family:'Press Start 2P'; font-size:11px; color:#fff; display:flex; align-items:center; justify-content:center; }
+  .credits { color:var(--dim); font-size:17px; margin-top:16px; border-top:1px solid #2e241c; padding-top:8px; }
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="game" width="800" height="600"></canvas></div>
+
+<div id="touch"><div id="stick"><div id="knob"></div></div><div id="fire">THROW</div></div>
+
+<div class="overlay" id="menu">
+  <div class="panel">
+    <h1>MOLE HOLE</h1>
+    <p class="sub">A chemistry vocabulary arcade. Read the clue, then dig your way to the crystal with the matching term.</p>
+    <h2>CHAPTERS</h2>
+    <div class="chapters" id="chapterList"></div>
+    <div class="row">
+      <button class="small" id="allBtn">ALL</button>
+      <button class="small" id="noneBtn">NONE</button>
+      <span class="sub" id="poolCount"></span>
+    </div>
+    <div class="row">
+      <button id="startBtn">START</button>
+      <button class="small" id="soundBtn">SOUND: ON</button>
+      <button class="small" id="musicBtn">MUSIC: ON</button>
+      <button class="small" id="readBtn">PAUSE TO READ: ON</button>
+    </div>
+    <p class="keys">
+      <b>Dig</b> arrows / WASD &nbsp; <b>Throw catalyst</b> space &nbsp; <b>Pause</b> P &nbsp; <b>Mute</b> M<br>
+      Four crystals are buried in the dirt, each with a term. Tunnel to the one that matches the clue.
+      Grime blobs chase you through your tunnels. Dig under a boulder to drop it on them, or throw your
+      catalyst, which bounces through the tunnels and comes back after a few seconds. Collect electrons for points.
+    </p>
+    <h2>SOUND TEST</h2>
+    <div class="row" id="soundTest" style="margin-top:0"></div>
+    <p class="stat" id="hiScore"></p>
+    <p class="credits">Original game, art, music, and sounds. Inspired by early-1980s digging games. Clues are written for this game and are not quoted from any textbook.</p>
+  </div>
+</div>
+
+<div class="overlay hidden" id="over">
+  <div class="panel">
+    <h1 id="overTitle">GAME OVER</h1>
+    <p class="stat" id="overStats"></p>
+    <h2 id="missedHead">REVIEW THESE</h2>
+    <ul class="missed" id="missedList"></ul>
+    <div class="row"><button id="againBtn">PLAY AGAIN</button><button class="small" id="menuBtn">CHAPTERS</button></div>
+  </div>
+</div>
+
+<script src="terms.js"></script>
+<script>
+"use strict";
+// ============================================================ setup
+const cv = document.getElementById('game'), ctx = cv.getContext('2d');
+const W = 800, H = 600, HUD_H = 92;
+const T = 48, COLS = 15, ROWS = 10, X0 = 40, Y0 = 100;   // dirt grid
+const tc = c => X0 + c * T + T / 2, tr = r => Y0 + r * T + T / 2;
+const colOf = x => Math.floor((x - X0) / T), rowOf = y => Math.floor((y - Y0) / T);
+const inGrid = (c, r) => c >= 0 && c < COLS && r >= 0 && r < ROWS;
+const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+const REV = { up: 'down', down: 'up', left: 'right', right: 'left' };
+
+function fit() { const s = Math.min(innerWidth / W, innerHeight / H); cv.style.width = W * s + 'px'; cv.style.height = H * s + 'px'; }
+addEventListener('resize', fit); fit();
+
+const rand = (a, b) => a + Math.random() * (b - a);
+const ri = (a, b) => Math.floor(rand(a, b + 1));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = ri(0, i); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+// ============================================================ sound (all synthesized, no samples)
+// Early-80s style: square waves, stepped sweeps, sample-and-hold noise, an 8-bit quantizer.
+const Sound = (() => {
+  let ac = null, master = null, on = store.get('mh_sound', true), music = store.get('mh_music', true);
+  function init() {
+    if (ac) return;
+    try {
+      ac = new (window.AudioContext || window.webkitAudioContext)();
+      master = ac.createGain(); master.gain.value = 0.3;
+      const crush = ac.createWaveShaper(), n = 2048, curve = new Float32Array(n), steps = 12;
+      for (let i = 0; i < n; i++) { const x = i / (n - 1) * 2 - 1; curve[i] = Math.round(x * steps) / steps; }
+      crush.curve = curve; master.connect(crush); crush.connect(ac.destination);
+    } catch (e) { ac = null; }
+  }
+  const ready = () => ac && on;
+  function sweep({ type = 'square', f0, f1 = f0, dur, vol = 0.3, delay = 0, steps = 12, lin = false }) {
+    if (!ready()) return;
+    const t = ac.currentTime + delay, o = ac.createOscillator(), g = ac.createGain();
+    o.type = type;
+    for (let i = 0; i <= steps; i++) { const k = i / steps; o.frequency.setValueAtTime(lin ? f0 + (f1 - f0) * k : f0 * Math.pow(f1 / f0, k), t + k * dur); }
+    g.gain.setValueAtTime(vol, t); g.gain.setValueAtTime(vol, t + dur * 0.75); g.gain.linearRampToValueAtTime(0, t + dur);
+    o.connect(g); g.connect(master); o.start(t); o.stop(t + dur + 0.03);
+  }
+  function noise({ dur = 0.45, vol = 0.5, hold0 = 1, hold1 = 36, cutoff = 5000, delay = 0 }) {
+    if (!ready()) return;
+    const t = ac.currentTime + delay, n = Math.floor(ac.sampleRate * dur);
+    const buf = ac.createBuffer(1, n, ac.sampleRate), d = buf.getChannelData(0); let v = 0;
+    for (let i = 0; i < n; i++) { const hold = Math.max(1, Math.round(hold0 + (hold1 - hold0) * i / n)); if (i % hold === 0) v = Math.random() < 0.5 ? -1 : 1; d[i] = v; }
+    const s = ac.createBufferSource(); s.buffer = buf;
+    const lp = ac.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = cutoff;
+    const g = ac.createGain(); g.gain.setValueAtTime(vol, t); g.gain.linearRampToValueAtTime(0, t + dur);
+    s.connect(lp); lp.connect(g); g.connect(master); s.start(t);
+  }
+  function buzz({ f0, f1 = f0, dur, rate = 28, depth = 0.6, vol = 0.3, delay = 0 }) {
+    if (!ready()) return;
+    const t = ac.currentTime + delay, o = ac.createOscillator(), lfo = ac.createOscillator(), lg = ac.createGain(), g = ac.createGain();
+    o.type = 'square'; lfo.type = 'square';
+    o.frequency.setValueAtTime(f0, t); o.frequency.linearRampToValueAtTime(f1, t + dur);
+    lfo.frequency.value = rate; lg.gain.value = f0 * depth; lfo.connect(lg); lg.connect(o.frequency);
+    g.gain.setValueAtTime(vol, t); g.gain.setValueAtTime(vol, t + dur * 0.8); g.gain.linearRampToValueAtTime(0, t + dur);
+    o.connect(g); g.connect(master); o.start(t); lfo.start(t); o.stop(t + dur + 0.03); lfo.stop(t + dur + 0.03);
+  }
+  // Original tune that plays only while the mole is moving. Notes are MIDI numbers, 0 = rest.
+  const MEL = [72, 0, 76, 79, 77, 0, 74, 77, 76, 0, 72, 76, 74, 71, 67, 0,
+               72, 0, 76, 79, 81, 0, 79, 77, 76, 74, 76, 72, 74, 0, 72, 0];
+  const BASS = [48, 55, 48, 55, 50, 57, 50, 57, 52, 55, 52, 55, 43, 50, 43, 50];
+  let step = 0;
+  const midi = m => 440 * Math.pow(2, (m - 69) / 12);
+  return {
+    init, get on() { return on; }, get music() { return music; },
+    toggle() { on = !on; store.set('mh_sound', on); return on; },
+    toggleMusic() { music = !music; store.set('mh_music', music); return music; },
+    musicStep() {   // called on a fixed beat while the player moves
+      if (!ready() || !music) return;
+      const m = MEL[step % MEL.length], b = BASS[Math.floor(step / 2) % BASS.length];
+      if (m) sweep({ f0: midi(m), dur: 0.12, vol: 0.12, steps: 1 });
+      if (step % 2 === 0) sweep({ type: 'triangle', f0: midi(b), dur: 0.2, vol: 0.2, steps: 1 });
+      step++;
+    },
+    throwBall() { sweep({ f0: 500, f1: 1600, dur: 0.12, vol: 0.22, steps: 8 }); },
+    ballBack()  { sweep({ f0: 1000, f1: 1500, dur: 0.06, vol: 0.18, steps: 2 }); sweep({ f0: 1500, dur: 0.08, vol: 0.18, steps: 1, delay: 0.07 }); },
+    pop()       { sweep({ f0: 900, f1: 120, dur: 0.22, vol: 0.28, steps: 10 }); noise({ dur: 0.18, vol: 0.25, hold0: 1, hold1: 10 }); },
+    electron()  { sweep({ f0: 1800, f1: 2400, dur: 0.05, vol: 0.14, steps: 2 }); },
+    wobble()    { for (let i = 0; i < 4; i++) sweep({ f0: i % 2 ? 140 : 170, dur: 0.07, vol: 0.18, steps: 1, delay: i * 0.12 }); },
+    thud()      { noise({ dur: 0.35, vol: 0.5, hold0: 6, hold1: 50, cutoff: 1500 }); sweep({ f0: 160, f1: 50, dur: 0.25, vol: 0.25, steps: 6 }); },
+    crumble()   { noise({ dur: 0.5, vol: 0.45, hold0: 2, hold1: 30 }); },
+    correct()   { [523, 659, 784, 1047, 1319].forEach((f, i) => sweep({ f0: f, dur: 0.07, vol: 0.22, steps: 1, delay: i * 0.065 })); },
+    wrong()     { buzz({ f0: 110, f1: 90, dur: 0.38, rate: 14, depth: 0.4, vol: 0.3 }); noise({ dur: 0.3, vol: 0.2, hold0: 1, hold1: 8 }); },
+    spawn()     { sweep({ type: 'sawtooth', f0: 200, f1: 400, dur: 0.18, vol: 0.15, steps: 6 }); },
+    digger()    { buzz({ f0: 300, f1: 340, dur: 0.4, rate: 40, depth: 0.3, vol: 0.18 }); },
+    death()     { buzz({ f0: 220, f1: 110, dur: 1.2, rate: 26, depth: 0.7, vol: 0.3 }); sweep({ f0: 700, f1: 70, dur: 0.45, vol: 0.22, steps: 14, delay: 1.15 }); },
+    clear()     { [523, 784, 659, 1047, 784, 1319, 1568].forEach((f, i) => sweep({ f0: f, dur: 0.09, vol: 0.2, steps: 1, delay: i * 0.09 })); },
+    blip()      { sweep({ f0: 1400, dur: 0.04, vol: 0.16, steps: 1 }); }
+  };
+})();
+
+// ============================================================ term bank & menu
+const BANK = (window.TERMS || []).filter(t => !(window.SKIP_SECTIONS || []).includes(t.section));
+const CH_NAMES = window.CHAPTER_NAMES || {};
+let selected = new Set(store.get('mh_chapters', [...new Set(BANK.map(t => t.chapter))]));
+function buildMenu() {
+  const list = document.getElementById('chapterList'); list.innerHTML = '';
+  const chs = [...new Set(BANK.map(t => t.chapter))].sort((a, b) => a - b);
+  chs.forEach(ch => {
+    const n = BANK.filter(t => t.chapter === ch).length;
+    const lab = document.createElement('label'); lab.title = CH_NAMES[ch] || '';
+    lab.innerHTML = `<input type="checkbox" ${selected.has(ch) ? 'checked' : ''}> Ch ${ch} <span class="sub">(${n})</span>`;
+    lab.querySelector('input').onchange = e => { e.target.checked ? selected.add(ch) : selected.delete(ch); updCount(); };
+    list.appendChild(lab);
+  });
+  document.getElementById('allBtn').onclick = () => { chs.forEach(c => selected.add(c)); buildMenu(); };
+  document.getElementById('noneBtn').onclick = () => { selected.clear(); buildMenu(); };
+  updCount();
+  const hs = store.get('mh_hi', 0); document.getElementById('hiScore').textContent = hs ? `HIGH SCORE ${hs}` : '';
+}
+function updCount() {
+  const n = BANK.filter(t => selected.has(t.chapter)).length;
+  document.getElementById('poolCount').textContent = `${n} terms selected`;
+  document.getElementById('startBtn').disabled = n < 4;
+}
+
+// ============================================================ input
+const keys = {};
+let touchUsed = false, pressLatch = false, fireLatch = false, lastAxisKey = null;
+let readFirst = store.get('mh_readfirst', true);
+const touchVec = { x: 0, y: 0, fire: false };
+addEventListener('keydown', e => {
+  const k = e.key.toLowerCase();
+  if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k)) e.preventDefault();
+  keys[k] = true;
+  if (!e.repeat && ['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'w', 'a', 's', 'd', ' '].includes(k)) pressLatch = true;
+  if (['arrowup', 'arrowdown', 'w', 's'].includes(k)) lastAxisKey = 'v';
+  if (['arrowleft', 'arrowright', 'a', 'd'].includes(k)) lastAxisKey = 'h';
+  if (k === ' ') fireLatch = true;
+  if (k === 'p' || k === 'escape') { if (G && G.state !== 'over') G.paused = !G.paused; }
+  if (k === 'm') { Sound.toggle(); syncButtons(); }
+});
+addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+(function setupTouch() {
+  addEventListener('touchstart', () => { touchUsed = true; document.getElementById('touch').classList.add('on'); }, { once: true, passive: true });
+  cv.addEventListener('pointerdown', () => { if (G && G.ready) G.startReq = true; });
+  const stick = document.getElementById('stick'), knob = document.getElementById('knob'), fire = document.getElementById('fire');
+  let sid = null;
+  const move = t => {
+    const r = stick.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    let dx = t.clientX - cx, dy = t.clientY - cy; const m = Math.hypot(dx, dy), max = r.width / 2;
+    if (m > max) { dx *= max / m; dy *= max / m; }
+    knob.style.transform = `translate(${dx}px,${dy}px)`;
+    // one axis at a time (the stronger one), since the mole moves in four directions
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < max * 0.3) { touchVec.x = touchVec.y = 0; }
+    else if (Math.abs(dx) > Math.abs(dy)) { touchVec.x = Math.sign(dx); touchVec.y = 0; }
+    else { touchVec.y = Math.sign(dy); touchVec.x = 0; }
+  };
+  stick.addEventListener('touchstart', e => { e.preventDefault(); Sound.init(); sid = e.changedTouches[0].identifier; move(e.changedTouches[0]); });
+  stick.addEventListener('touchmove', e => { e.preventDefault(); for (const t of e.changedTouches) if (t.identifier === sid) move(t); });
+  const end = e => { for (const t of e.changedTouches) if (t.identifier === sid) { sid = null; touchVec.x = touchVec.y = 0; knob.style.transform = ''; } };
+  stick.addEventListener('touchend', end); stick.addEventListener('touchcancel', end);
+  fire.addEventListener('touchstart', e => { e.preventDefault(); touchVec.fire = true; fireLatch = true; });
+  fire.addEventListener('touchend', e => { e.preventDefault(); touchVec.fire = false; });
+})();
+function readInput() {
+  let x = 0, y = 0;
+  if (keys['arrowleft'] || keys['a']) x -= 1;
+  if (keys['arrowright'] || keys['d']) x += 1;
+  if (keys['arrowup'] || keys['w']) y -= 1;
+  if (keys['arrowdown'] || keys['s']) y += 1;
+  x = x || touchVec.x; y = y || touchVec.y;
+  let dir = null;
+  const h = x ? (x < 0 ? 'left' : 'right') : null, v = y ? (y < 0 ? 'up' : 'down') : null;
+  if (h && v) dir = lastAxisKey === 'h' ? h : v; else dir = h || v;
+  const fire = fireLatch || keys[' '] || touchVec.fire; fireLatch = false;
+  return { dir, fire };
+}
+
+// ============================================================ game state
+let G = null;
+const PALETTES = [   // dirt colours per level: [base, speckle, edge]
+  ['#8a4f1d', '#a8682e', '#5e3412'], ['#6b6b2a', '#8c8c3c', '#44441a'], ['#2f6b5a', '#3f8a75', '#1d4439'],
+  ['#7a2f4f', '#9c4268', '#4d1d32'], ['#3a4f8a', '#4f68a8', '#25325a'], ['#8a6a1d', '#a8862e', '#5e4712']
+];
+const GEM_COLS = ['#38f0c8', '#c77dff', '#ff8c42', '#7bdff2', '#ffd23f'];
+
+function newGame() {
+  const pool = BANK.filter(t => selected.has(t.chapter));
+  store.set('mh_chapters', [...selected]);
+  G = { pool, queue: shuffle(pool.slice()), score: 0, lives: 5, round: 0, level: 1, solved: 0,
+        missed: new Map(), state: 'play', paused: false, t: 0, particles: [], banner: null, nextLifeAt: 5000,
+        beat: 0 };
+  newLevel(null);
+}
+function nextTarget() { if (!G.queue.length) G.queue = shuffle(G.pool.slice()); return G.queue.shift(); }
+
+// Build a fresh field of dirt with a starting tunnel, a monster den, boulders, electrons and four crystals.
+function newLevel(keepTarget) {
+  const dug = [...Array(ROWS)].map(() => Array(COLS).fill(false));
+  const start = { c: 7, r: 9 }, den = { c: 7, r: 3 };
+  for (let c = 5; c <= 9; c++) dug[9][c] = true;                    // player's starting pocket
+  for (let c = 4; c <= 10; c++) dug[den.r][c] = true;               // den tunnel
+  // a couple of random starter tunnels
+  for (let k = 0; k < 2; k++) {
+    if (Math.random() < 0.5) { const r = ri(1, 7), c0 = ri(0, 8); for (let c = c0; c < c0 + ri(3, 6) && c < COLS; c++) dug[r][c] = true; }
+    else { const c = pick([1, 2, 12, 13]), r0 = ri(1, 4); for (let r = r0; r < r0 + ri(3, 5) && r < ROWS - 1; r++) dug[r][c] = true; }
+  }
+  const taken = new Set([`${start.c},${start.r}`]);
+  const free = (c, r) => inGrid(c, r) && !dug[r][c] && !taken.has(`${c},${r}`);
+  // crystals: four terms, spread apart, in undug dirt
+  const target = keepTarget || nextTarget();
+  const same = shuffle(G.pool.filter(t => t.id !== target.id && t.chapter === target.chapter));
+  const other = shuffle(G.pool.filter(t => t.id !== target.id && t.chapter !== target.chapter));
+  const dis = [];
+  for (const t of [...same.slice(0, 2), ...other, ...same]) { if (dis.length >= 3) break; if (!dis.includes(t) && t.short.toLowerCase() !== target.short.toLowerCase()) dis.push(t); }
+  const crystals = [];
+  for (const term of shuffle([target, ...dis])) {
+    for (let tries = 0; tries < 400; tries++) {
+      const c = ri(0, COLS - 1), r = ri(0, ROWS - 2);
+      if (!free(c, r) || r === 0) continue;
+      if (crystals.some(x => Math.abs(x.c - c) + Math.abs(x.r - r) < 5)) continue;
+      if (Math.abs(c - start.c) + Math.abs(r - start.r) < 3) continue;
+      crystals.push({ c, r, term, broken: false, col: GEM_COLS[crystals.length % GEM_COLS.length] }); taken.add(`${c},${r}`); break;
+    }
+  }
+  // boulders: sit on solid dirt (so they don't fall right away), never above a crystal
+  const boulders = [];
+  for (let tries = 0; boulders.length < 6 && tries < 400; tries++) {
+    const c = ri(0, COLS - 1), r = ri(0, ROWS - 3);
+    if (!free(c, r) || dug[r + 1][c] || taken.has(`${c},${r + 1}`)) continue;
+    if (boulders.some(b => Math.abs(b.c - c) <= 1 && Math.abs(b.r - r) <= 1)) continue;
+    boulders.push({ c, r, y: tr(r), state: 'rest', t: 0, fallen: 0 }); taken.add(`${c},${r}`);
+  }
+  // electrons: three 2x2 clusters
+  const dots = new Set();
+  for (let k = 0, tries = 0; k < 3 && tries < 300; tries++) {
+    const c = ri(0, COLS - 2), r = ri(0, ROWS - 3);
+    const cells = [[c, r], [c + 1, r], [c, r + 1], [c + 1, r + 1]];
+    if (!cells.every(([a, b]) => free(a, b))) continue;
+    cells.forEach(([a, b]) => { dots.add(`${a},${b}`); taken.add(`${a},${b}`); }); k++;
+  }
+  G.L = { dug, start, den, crystals, boulders, dots, target, monsters: [], ball: null, ballCool: 0,
+          spawnT: 2.5, spawned: 0, diggerT: 12, wrongs: 0, reveal: false, solved: false, clearT: 0,
+          pal: PALETTES[(G.level - 1) % PALETTES.length], distMap: null, distT: 0, time: 0 };
+  resetPlayer();
+}
+function resetPlayer() {
+  const L = G.L;
+  G.P = { x: tc(L.start.c), y: tr(L.start.r), dir: 'left', moving: false, dead: 0, burst: false, inv: 1, anim: 0 };
+  L.monsters = []; L.ball = null; L.ballCool = 0; L.spawnT = 2.5; L.diggerT = 12;
+  G.ready = readFirst; G.armed = false; G.startReq = false;
+}
+
+// ============================================================ grid helpers
+const boulderAt = (c, r) => G.L.boulders.find(b => b.c === c && b.r === r && b.state !== 'fall');
+const solidFor = (c, r) => !!boulderAt(c, r);
+// Move an entity along the tile lanes. Turning needs the entity near a tile centre (it snaps);
+// otherwise it keeps going the way it was headed until it reaches one.
+function moveLane(e, want, dist, canEnter) {
+  if (!want) return false;
+  const c = colOf(e.x), r = rowOf(e.y), cx = tc(c), cy = tr(r);
+  let d = want;
+  const horiz = DIRS[d][0] !== 0;
+  const off = horiz ? Math.abs(e.y - cy) : Math.abs(e.x - cx);
+  if (off > 10) {
+    // not lined up: finish the current lane first
+    d = (horiz ? (e.dir === 'up' || e.dir === 'down') : (e.dir === 'left' || e.dir === 'right')) ? e.dir
+      : horiz ? (e.y < cy ? 'down' : 'up') : (e.x < cx ? 'right' : 'left');
+  } else if (horiz) e.y = cy; else e.x = cx;
+  const [dx, dy] = DIRS[d], c2 = colOf(e.x), r2 = rowOf(e.y), cx2 = tc(c2), cy2 = tr(r2);
+  const blocked = !inGrid(c2 + dx, r2 + dy) || !canEnter(c2 + dx, r2 + dy);
+  let nx = e.x + dx * dist, ny = e.y + dy * dist;
+  if (blocked) {
+    if (dx > 0) nx = Math.min(nx, Math.max(e.x, cx2)); if (dx < 0) nx = Math.max(nx, Math.min(e.x, cx2));
+    if (dy > 0) ny = Math.min(ny, Math.max(e.y, cy2)); if (dy < 0) ny = Math.max(ny, Math.min(e.y, cy2));
+  }
+  const moved = Math.abs(nx - e.x) + Math.abs(ny - e.y) > 0.01;
+  e.x = nx; e.y = ny; e.dir = d; return moved;
+}
+// distance (in tiles) from every dug tile to the player, through tunnels
+function buildDistMap() {
+  const L = G.L, P = G.P, dist = [...Array(ROWS)].map(() => Array(COLS).fill(Infinity));
+  const sc = colOf(P.x), sr = rowOf(P.y); if (!inGrid(sc, sr)) return dist;
+  dist[sr][sc] = 0; const q = [[sc, sr]];
+  while (q.length) {
+    const [c, r] = q.shift();
+    for (const d in DIRS) {
+      const nc = c + DIRS[d][0], nr = r + DIRS[d][1];
+      if (inGrid(nc, nr) && L.dug[nr][nc] && !solidFor(nc, nr) && dist[nr][nc] === Infinity) { dist[nr][nc] = dist[r][c] + 1; q.push([nc, nr]); }
+    }
+  }
+  return dist;
+}
+
+// ============================================================ effects
+function addParticles(x, y, color, n = 24, spd = 160) {
+  for (let i = 0; i < n; i++) { const a = rand(0, Math.PI * 2), s = rand(spd * 0.3, spd); G.particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: rand(0.4, 0.9), color }); }
+}
+function setBanner(text, color, sub, dur = 2.6) { G.banner = { text, color, sub, t: dur }; }
+function addScore(n) {
+  G.score = Math.max(0, G.score + n);
+  if (G.score >= G.nextLifeAt) { G.lives++; G.nextLifeAt += 5000; setBanner('BONUS LIFE', '#ffd23f', '', 1.5); Sound.correct(); }
+}
+
+// ============================================================ update
+function update(dt) {
+  if (G.state !== 'play' || G.paused) return;
+  G.t += dt;
+  const L = G.L, P = G.P;
+  G.particles = G.particles.filter(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.95; p.vy *= 0.95; return (p.life -= dt) > 0; });
+  if (G.banner && (G.banner.t -= dt) <= 0) G.banner = null;
+
+  // round cleared: short celebration, then a new field
+  if (L.solved) {
+    L.clearT -= dt;
+    if (L.clearT <= 0) { G.round++; if (G.round % 4 === 0) { G.level++; setBanner('LEVEL ' + G.level, '#ffd23f', 'Faster grime.', 1.8); } newLevel(null); }
+    return;
+  }
+  updateBoulders(dt);
+  if (P.dead > 0) {
+    P.dead -= dt;
+    if (P.dead < 0.8 && !P.burst) { P.burst = true; addParticles(P.x, P.y, '#ffb347', 50, 220); }
+    if (P.dead <= 0) { if (G.lives <= 0) return gameOver(); resetPlayer(); }
+    return;
+  }
+  // read-the-clue pause
+  const inp = readInput();
+  if (G.ready) {
+    if (!G.armed) { G.armed = true; pressLatch = false; }
+    if (pressLatch || G.startReq || touchVec.x || touchVec.y) { G.ready = false; pressLatch = false; Sound.blip(); }
+    else return;
+  }
+  L.time += dt;
+  P.inv = Math.max(0, P.inv - dt);
+
+  // --- the mole
+  const pc = colOf(P.x), pr = rowOf(P.y);
+  let digging = false;
+  if (inp.dir) { const [dx, dy] = DIRS[inp.dir]; digging = inGrid(pc + dx, pr + dy) && !L.dug[pr + dy][pc + dx]; }
+  const speed = digging ? 82 : 125;
+  P.moving = moveLane(P, inp.dir, speed * dt, (c, r) => !solidFor(c, r));
+  if (P.moving) {
+    P.anim += dt * 12;
+    G.beat -= dt; if (G.beat <= 0) { G.beat = 0.15; Sound.musicStep(); }
+  }
+  const c = colOf(P.x), r = rowOf(P.y);
+  if (inGrid(c, r) && !L.dug[r][c]) { L.dug[r][c] = true; if (Math.random() < 0.4) addParticles(P.x, P.y, L.pal[1], 3, 60); }
+  const dk = `${c},${r}`;
+  if (L.dots.has(dk) && Math.abs(P.x - tc(c)) < 14 && Math.abs(P.y - tr(r)) < 14) {
+    L.dots.delete(dk); addScore(50); Sound.electron();
+    if (L.dots.size === 0) { addScore(1000); setBanner('ALL ELECTRONS +1000', '#7bdff2', '', 1.6); }
+  }
+  // reaching a crystal
+  for (const cr of L.crystals) {
+    if (cr.broken || Math.hypot(P.x - tc(cr.c), P.y - tr(cr.r)) > 16) continue;
+    if (cr.term.id === L.target.id) return solveRound(cr);
+    wrongCrystal(cr);
+  }
+
+  // --- catalyst ball
+  L.ballCool = Math.max(0, L.ballCool - dt);
+  if (inp.fire && !L.ball && L.ballCool <= 0) throwBall();
+  if (L.ball) updateBall(dt);
+
+  // --- grime blobs
+  L.distT -= dt; if (L.distT <= 0 || !L.distMap) { L.distMap = buildDistMap(); L.distT = 0.25; }
+  const maxM = Math.min(3 + Math.floor(G.level / 2) + Math.floor(L.wrongs), 7);
+  L.spawnT -= dt;
+  if (L.spawnT <= 0 && L.monsters.length < maxM) { spawnMonster(); L.spawnT = Math.max(2, 5 - G.level * 0.3); }
+  L.diggerT -= dt;
+  if (L.diggerT <= 0) {
+    const cand = L.monsters.filter(m => !m.digger); if (cand.length) { const m = pick(cand); m.digger = 6; Sound.digger(); }
+    L.diggerT = Math.max(6, 13 - G.level);
+  }
+  for (const m of L.monsters) {
+    updateMonster(m, dt);
+    if (P.inv <= 0 && Math.hypot(m.x - P.x, m.y - P.y) < 30) return killPlayer('Caught by the grime!');
+  }
+}
+
+function spawnMonster() {
+  const L = G.L;
+  L.monsters.push({ x: tc(L.den.c), y: tr(L.den.r), tc: L.den.c, tr: L.den.r, dir: 'left', digger: 0, wob: rand(0, 6) });
+  Sound.spawn();
+}
+function updateMonster(m, dt) {
+  const L = G.L, P = G.P;
+  m.wob += dt * 6;
+  if (m.digger) m.digger = Math.max(0, m.digger - dt);
+  const spd = (m.digger ? 52 : 62 + G.level * 7) * (L.wrongs ? 1.15 : 1);
+  const gx = tc(m.tc), gy = tr(m.tr), d = Math.hypot(gx - m.x, gy - m.y), step = spd * dt;
+  if (d > step) { m.x += (gx - m.x) / d * step; m.y += (gy - m.y) / d * step; return; }
+  m.x = gx; m.y = gy;
+  if (m.digger && !L.dug[m.tr][m.tc]) L.dug[m.tr][m.tc] = true;
+  // choose the next tile
+  const opts = [];
+  for (const dir in DIRS) {
+    const nc = m.tc + DIRS[dir][0], nr = m.tr + DIRS[dir][1];
+    if (!inGrid(nc, nr) || solidFor(nc, nr)) continue;
+    if (!m.digger && !L.dug[nr][nc]) continue;
+    opts.push({ dir, nc, nr });
+  }
+  if (!opts.length) return;
+  let choices = opts.length > 1 ? opts.filter(o => o.dir !== REV[m.dir]) : opts;
+  let best;
+  if (Math.random() < 0.15) best = pick(choices);
+  else if (m.digger) {
+    const pc = colOf(P.x), pr = rowOf(P.y);
+    best = choices.reduce((a, o) => (Math.abs(o.nc - pc) + Math.abs(o.nr - pr) < Math.abs(a.nc - pc) + Math.abs(a.nr - pr) ? o : a));
+  } else {
+    const dm = L.distMap;
+    best = choices.reduce((a, o) => (dm[o.nr][o.nc] < dm[a.nr][a.nc] ? o : a));
+    if (dm[best.nr][best.nc] === Infinity) best = pick(choices);   // player unreachable: wander
+  }
+  m.tc = best.nc; m.tr = best.nr; m.dir = best.dir;
+}
+
+function throwBall() {
+  const L = G.L, P = G.P, c = colOf(P.x), r = rowOf(P.y);
+  // head the way the mole faces if there's a tunnel; otherwise any open direction
+  const open = d => { const nc = c + DIRS[d][0], nr = r + DIRS[d][1]; return inGrid(nc, nr) && L.dug[nr][nc] && !solidFor(nc, nr); };
+  const dir = open(P.dir) ? P.dir : Object.keys(DIRS).find(open);
+  if (!dir) { L.ballCool = 0.5; return; }
+  L.ball = { x: tc(c), y: tr(r), tc: c + DIRS[dir][0], tr: r + DIRS[dir][1], dir, life: 2.6, trail: [] };
+  Sound.throwBall();
+}
+function updateBall(dt) {
+  const L = G.L, b = L.ball;
+  b.life -= dt;
+  b.trail.push({ x: b.x, y: b.y }); if (b.trail.length > 6) b.trail.shift();
+  let step = 300 * dt;
+  while (step > 0) {
+    const gx = tc(b.tc), gy = tr(b.tr), d = Math.hypot(gx - b.x, gy - b.y);
+    if (d > step) { b.x += (gx - b.x) / d * step; b.y += (gy - b.y) / d * step; break; }
+    b.x = gx; b.y = gy; step -= d;
+    // bounce: straight if open, else turn, else reverse
+    const open = dir => { const nc = b.tc + DIRS[dir][0], nr = b.tr + DIRS[dir][1]; return inGrid(nc, nr) && L.dug[nr][nc] && !solidFor(nc, nr); };
+    let nd = open(b.dir) ? b.dir : shuffle(Object.keys(DIRS).filter(x => x !== b.dir && x !== REV[b.dir] && open(x)))[0] || (open(REV[b.dir]) ? REV[b.dir] : null);
+    if (!nd) { b.life = 0; break; }
+    b.dir = nd; b.tc += DIRS[nd][0]; b.tr += DIRS[nd][1];
+  }
+  for (const m of L.monsters) {
+    if (Math.hypot(m.x - b.x, m.y - b.y) < 22) {
+      killMonster(m, 500); L.ball = null; L.ballCool = 3; return;
+    }
+  }
+  if (b.life <= 0) { L.ball = null; L.ballCool = 1; }
+}
+function killMonster(m, pts) {
+  const L = G.L; L.monsters = L.monsters.filter(x => x !== m);
+  addParticles(m.x, m.y, m.digger ? '#ff4dc4' : '#8ee000', 26, 180); addScore(pts); Sound.pop();
+}
+
+function updateBoulders(dt) {
+  const L = G.L, P = G.P;
+  for (const b of [...L.boulders]) {
+    if (b.state === 'rest') {
+      const below = b.r + 1;
+      const underPlayer = colOf(P.x) === b.c && rowOf(P.y) === below && P.dead <= 0;
+      if (below < ROWS && L.dug[below][b.c] && !boulderAt(b.c, below) && !underPlayer) { b.state = 'wobble'; b.t = 0.7; Sound.wobble(); }
+    } else if (b.state === 'wobble') {
+      b.t -= dt; if (b.t <= 0) { b.state = 'fall'; b.fallen = 0; b.y = tr(b.r); }
+    } else if (b.state === 'fall') {
+      b.y += 270 * dt;
+      const bx = tc(b.c);
+      // crush anything underneath
+      if (P.dead <= 0 && Math.abs(P.x - bx) < T * 0.55 && P.y > b.y && P.y - b.y < T * 0.75) killPlayer('Flattened by a boulder!');
+      for (const m of [...L.monsters]) if (Math.abs(m.x - bx) < T * 0.55 && m.y > b.y && m.y - b.y < T * 0.75) killMonster(m, 1000);
+      if (b.y >= tr(b.r + 1)) {
+        b.r++; b.fallen++; L.dug[b.r][b.c] = true;
+        const nr = b.r + 1;
+        if (nr >= ROWS || !L.dug[nr][b.c] || boulderAt(b.c, nr)) {
+          b.y = tr(b.r);
+          if (b.fallen >= 2) { L.boulders = L.boulders.filter(x => x !== b); addParticles(bx, b.y, '#9a8f86', 30, 160); Sound.crumble(); }
+          else { b.state = 'rest'; Sound.thud(); }
+        }
+      }
+    }
+  }
+}
+
+function solveRound(cr) {
+  const L = G.L;
+  cr.broken = true; L.solved = true; L.clearT = 2.4;
+  const pts = Math.max(200, 1000 + G.level * 100 - L.wrongs * 200);
+  addScore(pts); G.solved++;
+  addParticles(tc(cr.c), tr(cr.r), cr.col, 50, 260);
+  L.monsters.forEach((m, i) => setTimeout(() => { if (G && G.L === L && L.monsters.includes(m)) killMonster(m, 100); }, 250 + i * 160));
+  Sound.clear(); setBanner('CORRECT! +' + pts, '#38f0c8', L.target.term, 2.3);
+}
+function wrongCrystal(cr) {
+  const L = G.L;
+  cr.broken = true; L.wrongs++;
+  addParticles(tc(cr.c), tr(cr.r), '#ff4d6d', 30, 200);
+  addScore(-100); Sound.wrong();
+  G.missed.set(L.target.id, L.target);
+  G.queue.splice(Math.min(3, G.queue.length), 0, L.target);
+  setBanner('NOPE: ' + cr.term.term.toUpperCase(), '#ff4d6d', cr.term.clue, 4.2);
+  if (L.wrongs >= 2) L.reveal = true;
+  L.spawnT = 0;   // a wrong crystal lets out another blob
+}
+function killPlayer(why) {
+  const P = G.P; if (P.dead > 0) return;
+  P.dead = 2.2; P.burst = false; G.lives--;
+  Sound.death(); setBanner('OUCH', '#ff4d6d', why, 1.7);
+}
+function gameOver() {
+  G.state = 'over';
+  const hi = store.get('mh_hi', 0); if (G.score > hi) store.set('mh_hi', G.score);
+  document.getElementById('overTitle').textContent = G.score > hi ? 'NEW HIGH SCORE' : 'GAME OVER';
+  document.getElementById('overStats').textContent = `SCORE ${G.score}   ANSWERED ${G.solved}   LEVEL ${G.level}`;
+  const ul = document.getElementById('missedList'); ul.innerHTML = '';
+  const missed = [...G.missed.values()];
+  document.getElementById('missedHead').textContent = missed.length ? 'REVIEW THESE' : 'NO MISSES. NICE.';
+  missed.forEach(t => {
+    const li = document.createElement('li');
+    li.innerHTML = '<b></b> <span class="sub"></span><br><span class="c"></span>';
+    li.querySelector('b').textContent = t.term;
+    li.querySelector('.sub').textContent = `(Section ${t.section})`;
+    li.querySelector('.c').textContent = t.clue;
+    ul.appendChild(li);
+  });
+  document.getElementById('over').classList.remove('hidden');
+}
+
+// ============================================================ drawing
+function wrapText(text, maxW, font) {
+  ctx.font = font; const words = text.split(' '), lines = []; let line = '';
+  for (const w of words) { const t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }
+  if (line) lines.push(line); return lines;
+}
+const hash = (c, r) => { let h = (c * 374761393 + r * 668265263) ^ 0x5bd1e995; h = (h ^ (h >>> 13)) * 1274126177; return (h ^ (h >>> 16)) >>> 0; };
+
+function drawField() {
+  const L = G.L, [base, speck, edge] = L.pal;
+  ctx.fillStyle = base; ctx.fillRect(X0, Y0, COLS * T, ROWS * T);
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+    const x = X0 + c * T, y = Y0 + r * T;
+    if (L.dug[r][c]) { ctx.fillStyle = '#000'; ctx.fillRect(x, y, T, T); continue; }
+    const h = hash(c, r);
+    ctx.fillStyle = speck;
+    for (let k = 0; k < 6; k++) ctx.fillRect(x + ((h >> (k * 4)) & 15) * 3 % (T - 4) + 2, y + ((h >> (k * 3 + 7)) & 15) * 3 % (T - 4) + 2, 3, 3);
+    ctx.fillStyle = edge; ctx.fillRect(x + ((h >> 20) & 31) % (T - 6), y + ((h >> 9) & 31) % (T - 6), 4, 2);
+  }
+  // soften tunnel corners with a dirt-coloured rim where tunnels meet dirt
+  ctx.fillStyle = edge;
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+    if (!L.dug[r][c]) continue; const x = X0 + c * T, y = Y0 + r * T;
+    if (r > 0 && !L.dug[r - 1][c]) ctx.fillRect(x, y, T, 3);
+    if (r < ROWS - 1 && !L.dug[r + 1][c]) ctx.fillRect(x, y + T - 3, T, 3);
+    if (c > 0 && !L.dug[r][c - 1]) ctx.fillRect(x, y, 3, T);
+    if (c < COLS - 1 && !L.dug[r][c + 1]) ctx.fillRect(x + T - 3, y, 3, T);
+  }
+  // monster den: a little vent
+  const dx = tc(L.den.c), dy = tr(L.den.r);
+  ctx.strokeStyle = '#4a4a4a'; ctx.lineWidth = 3; ctx.strokeRect(dx - 14, dy - 14, 28, 28);
+  ctx.fillStyle = '#2a2a2a'; for (let i = -9; i <= 9; i += 6) ctx.fillRect(dx - 10, dy + i - 1, 20, 2);
+  ctx.strokeStyle = '#000'; ctx.lineWidth = 4; ctx.strokeRect(X0 - 2, Y0 - 2, COLS * T + 4, ROWS * T + 4);
+  // electrons
+  for (const k of L.dots) {
+    const [c, r] = k.split(',').map(Number), x = tc(c), y = tr(r), a = G.t * 4 + c + r;
+    ctx.strokeStyle = 'rgba(123,223,242,.5)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.ellipse(x, y, 11, 5, a * 0.3, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = '#7bdff2'; ctx.beginPath(); ctx.arc(x + Math.cos(a) * 11 * Math.cos(a * 0.3), y + Math.sin(a) * 5, 3, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#e8fbff'; ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fill();
+  }
+}
+function drawCrystal(cr) {
+  const L = G.L, x = tc(cr.c), y = tr(cr.r);
+  const glow = L.reveal && cr.term.id === L.target.id;
+  ctx.save(); ctx.translate(x, y);
+  if (glow) { ctx.shadowColor = '#38f0c8'; ctx.shadowBlur = 16 + Math.sin(G.t * 8) * 8; }
+  ctx.fillStyle = cr.col; ctx.beginPath();
+  ctx.moveTo(0, -15); ctx.lineTo(11, -6); ctx.lineTo(11, 7); ctx.lineTo(0, 15); ctx.lineTo(-11, 7); ctx.lineTo(-11, -6); ctx.closePath(); ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.moveTo(0, -15); ctx.lineTo(11, -6); ctx.lineTo(0, -1); ctx.lineTo(-5, -9); ctx.closePath(); ctx.fill();
+  ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.moveTo(0, 15); ctx.lineTo(-11, 7); ctx.lineTo(0, 3); ctx.closePath(); ctx.fill();
+  if (Math.floor(G.t * 3 + cr.c) % 5 === 0) { ctx.fillStyle = '#fff'; ctx.fillRect(4, -10, 2, 2); }
+  ctx.restore();
+}
+function drawLabel(cr) {
+  const L = G.L, glow = L.reveal && cr.term.id === L.target.id;
+  ctx.font = '20px VT323'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  const label = cr.term.short, tw = ctx.measureText(label).width;
+  const lx = clamp(tc(cr.c), X0 + tw / 2 + 4, X0 + COLS * T - tw / 2 - 4);
+  const ly = cr.r === 0 ? tr(cr.r) + 36 : tr(cr.r) - 17;
+  ctx.fillStyle = 'rgba(0,0,0,.8)'; ctx.fillRect(lx - tw / 2 - 4, ly - 17, tw + 8, 18);
+  ctx.strokeStyle = cr.col; ctx.lineWidth = 1; ctx.strokeRect(lx - tw / 2 - 4, ly - 17, tw + 8, 18);
+  ctx.fillStyle = glow ? '#38f0c8' : '#fff4e6'; ctx.fillText(label, lx, ly + 1);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+}
+function drawBoulder(b) {
+  const wob = b.state === 'wobble' ? Math.sin(G.t * 40) * 3 : 0;
+  const x = tc(b.c) + wob, y = b.state === 'fall' ? b.y : tr(b.r);
+  ctx.fillStyle = '#6d645d'; ctx.beginPath(); ctx.arc(x, y + 2, 19, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#9a8f86'; ctx.beginPath(); ctx.arc(x - 2, y, 17, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#c2b8ae'; ctx.beginPath(); ctx.arc(x - 7, y - 6, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#6d645d'; ctx.fillRect(x + 3, y + 2, 6, 3); ctx.fillRect(x - 6, y + 8, 4, 3);
+}
+function drawMole(x, y, dir, anim, col) {
+  // goggled mole (original sprite); faces left/right, tilts for up/down
+  ctx.save(); ctx.translate(x, y);
+  const flip = dir === 'left' ? -1 : 1;
+  if (dir === 'up') ctx.rotate(-Math.PI / 2); else if (dir === 'down') ctx.rotate(Math.PI / 2); else ctx.scale(flip, 1);
+  if (dir === 'up' || dir === 'down') ctx.scale(1, 1);
+  const body = col || '#7a5230';
+  ctx.fillStyle = body; ctx.beginPath(); ctx.ellipse(-2, 0, 16, 13, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#5a3a20'; ctx.beginPath(); ctx.ellipse(-6, 4, 9, 6, 0, 0, Math.PI * 2); ctx.fill();
+  const k = Math.sin(anim) * 3;
+  ctx.fillStyle = '#ffc2a8'; ctx.fillRect(8, 6 + k, 7, 4); ctx.fillRect(6, -10 - k, 7, 4);   // digging claws
+  ctx.fillStyle = '#ff8fb1'; ctx.beginPath(); ctx.arc(16, 0, 4, 0, Math.PI * 2); ctx.fill();  // nose
+  ctx.fillStyle = '#222'; ctx.fillRect(-4, -9, 14, 3);                                         // goggle strap
+  ctx.fillStyle = '#38f0c8'; ctx.beginPath(); ctx.arc(7, -6, 4.5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#fff'; ctx.fillRect(7, -8, 2, 2);
+  ctx.restore();
+}
+function drawMonster(m) {
+  const P = G.P, sq = Math.sin(m.wob) * 2;
+  ctx.save(); ctx.translate(m.x, m.y);
+  const col = m.digger ? (Math.floor(G.t * 8) % 2 ? '#ff4dc4' : '#c23b97') : '#8ee000';
+  ctx.fillStyle = col; ctx.beginPath();
+  ctx.moveTo(-15, 12); ctx.quadraticCurveTo(-17, -16 - sq, 0, -15 - sq); ctx.quadraticCurveTo(17, -16 - sq, 15, 12);
+  for (let i = 0; i < 4; i++) ctx.lineTo(15 - (i + 0.5) * 7.5, 12 + (i % 2 ? -3 : 3) + sq * 0.5);
+  ctx.closePath(); ctx.fill();
+  const ex = clamp((P.x - m.x) / 40, -2, 2), ey = clamp((P.y - m.y) / 40, -2, 2);
+  ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(-5, -4, 5, 0, Math.PI * 2); ctx.arc(6, -4, 5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#000'; ctx.fillRect(-6 + ex, -5 + ey, 3, 3); ctx.fillRect(5 + ex, -5 + ey, 3, 3);
+  if (m.digger) { ctx.fillStyle = '#ddd'; const a = { left: Math.PI, right: 0, up: -Math.PI / 2, down: Math.PI / 2 }[m.dir] || 0;
+    ctx.rotate(a); ctx.beginPath(); ctx.moveTo(15, -6); ctx.lineTo(25, 0); ctx.lineTo(15, 6); ctx.closePath(); ctx.fill(); }
+  ctx.restore();
+}
+function drawHUD() {
+  const L = G.L;
+  ctx.fillStyle = '#0d0907'; ctx.fillRect(0, 0, W, HUD_H);
+  ctx.fillStyle = L.pal[0]; ctx.fillRect(0, HUD_H - 3, W, 3);
+  ctx.textBaseline = 'top'; ctx.font = '10px "Press Start 2P"';
+  if (G.ready && G.P.dead <= 0) {
+    ctx.fillStyle = Math.floor(G.t * 2) % 2 ? '#ffd23f' : '#fff4e6';
+    ctx.fillText(touchUsed ? 'READ THE CLUE · TAP TO START' : 'READ THE CLUE · MOVE OR SPACE TO START', 14, 10);
+  } else { ctx.fillStyle = '#7a6a5d'; ctx.fillText(`CH ${L.target.chapter}  ·  DIG TO THE TERM:`, 14, 10); }
+  ctx.textAlign = 'right'; ctx.fillStyle = '#fff4e6'; ctx.fillText(`SCORE ${G.score}`, W - 14, 10);
+  ctx.fillStyle = '#7a6a5d'; ctx.fillText(`LV ${G.level}`, W - 170, 10);
+  ctx.textAlign = 'left';
+  for (let i = 0; i < Math.min(G.lives, 8); i++) { ctx.save(); ctx.translate(W - 22 - i * 18, 36); ctx.scale(0.45, 0.45); drawMole(0, 0, 'left', 0); ctx.restore(); }
+  // catalyst status
+  const rdy = !L.ball && L.ballCool <= 0;
+  ctx.fillStyle = rdy ? '#ffd23f' : '#4a3f36'; ctx.beginPath(); ctx.arc(W - 22, 66, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.font = '16px VT323'; ctx.textAlign = 'right'; ctx.fillStyle = rdy ? '#ffd23f' : '#7a6a5d';
+  ctx.fillText(rdy ? 'CATALYST' : 'RECHARGING', W - 34, 58); ctx.textAlign = 'left';
+  if (G.ready && G.P.dead <= 0) { ctx.strokeStyle = `rgba(255,210,63,${0.5 + 0.5 * Math.sin(G.t * 5)})`; ctx.lineWidth = 3; ctx.strokeRect(4, 4, W - 8, HUD_H - 10); }
+  const lines = wrapText(L.target.clue, W - 170, '26px VT323');
+  ctx.fillStyle = L.solved ? '#38f0c8' : '#ffd23f';
+  lines.slice(0, 2).forEach((l, i) => ctx.fillText(l, 14, 28 + i * 26));
+}
+
+function draw() {
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  if (!G) return;
+  const L = G.L, P = G.P;
+  drawField();
+  for (const cr of L.crystals) if (!cr.broken) drawCrystal(cr);
+  for (const b of L.boulders) drawBoulder(b);
+  if (L.ball) {
+    L.ball.trail.forEach((t, i) => { ctx.globalAlpha = i / 8; ctx.fillStyle = '#ffd23f'; ctx.beginPath(); ctx.arc(t.x, t.y, 4, 0, Math.PI * 2); ctx.fill(); });
+    ctx.globalAlpha = 1; ctx.fillStyle = '#fff6b0'; ctx.beginPath(); ctx.arc(L.ball.x, L.ball.y, 6, 0, Math.PI * 2); ctx.fill();
+  }
+  for (const m of L.monsters) drawMonster(m);
+  if (P.dead <= 0 && !(P.inv > 0 && !G.ready && Math.floor(G.t * 12) % 2)) drawMole(P.x, P.y, P.dir, P.anim);
+  if (P.dead > 0 && !P.burst) { const zc = ['#ffffff', '#ff4d6d', '#ffd23f', '#38f0c8', '#c77dff']; drawMole(P.x, P.y, P.dir, 0, zc[Math.floor(G.t * 24) % zc.length]); }
+  for (const cr of L.crystals) if (!cr.broken) drawLabel(cr);
+  for (const p of G.particles) { ctx.globalAlpha = clamp(p.life * 1.5, 0, 1); ctx.fillStyle = p.color; ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3); }
+  ctx.globalAlpha = 1;
+  drawHUD();
+  if (G.banner) {
+    const b = G.banner; ctx.globalAlpha = clamp(b.t * 3, 0, 1);
+    const subLines = b.sub ? wrapText(b.sub, W - 180, '24px VT323') : [];
+    const bh = 44 + subLines.length * 24, by = H - bh - 22;
+    ctx.fillStyle = 'rgba(0,0,0,.88)'; ctx.fillRect(70, by, W - 140, bh);
+    ctx.strokeStyle = b.color; ctx.lineWidth = 2; ctx.strokeRect(70, by, W - 140, bh);
+    ctx.textAlign = 'center'; ctx.font = '14px "Press Start 2P"'; ctx.fillStyle = b.color; ctx.fillText(b.text, W / 2, by + 12);
+    ctx.font = '24px VT323'; ctx.fillStyle = '#fff4e6'; subLines.forEach((l, i) => ctx.fillText(l, W / 2, by + 34 + i * 24));
+    ctx.textAlign = 'left'; ctx.globalAlpha = 1;
+  }
+  if (G.paused) {
+    ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(0, 0, W, H);
+    ctx.textAlign = 'center'; ctx.font = '22px "Press Start 2P"'; ctx.fillStyle = '#ffd23f'; ctx.fillText('PAUSED', W / 2, H / 2 - 10); ctx.textAlign = 'left';
+  }
+}
+
+// ============================================================ loop & UI
+let lastT = performance.now();
+function frame(now) { const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now; if (G) update(dt); draw(); requestAnimationFrame(frame); }
+requestAnimationFrame(frame);
+
+function syncButtons() {
+  document.getElementById('soundBtn').textContent = 'SOUND: ' + (Sound.on ? 'ON' : 'OFF');
+  document.getElementById('musicBtn').textContent = 'MUSIC: ' + (Sound.music ? 'ON' : 'OFF');
+  document.getElementById('readBtn').textContent = 'PAUSE TO READ: ' + (readFirst ? 'ON' : 'OFF');
+}
+function start() {
+  Sound.init();
+  if (document.activeElement) document.activeElement.blur();   // so SPACE doesn't re-click START
+  document.getElementById('menu').classList.add('hidden'); document.getElementById('over').classList.add('hidden');
+  newGame();
+}
+document.getElementById('startBtn').onclick = start;
+document.getElementById('againBtn').onclick = start;
+document.getElementById('menuBtn').onclick = () => { G = null; document.getElementById('over').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden'); buildMenu(); };
+document.getElementById('soundBtn').onclick = () => { Sound.init(); Sound.toggle(); syncButtons(); };
+document.getElementById('musicBtn').onclick = () => { Sound.toggleMusic(); syncButtons(); };
+document.getElementById('readBtn').onclick = () => { readFirst = !readFirst; store.set('mh_readfirst', readFirst); syncButtons(); };
+[['THROW', 'throwBall'], ['POP', 'pop'], ['ELECTRON', 'electron'], ['WOBBLE', 'wobble'], ['THUD', 'thud'], ['CRUMBLE', 'crumble'],
+ ['CORRECT', 'correct'], ['WRONG', 'wrong'], ['DIGGER', 'digger'], ['DEATH', 'death'], ['ROUND CLEAR', 'clear']].forEach(([label, fn], i) => {
+  const b = document.createElement('button'); b.className = 'small'; b.textContent = `${i + 1} ${label}`;
+  b.onclick = () => { Sound.init(); if (!Sound.on) { Sound.toggle(); syncButtons(); } Sound[fn](); };
+  document.getElementById('soundTest').appendChild(b);
+});
+(() => {   // a button to hear the tune
+  const b = document.createElement('button'); b.className = 'small'; b.textContent = '12 MUSIC';
+  b.onclick = () => { Sound.init(); if (!Sound.on) { Sound.toggle(); syncButtons(); } for (let i = 0; i < 32; i++) setTimeout(() => Sound.musicStep(), i * 150); };
+  document.getElementById('soundTest').appendChild(b);
+})();
+syncButtons(); buildMenu();
+</script>
+</body>
+</html>
