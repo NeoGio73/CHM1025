@@ -185,10 +185,10 @@ A 3D paddleboarding game for Chapter 14, Acids and Bases (Timberlake, *Basic Che
 | --- | --- | --- |
 | The spring | 14.1 | litmus, properties of acids and bases, names and formulas, CO2 making carbonic acid |
 | The river | 14.3, 14.7, 14.8 | strong and weak acids, acid rain, neutralization, titrating a river sample |
-| The seagrass lagoon | 14.2 | proton donors and acceptors, conjugate acid-base pairs, bicarbonate acting both ways |
-| The reef | 14.6 | pH and [H3O+], the tenfold rule, ocean acidification |
+| The seagrass lagoon | 14.2, 14.9 | proton donors and acceptors, conjugate acid-base pairs, bicarbonate acting both ways, what makes a buffer |
+| The reef | 14.6, 14.9 | pH and [H3O+], the tenfold rule, seawater as a buffer, ocean acidification |
 
-**Prelab review:** https://neogio73.github.io/CHM1025/spring-to-sea/prelab/ follows the trip through the other sciences along the way: the geology of Florida's limestone and springs, the botany and ecology of blackwater rivers, the marine biology of seagrass and corals, and the physics and astronomy of tides. It has explorers for strong and weak acids, seagrass by day and night, the Moon and the tides, and how much a small drop in ocean pH matters, and it ends with ungraded self-check questions. Every fact on it is cited to a public source (USGS, NOAA, EPA, Florida DEP, the water management districts, FWC, UF/IFAS).
+**Prelab review:** https://neogio73.github.io/CHM1025/spring-to-sea/prelab/ follows the trip through the other sciences along the way: the geology of Florida's limestone and springs, the botany and ecology of blackwater rivers, the marine biology of seagrass and corals, and the physics and astronomy of tides. It has explorers for strong and weak acids, seagrass by day and night, the Moon and the tides, water against a buffer, and how much a small drop in ocean pH matters, and it ends with ungraded self-check questions. Every fact on it is cited to a public source (USGS, NOAA, EPA, Florida DEP, the water management districts, FWC, UF/IFAS).
 
 - **Paddle** with <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>. Hold <kbd>C</kbd> to dip the camera under the surface, and hold <kbd>E</kbd> to anchor the board and snorkel (<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> swims, the mouse looks, <kbd>Space</kbd> rises).
 - **Answer questions** with <kbd>Q</kbd> at a stop. **Scoop a sample** with <kbd>R</kbd>: predict acid, base, or neutral first, then the meter shows the reading. **Take photos** with <kbd>P</kbd>; they appear in the trip summary.
