@@ -6,8 +6,16 @@
 // ============================================================ canvas & helpers
 const cv = document.getElementById('game'), ctx = cv.getContext('2d');
 const W = 800, H = 600, HUD_H = 92;
-function fit() { const s = Math.min(innerWidth / W, innerHeight / H); cv.style.width = W * s + 'px'; cv.style.height = H * s + 'px'; }
-addEventListener('resize', fit); fit();
+// Landscape: the canvas fills the screen. Portrait phones: the canvas spans the full width under a
+// readable HTML strip that carries the clue and feedback (see updateStrip); controls go below it.
+let portrait = false;
+function fit() {
+  portrait = innerHeight > innerWidth && innerWidth < 900;
+  document.body.classList.toggle('portrait', portrait);
+  const s = portrait ? innerWidth / W : Math.min(innerWidth / W, innerHeight / H);
+  cv.style.width = W * s + 'px'; cv.style.height = H * s + 'px';
+}
+addEventListener('resize', fit); addEventListener('orientationchange', fit); fit();
 
 const rand = (a, b) => a + Math.random() * (b - a);
 const ri = (a, b) => Math.floor(rand(a, b + 1));
@@ -302,6 +310,7 @@ addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 (function setupTouch() {
   addEventListener('touchstart', () => { touchUsed = true; document.getElementById('touch').classList.add('on'); }, { once: true, passive: true });
   cv.addEventListener('pointerdown', () => { if (G) G.startReq = true; });
+  document.getElementById('strip').addEventListener('pointerdown', () => { if (G) G.startReq = true; });   // portrait clue strip
   const stick = document.getElementById('stick'), knob = document.getElementById('knob'), fire = document.getElementById('fire');
   let sid = null;
   const move = t => {
@@ -467,12 +476,13 @@ function drawHUD() {
     for (let i = 0; i < ROUNDS_PER_STAGE; i++) { ctx.fillStyle = i < G.stageSolved ? accent : '#1d2636'; ctx.fillRect(W - 290 + i * 12, 11, 8, 8); }
   }
   if (S.drawHud) S.drawHud();
+  if (portrait) return;   // in portrait the clue is in the HTML strip, at a readable size
   const lines = wrapText(G.target.clue, W - 170, '26px VT323');
   ctx.font = '26px VT323'; ctx.fillStyle = S.isSolved && S.isSolved() ? '#38f0c8' : '#ffd23f';
   lines.slice(0, 2).forEach((l, i) => ctx.fillText(l, 14, 28 + i * 26));
 }
 function drawBanner() {
-  const b = G.banner; if (!b) return;
+  const b = G.banner; if (!b || portrait) return;   // in portrait, feedback shows in the strip
   ctx.globalAlpha = clamp(b.t * 3, 0, 1);
   const subLines = b.sub ? wrapText(b.sub, W - 180, '24px VT323') : [];
   const bh = 44 + subLines.length * 24, by = H - bh - 22;
@@ -481,6 +491,31 @@ function drawBanner() {
   ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.font = '14px "Press Start 2P"'; ctx.fillStyle = b.color; ctx.fillText(b.text, W / 2, by + 12);
   ctx.font = '24px VT323'; ctx.fillStyle = '#e8f6ff'; subLines.forEach((l, i) => ctx.fillText(l, W / 2, by + 34 + i * 24));
   ctx.textAlign = 'left'; ctx.globalAlpha = 1;
+}
+// Portrait phones: mirror the clue, the stage instructions, and feedback into the HTML strip,
+// where they read at phone size (the canvas is only ~half scale there). DOM is touched only on change.
+const strip = { label: document.getElementById('stripLabel'), text: document.getElementById('stripText'), note: document.getElementById('stripNote'), last: '' };
+function updateStrip() {
+  if (!portrait || !G) return;
+  const S = G.stage;
+  let label, text, note = '', noteColor = '#e8f6ff';
+  if (G.state === 'card') {
+    label = G.mode === 'arcade' ? `STAGE ${G.stageIdx + 1} OF ${STAGES.length}` + (G.loop > 1 ? ` · LOOP ${G.loop}` : '') : 'FREE PLAY';
+    text = `${S.name}: ${S.howTo.join(' ')}`;
+    note = G.cardT > 0.8 ? 'Tap to start. (Tip: turn your phone sideways for a bigger playfield.)' : '';
+    noteColor = '#ffd23f';
+  } else {
+    const dying = S.isDying && S.isDying();
+    label = G.ready && !dying ? 'READ THE CLUE · TAP TO START' : `CH ${G.target.chapter} · ${S.hudLabel}`;
+    text = G.target.clue;
+    if (G.banner) { note = G.banner.text + (G.banner.sub ? ': ' + G.banner.sub : ''); noteColor = G.banner.color; }
+  }
+  const key = label + '|' + text + '|' + note;
+  if (key === strip.last) return;
+  strip.last = key;
+  strip.label.textContent = label; strip.text.textContent = text;
+  strip.note.textContent = note; strip.note.style.color = noteColor;
+  document.getElementById('strip').style.borderBottomColor = S.color;
 }
 function drawCard() {
   // stage title card (start of game and every warp)
@@ -516,6 +551,7 @@ function draw() {
   drawHUD();
   drawBanner();
   if (G.state === 'card') drawCard();
+  updateStrip();
   if (G.paused) {
     ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(0, 0, W, H);
     ctx.textAlign = 'center'; ctx.font = '22px "Press Start 2P"'; ctx.fillStyle = '#ffd23f'; ctx.fillText('PAUSED', W / 2, H / 2 - 10); ctx.textAlign = 'left';

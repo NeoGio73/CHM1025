@@ -13,6 +13,15 @@
     font-family:'VT323', monospace; -webkit-user-select:none; user-select:none; touch-action:none; }
   #wrap { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; }
   canvas { image-rendering: pixelated; background:#000; max-width:100vw; max-height:100vh; }
+  /* Portrait phones: the clue (and feedback) in a readable strip above a full-width canvas;
+     the touch controls sit in the space below. The canvas keeps its 800x600 resolution. */
+  #strip { display:none; width:100%; padding:8px 12px 10px; background:#080a10; border-bottom:3px solid var(--accent); }
+  body.portrait #wrap { flex-direction:column; justify-content:flex-start; }
+  body.portrait #strip { display:block; }
+  #stripLabel { font-family:'Press Start 2P', monospace; font-size:10px; color:var(--dim); margin-bottom:6px; line-height:1.4; }
+  #stripText { font-size:22px; line-height:1.15; color:var(--gold); }
+  #stripNote { font-size:20px; line-height:1.15; margin-top:6px; }
+  #stripNote:empty { display:none; }
   .overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
     background:rgba(2,3,8,.93); z-index:5; padding:16px; }
   .overlay.hidden { display:none; }
@@ -63,7 +72,10 @@
 </style>
 </head>
 <body>
-<div id="wrap"><canvas id="game" width="800" height="600"></canvas></div>
+<div id="wrap">
+  <div id="strip" aria-live="polite"><div id="stripLabel"></div><div id="stripText"></div><div id="stripNote"></div></div>
+  <canvas id="game" width="800" height="600"></canvas>
+</div>
 <div id="touch"><div id="stick"><div id="knob"></div></div><div id="fire">FIRE</div></div>
 
 <div class="overlay" id="menu">
