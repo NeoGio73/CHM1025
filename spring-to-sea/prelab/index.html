@@ -604,6 +604,26 @@
         <li style="--c:#c9506e"><b>Harder to build shells</b>corals, clams and oysters need carbonate for their shells and skeletons <a class="src" href="#src-noaa-acid">[<span data-src="noaa-acid"></span>]</a> <a class="src" href="#src-epa-oa">[<span data-src="epa-oa"></span>]</a>.</li>
       </ol>
 
+      <p class="prose">Seawater does not change pH easily. Its carbonate and bicarbonate ions soak up added acid and help it resist large changes in pH: seawater is a <strong>buffer</strong> <a class="src" href="#src-noaa-oap">[<span data-src="noaa-oap"></span>]</a>. But every bit of acid the buffer absorbs turns carbonate into bicarbonate, and that carbonate is exactly what corals and shellfish need.</p>
+
+      <div class="explorer" id="buffer-ex">
+        <h3>Water or buffer? Add acid and see</h3>
+        <p class="explorer-help">Two beakers. On the left, plain water. On the right, a buffer: the weak acid H<sub>2</sub>CO<sub>3</sub> with its conjugate base HCO<sub>3</sub><sup>−</sup>, the pair that helps buffer seawater and your blood. Add acid or base one drop at a time and watch where the extra ions go. (A drawing: each shape stands for many particles.)</p>
+        <div class="toggle" role="group" aria-label="Add to both beakers">
+          <button type="button" data-add="acid">+ a drop of acid (H<sub>3</sub>O<sup>+</sup>)</button>
+          <button type="button" data-add="base">+ a drop of base (OH<sup>−</sup>)</button>
+          <button type="button" data-add="reset">Start over</button>
+        </div>
+        <div class="ex-grid">
+          <svg id="buffer-svg" viewBox="0 0 360 230" role="img" aria-label="Two beakers: plain water on the left, a carbonic acid and bicarbonate buffer on the right."></svg>
+          <div class="readout" aria-live="polite">
+            <p class="big" id="buffer-big"></p>
+            <p id="buffer-text"></p>
+            <p class="soft" style="font-size:0.85rem;margin:0">Key: <b style="color:#5b3a9a">▬</b> H<sub>2</sub>CO<sub>3</sub> · <b style="color:#1f9a8a">●</b> HCO<sub>3</sub><sup>−</sup> · <b style="color:#c41e3a">●</b> free H<sub>3</sub>O<sup>+</sup> · <b style="color:#2a6fb0">●</b> free OH<sup>−</sup></p>
+          </div>
+        </div>
+      </div>
+
       <div class="explorer" id="reef-ex">
         <h3>How much more acid is a "small" pH drop?</h3>
         <p class="explorer-help">Slide the ocean's pH. The bars compare the hydronium ion concentration, [H<sub>3</sub>O<sup>+</sup>] = 10<sup>−pH</sup>, with the ocean before the industrial era.</p>
@@ -626,9 +646,13 @@
       <div class="cards" id="cards-reef"></div>
 
       <div class="chem" style="--z: var(--z-reef)">
-        <h3>Chapter 14 at the reef <span class="sec">· Section 14.6</span></h3>
+        <h3>Chapter 14 at the reef <span class="sec">· Sections 14.6 and 14.9</span></h3>
         <p><span class="math">pH = −log[H<sub>3</sub>O<sup>+</sup>]</span>, and going back, <span class="math">[H<sub>3</sub>O<sup>+</sup>] = 10<sup>−pH</sup></span>. Every whole pH unit is a factor of ten, so even a drop of 0.1 means <span class="math">10<sup>0.1</sup> ≈ 1.26</span> times as much H<sub>3</sub>O<sup>+</sup>: about a quarter more. (Agencies round the ocean's change to "about 25%" or "about 30%" more acidic <a class="src" href="#src-epa-oa">[<span data-src="epa-oa"></span>]</a> <a class="src" href="#src-noaa-edu-oa">[<span data-src="noaa-edu-oa"></span>]</a>.)</p>
         <p>Significant figures: the number of <strong>decimal places</strong> in a pH equals the number of significant figures in the concentration. [H<sub>3</sub>O<sup>+</sup>] = 7.9 × 10<sup>−9</sup> M (two significant figures) gives pH = 8.10 (two decimal places). The game's digital meter reads two decimals for this reason.</p>
+        <p>A <strong>buffer</strong> is a weak acid together with its conjugate base. It resists changes in pH because each half neutralizes one kind of intruder: the conjugate base takes up added acid, and the weak acid takes up added base.</p>
+        <p class="eq">HCO<sub>3</sub><sup>−</sup> + H<sub>3</sub>O<sup>+</sup> → H<sub>2</sub>CO<sub>3</sub> + H<sub>2</sub>O &nbsp;&nbsp;(acid added)</p><br>
+        <p class="eq">H<sub>2</sub>CO<sub>3</sub> + OH<sup>−</sup> → HCO<sub>3</sub><sup>−</sup> + H<sub>2</sub>O &nbsp;&nbsp;(base added)</p>
+        <p>Your blood is held between pH 7.35 and 7.45 with the help of this same bicarbonate buffer <a class="src" href="#src-yee-abg">[<span data-src="yee-abg"></span>]</a>. A strong acid cannot make a buffer: its conjugate base, like Cl<sup>−</sup> from HCl, does not take a proton back.</p>
       </div>
     </section>
 
@@ -718,6 +742,8 @@
     { id: 'epa-oa', text: 'U.S. Environmental Protection Agency. "Understanding the Science of Ocean and Coastal Acidification."', url: 'https://www.epa.gov/ocean-acidification/understanding-science-ocean-and-coastal-acidification' },
     { id: 'noaa-edu-oa', text: 'NOAA Education. "Ocean acidification."', url: 'https://www.noaa.gov/education/resource-collections/ocean-coasts/ocean-acidification' },
     { id: 'noaa-acid', text: 'NOAA National Ocean Service. "What is Ocean Acidification?"', url: 'https://oceanservice.noaa.gov/facts/acidification.html' },
+    { id: 'noaa-oap', text: 'NOAA Ocean Acidification Program. "What is Ocean Acidification?"', url: 'https://oceanacidification.noaa.gov/what-is-ocean-acidification/' },
+    { id: 'yee-abg', text: 'Yee, J., Frinak, S., Mohiuddin, N., and Uduman, J. "Fundamentals of Arterial Blood Gas Interpretation." Kidney360 3, no. 8 (2022): 1458–66.', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9416819/' },
     { id: 'dep-coral', text: 'Florida Department of Environmental Protection. "Coral Protection and Restoration."', url: 'https://floridadep.gov/rcp/coral' }
   ];
 
@@ -821,6 +847,13 @@
     { tag: 'Reef · chemistry (14.6)', q: 'The ocean’s pH drops from 8.1 to 8.0. What happens to [H₃O⁺]?',
       options: ['It goes up, about 1.26 times', 'It goes down, about 1.26 times', 'It goes up 10 times', 'It does not change'], answer: 0,
       why: 'Lower pH means more H₃O⁺. A drop of 0.1 is a factor of 10⁰·¹ ≈ 1.26, about a quarter more.' },
+    { tag: 'Reef · chemistry (14.9)', q: 'Which pair of particles could make a buffer?',
+      options: ['H₂CO₃ and HCO₃⁻', 'HCl and Cl⁻', 'HNO₃ and NO₃⁻', 'NaCl and H₂O'], answer: 0,
+      why: 'A buffer is a weak acid plus its conjugate base. H₂CO₃ is weak; HCl and HNO₃ are strong acids, so their conjugate bases (Cl⁻, NO₃⁻) do not take protons back.',
+      hint: 'Look for a WEAK acid together with the ion it becomes after losing one H⁺.' },
+    { tag: 'Reef · chemistry (14.9)', q: 'A drop of base (OH⁻) lands in an H₂CO₃/HCO₃⁻ buffer. Which particle neutralizes it?',
+      options: ['H₂CO₃, which becomes HCO₃⁻', 'HCO₃⁻, which becomes H₂CO₃', 'CO₃²⁻', 'The OH⁻ stays free; buffers only stop acid'], answer: 0,
+      why: 'The weak acid gives its proton to the base: H₂CO₃ + OH⁻ → HCO₃⁻ + H₂O. Added acid is handled by the other half, HCO₃⁻.' },
     { tag: 'Reef · chemistry', q: 'Why does more dissolved CO₂ make it harder for corals and clams to build shells and skeletons?',
       options: ['The extra H₃O⁺ ions use up carbonate ions', 'CO₂ makes the water too cold', 'CO₂ is a strong base', 'Corals cannot breathe CO₂'], answer: 0,
       why: 'CO₂ forms carbonic acid, adding H₃O⁺. Those ions turn carbonate (CO₃²⁻) into bicarbonate (HCO₃⁻), leaving less carbonate for building calcium carbonate.' }
@@ -1083,6 +1116,82 @@
   $('tide-day').addEventListener('input', drawTides);
   $('tide-hour').addEventListener('input', drawTides);
   drawTides();
+
+  // ---- Water or buffer ----
+  var BUF_START = 5, MAX_DROPS = 8;
+  var water, buffer, drops, lastRxn;
+  function resetBuffer() {
+    water = { H: 0, OH: 0 };
+    buffer = { HA: BUF_START, A: BUF_START, H: 0, OH: 0 };
+    drops = 0; lastRxn = '';
+  }
+  function addToBuffers(kind) {
+    if (drops >= MAX_DROPS) return;
+    drops++;
+    if (kind === 'acid') {
+      if (water.OH > 0) water.OH--; else water.H++;
+      if (buffer.OH > 0) { buffer.OH--; lastRxn = 'H₃O⁺ + OH⁻ → 2 H₂O'; }
+      else if (buffer.A > 0) { buffer.A--; buffer.HA++; lastRxn = 'HCO₃⁻ + H₃O⁺ → H₂CO₃ + H₂O'; }
+      else { buffer.H++; lastRxn = ''; }
+    } else {
+      if (water.H > 0) water.H--; else water.OH++;
+      if (buffer.H > 0) { buffer.H--; lastRxn = 'H₃O⁺ + OH⁻ → 2 H₂O'; }
+      else if (buffer.HA > 0) { buffer.HA--; buffer.A++; lastRxn = 'H₂CO₃ + OH⁻ → HCO₃⁻ + H₂O'; }
+      else { buffer.OH++; lastRxn = ''; }
+    }
+  }
+  function drawBuffers() {
+    var svg = $('buffer-svg');
+    svg.textContent = '';
+    function beaker(x0, title) {
+      svg.appendChild(svgEl('path', { d: 'M' + x0 + ' 30 V196 Q' + x0 + ' 210 ' + (x0 + 14) + ' 210 H' + (x0 + 136) + ' Q' + (x0 + 150) + ' 210 ' + (x0 + 150) + ' 196 V30', fill: 'none', stroke: '#8d9994', 'stroke-width': 2.5 }));
+      svg.appendChild(svgEl('rect', { x: x0 + 2, y: 52, width: 146, height: 156, fill: '#d8ebf6' }));
+      var t = svgEl('text', { x: x0 + 75, y: 22, 'text-anchor': 'middle', class: 'sch-b' }); t.textContent = title;
+      svg.appendChild(t);
+    }
+    beaker(14, 'Plain water');
+    beaker(196, 'Buffer');
+    // spread shapes over a grid inside a beaker
+    function place(x0, items) {
+      var cols = 4, k = 0;
+      items.forEach(function (it) {
+        var cx = x0 + 26 + (k % cols) * 33, cy = 76 + Math.floor(k / cols) * 30;
+        if (it === 'HA') svg.appendChild(svgEl('rect', { x: cx - 13, y: cy - 7, width: 26, height: 14, rx: 7, fill: '#5b3a9a' }));
+        else svg.appendChild(svgEl('circle', { cx: cx, cy: cy, r: it === 'A' ? 8 : 9, fill: it === 'A' ? '#1f9a8a' : it === 'H' ? '#c41e3a' : '#2a6fb0' }));
+        k++;
+      });
+    }
+    function list(o) {
+      var out = [], key;
+      for (key in o) for (var n = 0; n < o[key]; n++) out.push(key);
+      return out;
+    }
+    place(14, list({ H: water.H, OH: water.OH }));
+    place(196, list({ HA: buffer.HA, A: buffer.A, H: buffer.H, OH: buffer.OH }));
+
+    var freeW = water.H - water.OH, freeB = buffer.H - buffer.OH;
+    var big = $('buffer-big'), text = $('buffer-text');
+    if (drops === 0) {
+      big.textContent = 'Before you add anything';
+      text.textContent = 'Add a few drops of acid. In plain water every drop stays as a free H₃O⁺ ion, so the pH falls fast. In the buffer, watch what happens to the HCO₃⁻.';
+      return;
+    }
+    var wSays = freeW > 0 ? freeW + ' free H₃O⁺: the pH has fallen a lot.' : freeW < 0 ? (-freeW) + ' free OH⁻: the pH has risen a lot.' : 'no free ions: back where it started.';
+    var bSays;
+    if (freeB === 0) bSays = 'no free ions: the pH has barely moved. ' + (lastRxn ? 'Last reaction: ' + lastRxn + '.' : '');
+    else bSays = (freeB > 0 ? freeB + ' free H₃O⁺' : (-freeB) + ' free OH⁻') + ': the buffer is used up, so the pH now changes as fast as in plain water.';
+    big.textContent = buffer.H > 0 || buffer.OH > 0 ? 'The buffer ran out' : 'The buffer is holding';
+    text.textContent = 'Plain water: ' + wSays + ' Buffer: ' + bSays + (drops >= MAX_DROPS ? ' (That is the limit of this drawing. Start over to try again.)' : '');
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#buffer-ex [data-add]'), function (b) {
+    b.addEventListener('click', function () {
+      var kind = b.getAttribute('data-add');
+      if (kind === 'reset') resetBuffer(); else addToBuffers(kind);
+      drawBuffers();
+    });
+  });
+  resetBuffer();
+  drawBuffers();
 
   // ---- Reef pH and hydronium ----
   var PROJECTED = 7.8;   // NOAA Education: "could have a pH around 7.8" by the end of this century
