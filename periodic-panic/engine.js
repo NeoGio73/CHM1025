@@ -14,7 +14,8 @@ function fit() {
   document.body.classList.toggle('portrait', portrait);
   // landscape with touch: leave a margin each side for the stick and fire button, so they never
   // cover the play field (Zip Sort's bottom row of boxes, for example)
-  const side = touchMode && !portrait ? 2 * 112 : 0;
+  // (and in any landscape window, 50 px each side for the pause/sound/menu buttons)
+  const side = portrait ? 0 : touchMode ? 2 * 112 : 2 * 50;
   const s = portrait ? innerWidth / W : Math.min((innerWidth - side) / W, innerHeight / H);
   cv.style.width = W * s + 'px'; cv.style.height = H * s + 'px';
   fitScale = s; layoutTouch(); layoutHudBtns();
