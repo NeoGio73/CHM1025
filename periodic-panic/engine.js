@@ -370,7 +370,7 @@ addEventListener('keydown', e => {
   if (['arrowup', 'arrowdown', 'w', 's'].includes(k)) lastAxisKey = 'v';
   if (['arrowleft', 'arrowright', 'a', 'd'].includes(k)) lastAxisKey = 'h';
   if (k === ' ') fireLatch = true;
-  if ((k === 'p' || k === 'escape') && G && G.state !== 'over') G.paused = !G.paused;
+  if ((k === 'p' || k === 'escape') && G && G.state !== 'over' && G.state !== 'finale') G.paused = !G.paused;
   if (k === 'm') { Sound.toggle(); syncButtons(); }
 });
 addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
@@ -467,6 +467,7 @@ const E = {   // what stages call
     if (G.mode === 'arcade' && G.stageSolved >= ROUNDS_PER_STAGE) {
       const next = (G.stageIdx + 1) % STAGES.length;
       G.level++;
+      if (next === 0 && G.loop === 1) return finale();   // first time through all six stages
       if (next === 0) G.loop++;
       return startStage(next, true);
     }
@@ -509,7 +510,7 @@ function startStage(idx, warp) {
 }
 
 function update(dt) {
-  if (!G || G.state === 'over' || G.paused) return;
+  if (!G || G.state === 'over' || G.state === 'finale' || G.paused) return;
   G.t += dt;
   G.particles = G.particles.filter(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.95; p.vy *= 0.95; return (p.life -= dt) > 0; });
   if (G.banner && (G.banner.t -= dt) <= 0) G.banner = null;
@@ -668,11 +669,29 @@ function syncHudBtns() {
 function gameOver() {
   G.state = 'over';
   const hi = store.get('ca_hi', 0); if (G.score > hi) store.set('ca_hi', G.score);
-  document.getElementById('overTitle').textContent = G.score > hi ? 'NEW HIGH SCORE' : 'GAME OVER';
-  document.getElementById('overStats').textContent = `SCORE ${G.score}   ANSWERED ${G.solved}   LEVEL ${G.level}`;
+  showEndScreen(G.score > hi ? 'NEW HIGH SCORE' : 'GAME OVER', `SCORE ${G.score}   ANSWERED ${G.solved}   LEVEL ${G.level}`, 'NO MISSES. NICE.', false);
+}
+// The finale: arcade mode, the first time all six stages are cleared. Students can stop here with
+// their review list, or keep going into loop 2 (faster) for a high score.
+function finale() {
+  G.state = 'finale'; G.banner = null;
+  const hi = store.get('ca_hi', 0); if (G.score > hi) store.set('ca_hi', G.score);
+  Sound.clear(); setTimeout(() => Sound.correct(), 700);
+  showEndScreen('YOU BEAT PERIODIC PANIC!', `ALL ${STAGES.length} STAGES CLEARED   SCORE ${G.score}   ANSWERED ${G.solved}`, 'NO MISSES. AMAZING.', true);
+}
+function keepGoing() {   // from the finale into loop 2
+  document.getElementById('over').classList.add('hidden');
+  G.loop++; G.state = 'play';
+  startStage(0, true);
+}
+function showEndScreen(title, stats, perfect, finale) {
+  document.getElementById('overTitle').textContent = title;
+  document.getElementById('overStats').textContent = stats;
+  document.getElementById('keepBtn').hidden = !finale;
+  document.getElementById('againBtn').hidden = finale;
   const ul = document.getElementById('missedList'); ul.innerHTML = '';
   const missed = [...G.missed.values()];
-  document.getElementById('missedHead').textContent = missed.length ? 'REVIEW THESE' : 'NO MISSES. NICE.';
+  document.getElementById('missedHead').textContent = missed.length ? 'REVIEW THESE' : perfect;
   missed.forEach(t => {
     const li = document.createElement('li');
     li.innerHTML = '<b></b> <span class="sub"></span><br><span class="c"></span>';
@@ -754,11 +773,12 @@ function start(mode, idx) {
 function bootArcade() {
   document.getElementById('startBtn').onclick = () => start('arcade', 0);
   document.getElementById('againBtn').onclick = () => start(G ? G.mode : 'arcade', G && G.mode === 'free' ? G.stageIdx : 0);
+  document.getElementById('keepBtn').onclick = () => { if (G && G.state === 'finale') { if (document.activeElement) document.activeElement.blur(); keepGoing(); } };
   const toMenu = () => { G = null; document.getElementById('over').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden'); buildMenu(); };
   document.getElementById('menuBtn').onclick = toMenu;
   // on-screen buttons (touch screens have no P or M key); blur so SPACE never re-presses them
   const tap = (id, fn) => { const b = document.getElementById(id); b.onclick = () => { Sound.init(); fn(); b.blur(); }; };
-  tap('pauseBtn', () => { if (G && G.state !== 'over') G.paused = !G.paused; });
+  tap('pauseBtn', () => { if (G && G.state !== 'over' && G.state !== 'finale') G.paused = !G.paused; });
   tap('muteBtn', () => { Sound.toggle(); syncButtons(); });
   let quitArm = -Infinity;   // leaving takes two taps within 3 s, so a stray tap cannot end a game
   tap('quitBtn', () => {
