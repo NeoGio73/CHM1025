@@ -1,0 +1,1157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spring to Sea Prelab</title>
+  <meta name="description" content="A prelab review for Spring to Sea: the geology, botany, marine biology and physics along a Florida paddle from a spring to a coral reef, and the acid-base chemistry you will use on the way.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231c4c9a'/%3E%3Cpath d='M4 20 Q 10 14 16 20 T 28 20' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      --paper: #ffffff;
+      --wash: #f3f6f4;
+      --ink: #17211e;
+      --ink-soft: #4b5854;
+      --ink-faint: #74807c;
+      --rule: #c7d1cc;
+      --rule-strong: #8d9994;
+      --enamel: #1c4c9a;
+      --enamel-deep: #153a78;
+      --enamel-wash: #e9eff9;
+      --good: #1b7a40;
+      --good-wash: #edf7f0;
+      --flag: #ab2a1c;
+      --flag-wash: #fdf1ee;
+      --acid: #c41e3a;
+      --base: #3a2e8f;
+      --z-spring: #2a8fb0;
+      --z-river: #8a5a2b;
+      --z-lagoon: #3b8f4f;
+      --z-inlet: #2f6fb0;
+      --z-reef: #c9506e;
+      --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+      --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .sheet { max-width: 1040px; margin: 0 auto; padding: 0 20px 64px; }
+
+    a { color: var(--enamel-deep); }
+    a:hover { color: var(--enamel); }
+    img { max-width: 100%; height: auto; display: block; }
+
+    /* ---- Masthead ---- */
+
+    .masthead {
+      padding: 28px 20px 26px;
+      background: var(--wash);
+      border-bottom: 1px solid var(--rule);
+    }
+    .masthead-inner { max-width: 1000px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 28px; }
+    .eyebrow { margin: 0 0 4px; color: var(--ink-faint); font-size: 0.85rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; }
+    h1 { margin: 0; font-family: var(--serif); font-size: 2.1rem; font-weight: 600; line-height: 1.15; }
+    .dek { margin: 8px 0 0; max-width: 62ch; color: var(--ink-soft); }
+    .lab-button {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 16px; border-radius: 6px;
+      background: var(--enamel); color: #fff; font-weight: 600; text-decoration: none; white-space: nowrap;
+    }
+    .lab-button:hover { background: var(--enamel-deep); color: #fff; }
+
+    /* ---- Sections ---- */
+
+    section { margin-top: 48px; scroll-margin-top: 16px; }
+    h2 { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 0 0 12px; font-family: var(--serif); font-size: 1.5rem; font-weight: 600; line-height: 1.25; }
+    .step {
+      display: inline-flex; flex: none; align-items: center; justify-content: center;
+      width: 1.75rem; height: 1.75rem; border-radius: 50%;
+      background: var(--z, var(--enamel)); color: #fff; font-family: var(--sans); font-size: 0.92rem; font-weight: 650;
+    }
+    .field {
+      display: inline-block; padding: 2px 10px; border-radius: 999px;
+      background: color-mix(in srgb, var(--z, var(--enamel)) 12%, white);
+      color: var(--z, var(--enamel)); border: 1px solid color-mix(in srgb, var(--z, var(--enamel)) 35%, white);
+      font-family: var(--sans); font-size: 0.8rem; font-weight: 700; letter-spacing: 0.02em;
+    }
+    h3 { margin: 26px 0 10px; font-family: var(--serif); font-size: 1.18rem; font-weight: 600; }
+    p { margin: 0 0 12px; }
+    .prose { max-width: 68ch; }
+    .soft { color: var(--ink-soft); }
+    .ion { white-space: nowrap; font-weight: 600; }
+    .math { font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .src { font-size: 0.82rem; color: var(--ink-faint); }
+
+    /* ---- Photos from the game ---- */
+
+    .hero { margin: 4px 0 18px; }
+    .hero img, .pair img { width: 100%; border-radius: 8px; border: 1px solid var(--rule); aspect-ratio: 2.19; object-fit: cover; }
+    .caption, figcaption { margin-top: 6px; color: var(--ink-soft); font-size: 0.88rem; }
+    .pair { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; margin: 14px 0 6px; }
+    .pair figure, .hero { margin-left: 0; margin-right: 0; }
+    .pair figure { margin-top: 0; margin-bottom: 0; }
+
+    /* ---- Two-column text + figure ---- */
+
+    .split { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 26px; align-items: start; }
+    .diagram { margin: 6px 0 0; }
+    .diagram svg { width: 100%; height: auto; display: block; border-radius: 8px; }
+    .sch { font-family: var(--sans); font-size: 13px; fill: var(--ink); }
+    .sch-b { font-family: var(--sans); font-size: 13px; font-weight: 700; fill: var(--ink); }
+    .sch-s { font-family: var(--sans); font-size: 11.5px; fill: var(--ink-soft); }
+    .sch-w { font-family: var(--sans); font-size: 13px; font-weight: 700; fill: #fff; }
+
+    /* ---- Callouts ---- */
+
+    .callout { padding: 16px 18px 6px; border-radius: 8px; background: var(--enamel-wash); border: 1px solid #cfdcf1; }
+    .callout h3 { margin-top: 0; }
+    .chem { margin-top: 18px; padding: 14px 18px 6px; border-radius: 8px; border: 1px solid var(--rule); border-left: 5px solid var(--enamel); background: #fbfcfe; }
+    .chem h3 { margin: 0 0 6px; font-size: 1.05rem; }
+    .chem .sec { color: var(--ink-faint); font-family: var(--sans); font-size: 0.85rem; font-weight: 600; }
+    .eq { display: inline-block; margin: 2px 0 10px; padding: 6px 12px; border-radius: 6px; background: #fff; border: 1px solid var(--rule); font-size: 1.02rem; font-variant-numeric: tabular-nums; }
+    .worked { margin: 10px 0 12px; padding: 12px 14px; border-radius: 8px; background: var(--wash); font-variant-numeric: tabular-nums; }
+    .worked p { margin: 0 0 6px; }
+
+    /* ---- Route at a glance ---- */
+
+    .route { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin: 16px 0 6px; padding: 0; list-style: none; counter-reset: stop; }
+    .route li { counter-increment: stop; }
+    .route a {
+      display: flex; flex-direction: column; height: 100%;
+      border: 1px solid var(--rule); border-top: 5px solid var(--z); border-radius: 8px; overflow: hidden;
+      color: var(--ink); text-decoration: none; background: #fff; transition: box-shadow 0.15s;
+    }
+    .route a:hover, .route a:focus-visible { box-shadow: 0 0 0 2px var(--z); outline: none; }
+    .route img { width: 100%; aspect-ratio: 1.6; object-fit: cover; }
+    .route .r-body { padding: 8px 10px 10px; }
+    .route .r-name { font-weight: 700; font-size: 0.95rem; line-height: 1.25; }
+    .route .r-name::before { content: counter(stop) ". "; color: var(--z); }
+    .route .r-field { color: var(--ink-soft); font-size: 0.82rem; }
+    .route .r-ph { display: inline-block; margin-top: 6px; padding: 1px 8px; border-radius: 5px; font-size: 0.78rem; font-weight: 700; color: #fff; background: var(--c); }
+    .route .r-ph.dark { color: var(--ink); }
+
+    .phmap { margin-top: 18px; padding: 16px 16px 12px; border: 1px solid var(--rule); border-radius: 10px; background: #fbfcfb; }
+    .phmap-help { margin: 0 0 12px; color: var(--ink-soft); font-size: 0.93rem; }
+    .lanes { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr); row-gap: 6px; column-gap: 10px; }
+    .lane-label { display: flex; align-items: center; justify-content: flex-end; color: var(--ink-soft); font-size: 0.84rem; font-weight: 600; text-align: right; line-height: 1.15; }
+    .lane { position: relative; height: 26px; border-radius: 4px; background: repeating-linear-gradient(90deg, transparent 0, transparent calc(100% / 15 - 1px), rgba(23,33,30,0.07) calc(100% / 15 - 1px), rgba(23,33,30,0.07) calc(100% / 15)); }
+    .zspan { position: absolute; top: 6px; height: 14px; border-radius: 7px; background: var(--z); min-width: 14px; }
+    .zspan.point { width: 14px; margin-left: -7px; }
+    .bar { display: grid; grid-template-columns: repeat(15, 1fr); height: 34px; border-radius: 6px; overflow: hidden; box-shadow: inset 0 0 0 1px rgba(23,33,30,0.18); }
+    .bar span { display: flex; align-items: flex-end; justify-content: center; padding-bottom: 2px; font-size: 0.78rem; font-weight: 700; color: rgba(255,255,255,0.92); text-shadow: 0 1px 1px rgba(0,0,0,0.3); }
+    .bar span.dark { color: rgba(23,33,30,0.8); text-shadow: none; }
+    .ends { display: flex; justify-content: space-between; margin-top: 6px; color: var(--ink-faint); font-size: 0.8rem; font-weight: 600; }
+
+    /* ---- Fact cards ---- */
+
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; margin-top: 14px; }
+    .card { display: flex; flex-direction: column; padding: 14px 16px 10px; border: 1px solid var(--rule); border-left: 5px solid var(--z, var(--enamel)); border-radius: 8px; background: #fff; }
+    .card h4 { margin: 0 0 6px; font-size: 1.02rem; line-height: 1.3; }
+    .card p { margin: 0 0 8px; font-size: 0.95rem; }
+    .card cite { margin-top: auto; font-style: normal; font-size: 0.8rem; color: var(--ink-faint); }
+
+    /* ---- Explorers (shared) ---- */
+
+    .explorer { margin-top: 16px; padding: 18px 18px 16px; border: 1px solid var(--rule); border-radius: 10px; background: #fbfcfb; }
+    .explorer h3 { margin-top: 0; }
+    .explorer-help { margin: 0 0 14px; color: var(--ink-soft); font-size: 0.95rem; }
+    .toggle { display: inline-flex; flex-wrap: wrap; gap: 6px; margin: 0 0 14px; }
+    .toggle button {
+      padding: 7px 14px; border: 1.5px solid var(--rule-strong); border-radius: 999px; background: #fff;
+      color: var(--ink); font: inherit; font-size: 0.93rem; font-weight: 600; cursor: pointer;
+    }
+    .toggle button:hover { border-color: var(--enamel); }
+    .toggle button[aria-pressed="true"] { background: var(--enamel); border-color: var(--enamel); color: #fff; }
+    .ex-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 22px; align-items: center; }
+    .ex-grid svg { width: 100%; height: auto; display: block; }
+    .readout { padding: 12px 14px; border-radius: 8px; background: #fff; border: 1px solid var(--rule); }
+    .readout .big { margin: 0 0 4px; font-family: var(--serif); font-size: 1.45rem; font-weight: 600; line-height: 1.2; }
+    .readout p { margin: 0 0 8px; font-size: 0.95rem; }
+    .kind { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; color: #fff; }
+    .kind.up { background: var(--base); }
+    .kind.down { background: var(--acid); }
+    .kind.calm { background: #5d8f3a; }
+    .slider { display: grid; gap: 4px; margin: 0 0 14px; }
+    .slider label { font-weight: 600; font-size: 0.93rem; }
+    .slider output { font-weight: 700; color: var(--enamel-deep); }
+    input[type="range"] { width: 100%; accent-color: var(--enamel); }
+
+    /* seagrass day / night */
+    #grass-svg .night-only { display: none; }
+    #grass-svg.night .night-only { display: inline; }
+    #grass-svg.night .day-only { display: none; }
+    #grass-svg .sky { transition: fill 0.4s; }
+
+    /* chain of cause and effect */
+    .chain { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; margin: 16px 0 6px; padding: 0; list-style: none; }
+    .chain li { position: relative; flex: 1 1 140px; margin: 0 18px 10px 0; padding: 10px 12px; border-radius: 8px; background: #fff; border: 1px solid var(--rule); border-top: 4px solid var(--c, var(--enamel)); font-size: 0.92rem; line-height: 1.35; }
+    .chain li:not(:last-child)::after { content: "→"; position: absolute; right: -16px; top: 50%; transform: translateY(-50%); color: var(--ink-faint); font-weight: 700; }
+    .chain b { display: block; margin-bottom: 2px; }
+
+    /* hydrogen-ion bars on the reef */
+    .hbars { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); gap: 8px 10px; align-items: center; margin: 6px 0 4px; font-size: 0.9rem; }
+    .hbar { height: 18px; border-radius: 4px; background: var(--acid); transition: width 0.15s; }
+    .hbar.ref { background: var(--rule-strong); }
+
+    /* controls table */
+    table.keys { border-collapse: collapse; width: 100%; max-width: 760px; font-size: 0.95rem; }
+    table.keys th, table.keys td { padding: 7px 10px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+    table.keys th { color: var(--ink-soft); font-size: 0.84rem; text-transform: uppercase; letter-spacing: 0.04em; }
+    kbd { display: inline-block; min-width: 1.6em; padding: 1px 6px; border: 1px solid var(--rule-strong); border-bottom-width: 2px; border-radius: 4px; background: #fff; font-family: var(--sans); font-size: 0.85rem; font-weight: 700; text-align: center; }
+
+    /* ---- Self-check ---- */
+
+    .quiz { display: grid; gap: 14px; max-width: 760px; margin: 0; padding: 0; list-style: none; counter-reset: q; }
+    .q { padding: 14px 16px 12px; border: 1px solid var(--rule); border-radius: 8px; counter-increment: q; }
+    .q-tag { display: inline-block; margin-bottom: 4px; color: var(--ink-faint); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+    .q-text { margin: 0 0 10px; font-weight: 600; }
+    .q-text::before { content: counter(q) ". "; color: var(--ink-faint); }
+    .options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .options button {
+      padding: 7px 12px; border: 1.5px solid var(--rule-strong); border-radius: 6px; background: #fff;
+      color: var(--ink); font: inherit; font-size: 0.95rem; text-align: left; cursor: pointer;
+    }
+    .options button:hover { border-color: var(--enamel); background: var(--enamel-wash); }
+    .options button[data-state="right"] { border-color: var(--good); background: var(--good-wash); color: var(--good); font-weight: 600; }
+    .options button[data-state="wrong"] { border-color: var(--flag); background: var(--flag-wash); color: var(--flag); }
+    .feedback { margin: 10px 0 0; font-size: 0.95rem; }
+    .feedback:empty { display: none; }
+    .feedback b.right { color: var(--good); }
+    .feedback b.wrong { color: var(--flag); }
+    .score { margin: 16px 0 0; font-weight: 600; }
+    .score .done { color: var(--good); }
+
+    /* ---- Footer ---- */
+
+    .next { margin-top: 40px; padding: 18px 20px; border-radius: 10px; background: var(--wash); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; }
+    .next p { margin: 0; max-width: 60ch; }
+    .sources { margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--rule); font-size: 0.86rem; color: var(--ink-soft); }
+    .sources h2 { font-size: 1.1rem; }
+    .sources ol { margin: 0; padding-left: 1.4em; }
+    .sources li { margin-bottom: 4px; }
+    .sources a { color: inherit; overflow-wrap: anywhere; }
+
+    /* ---- Narrow screens ---- */
+
+    @media (max-width: 860px) {
+      .route { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .split, .ex-grid { grid-template-columns: minmax(0, 1fr); }
+    }
+    @media (max-width: 600px) {
+      body { font-size: 16px; }
+      .sheet { padding: 0 16px 48px; }
+      .masthead { padding: 22px 16px 20px; }
+      h1 { font-size: 1.7rem; }
+      .route { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pair { grid-template-columns: minmax(0, 1fr); }
+      .lanes { grid-template-columns: 4.6rem minmax(0, 1fr); column-gap: 6px; }
+      .lane-label { font-size: 0.72rem; }
+      .bar span { font-size: 0.64rem; }
+      .explorer { padding: 14px 12px 12px; }
+      .chain li { flex-basis: 100%; margin-right: 0; margin-bottom: 18px; }
+      .chain li:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -19px; transform: translateX(-50%); }
+      .hbars { grid-template-columns: 6.4rem minmax(0, 1fr); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .route a, .hbar, #grass-svg .sky { transition: none; }
+    }
+    @media print {
+      .explorer, .lab-button, .next, .phmap, .toggle { display: none !important; }
+      .masthead { background: none; }
+      section { break-inside: avoid-page; }
+    }
+  </style>
+</head>
+<body>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <div>
+        <p class="eyebrow">Prelab review · Spring to Sea</p>
+        <h1>From spring to sea: the science under your paddle</h1>
+        <p class="dek">About fifteen minutes. Five stops, five sciences, and one chemistry chapter that ties them together. Read it before you paddle, try the explorers, then check yourself at the end.</p>
+      </div>
+      <a class="lab-button" href="../">Start paddling <span aria-hidden="true">→</span></a>
+    </div>
+  </header>
+
+<div class="sheet">
+  <main>
+
+    <!-- 1. The trip -->
+    <section id="trip" aria-labelledby="trip-title">
+      <h2 id="trip-title"><span class="step" aria-hidden="true">1</span>One trip, one drop of water</h2>
+      <div class="prose">
+        <p>In <strong>Spring to Sea</strong> you paddle a stand-up board the way rain water travels across Florida: up out of the ground at a spring, down a dark river, across a shallow lagoon full of seagrass, out through an inlet and on to a coral reef. Alastair, a dog with strong opinions, rides on the front of the board. He likes the spring. He does not like the ocean.</p>
+        <p>The water changes at every stop, and so does its <strong>pH</strong>. Each change has a cause that belongs to a different science: rocks, plants, animals, even the Moon. The chemistry of acids and bases (Chapter 14 of your textbook) is how you measure what is going on.</p>
+      </div>
+      <ol class="route" id="route" aria-label="The five stops"></ol>
+
+      <div class="phmap" aria-labelledby="phmap-title">
+        <p class="phmap-help" id="phmap-title"><strong>pH along the way.</strong> Each stop's usual pH range, drawn on the same color scale your pH paper uses in the game. Click a stop's name to jump to it. The spring, river and reef ranges come from the sources in those sections; the lagoon and inlet ranges are rough typical values, since they shift with the tide and the time of day.</p>
+        <div class="lanes" id="lanes"></div>
+        <div class="lanes" style="margin-top:6px">
+          <div class="lane-label">pH</div>
+          <div>
+            <div class="bar" id="phbar" aria-hidden="true"></div>
+            <div class="ends"><span>← more acidic</span><span>neutral</span><span>more basic →</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. The spring -->
+    <section id="spring" aria-labelledby="spring-title" style="--z: var(--z-spring)">
+      <h2 id="spring-title"><span class="step" aria-hidden="true">2</span>The spring <span class="field">Geology</span></h2>
+      <figure class="hero">
+        <img src="img/spring-banks.jpg" alt="In the game: the clear blue spring pool, ringed by palms, oaks and bushes on sandy banks." loading="lazy" width="1280" height="584">
+        <figcaption>In the game: the spring where your trip starts. The water is so clear you can see the sand and the vents far below.</figcaption>
+      </figure>
+      <div class="split">
+        <div class="prose">
+          <p>Florida sits on a thick layer of <strong>limestone</strong>, rock made mostly of calcium carbonate, CaCO<sub>3</sub> <a class="src" href="#src-srwmd-ph">[<span data-src="srwmd-ph"></span>]</a>. Underground, that limestone is full of cracks and channels filled with water. This water-filled rock is the <strong>Floridan aquifer system</strong>, and Florida's springs are the places where its water comes out at the surface <a class="src" href="#src-usgs-springs">[<span data-src="usgs-springs"></span>]</a> <a class="src" href="#src-sjrwmd-springs">[<span data-src="sjrwmd-springs"></span>]</a>.</p>
+          <p>Rain does the digging. Rain water carries carbon dioxide, which forms <strong>carbonic acid</strong>, a weak acid that slowly dissolves the rock <a class="src" href="#src-usgs-springs">[<span data-src="usgs-springs"></span>]</a>. Over a very long time this widens cracks into caves, sinkholes, springs and streams that sink underground. Land shaped this way is called <strong>karst</strong> <a class="src" href="#src-srwmd-karst">[<span data-src="srwmd-karst"></span>]</a>.</p>
+          <p>Because spring water comes from deep underground, its temperature hardly changes: most Florida springs stay at about 70–75 °F (21–24 °C) all year <a class="src" href="#src-dep-springs">[<span data-src="dep-springs"></span>]</a>. In summer a spring feels cold; in winter it feels warm.</p>
+        </div>
+        <figure class="diagram">
+          <svg viewBox="0 0 520 330" role="img" aria-label="A cut-away of the ground. Rain falls on the soil, picks up carbon dioxide and becomes carbonic acid. It seeps down into limestone full of channels: the aquifer, below the water table. A sinkhole sits on the left; on the right the aquifer water rises through a vent into a spring pool.">
+            <defs>
+              <linearGradient id="k-sky" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#cfe6f5"/><stop offset="1" stop-color="#eef6fb"/></linearGradient>
+              <pattern id="k-lime" width="40" height="18" patternUnits="userSpaceOnUse"><rect width="40" height="18" fill="#e7dcc3"/><path d="M0 17.5 H40 M20 0 V9 M0 9 H40 M5 9 V18 M30 9 V18" stroke="#cdbf9f" stroke-width="1"/></pattern>
+              <marker id="k-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1c4c9a"/></marker>
+            </defs>
+            <rect x="0" y="0" width="520" height="330" rx="8" fill="url(#k-lime)"/>
+            <rect x="0" y="0" width="520" height="78" fill="url(#k-sky)"/>
+            <!-- rain -->
+            <g stroke="#6aa6d0" stroke-width="2" stroke-linecap="round">
+              <line x1="70" y1="12" x2="64" y2="28"/><line x1="110" y1="20" x2="104" y2="36"/><line x1="150" y1="10" x2="144" y2="26"/>
+              <line x1="190" y1="22" x2="184" y2="38"/><line x1="230" y1="12" x2="224" y2="28"/><line x1="300" y1="18" x2="294" y2="34"/>
+            </g>
+            <text x="22" y="22" class="sch-b">Rain</text>
+            <!-- soil band with a sinkhole -->
+            <path d="M0 78 H95 Q 120 78 128 100 Q 140 122 160 100 Q 168 78 190 78 H400 Q 420 78 428 92 H520 V112 H0 Z" fill="#8a6b45"/>
+            <path d="M128 100 Q 140 122 160 100 Z" fill="#7fb6d6"/>
+            <text x="98" y="138" class="sch-s">sinkhole</text>
+            <!-- water table & saturated rock -->
+            <rect x="0" y="168" width="520" height="162" fill="#5f9fc9" opacity="0.28"/>
+            <line x1="0" y1="168" x2="520" y2="168" stroke="#2d5f8f" stroke-width="1.5" stroke-dasharray="6 4"/>
+            <text x="12" y="162" class="sch-s">water table</text>
+            <!-- dissolved channels -->
+            <g fill="#7fb6d6" stroke="#2d5f8f" stroke-width="1">
+              <path d="M40 210 Q 90 196 150 214 Q 210 232 270 218 Q 330 204 380 220 Q 420 232 440 214 L 446 226 Q 420 246 378 234 Q 330 220 272 234 Q 210 248 148 230 Q 92 214 44 226 Z"/>
+              <ellipse cx="110" cy="276" rx="34" ry="10"/><ellipse cx="300" cy="286" rx="46" ry="11"/><ellipse cx="210" cy="190" rx="22" ry="7"/>
+            </g>
+            <!-- spring vent and pool -->
+            <path d="M440 214 Q 452 170 452 112" fill="none" stroke="#2d5f8f" stroke-width="10" stroke-linecap="round" opacity="0.6"/>
+            <path d="M428 92 Q 452 118 482 92 H520 V112 H428 Z" fill="#7fb6d6"/>
+            <path d="M412 92 Q 452 128 494 92" fill="#7fc3e0" stroke="#2d5f8f" stroke-width="1"/>
+            <g fill="#ffffff" stroke="#2d5f8f" stroke-width="0.8"><circle cx="450" cy="104" r="3"/><circle cx="456" cy="96" r="2.4"/><circle cx="447" cy="88" r="2"/></g>
+            <path d="M452 200 L452 132" stroke="#1c4c9a" stroke-width="2.2" marker-end="url(#k-arrow)"/>
+            <text x="404" y="58" class="sch-b">Spring</text>
+            <text x="404" y="73" class="sch-s">aquifer water rises</text>
+            <!-- seepage arrows -->
+            <path d="M250 60 L250 150" stroke="#1c4c9a" stroke-width="2.2" marker-end="url(#k-arrow)"/>
+            <path d="M330 120 Q 380 150 420 200" fill="none" stroke="#1c4c9a" stroke-width="2.2" marker-end="url(#k-arrow)" stroke-dasharray="5 4"/>
+            <!-- labels -->
+            <rect x="262" y="86" width="190" height="20" rx="4" fill="#fff" opacity="0.92"/>
+            <text x="268" y="100" class="sch">CO<tspan font-size="9" dy="3">2</tspan><tspan dy="-3"> + H</tspan><tspan font-size="9" dy="3">2</tspan><tspan dy="-3">O → H</tspan><tspan font-size="9" dy="3">2</tspan><tspan dy="-3">CO</tspan><tspan font-size="9" dy="3">3</tspan><tspan dy="-3"> (carbonic acid)</tspan></text>
+            <text x="22" y="252" class="sch-b">Limestone</text>
+            <text x="22" y="266" class="sch-s">(calcium carbonate)</text>
+            <text x="180" y="318" class="sch-s">Channels the weak acid has dissolved: the Floridan aquifer</text>
+          </svg>
+          <figcaption>Not to scale. Rain becomes a weak acid, dissolves channels in the limestone, and comes back up at the spring.</figcaption>
+        </figure>
+      </div>
+
+      <div class="cards" id="cards-spring"></div>
+
+      <div class="chem" style="--z: var(--z-spring)">
+        <h3>Chapter 14 at the spring <span class="sec">· Section 14.1</span></h3>
+        <p>Carbon dioxide reacts with water to form carbonic acid. It is one of the acids you'll name in the game, together with <span class="ion">HCl</span> (hydrochloric acid), <span class="ion">NaOH</span> (sodium hydroxide) and <span class="ion">Ca(OH)<sub>2</sub></span> (calcium hydroxide).</p>
+        <p class="eq">CO<sub>2</sub>(g) + H<sub>2</sub>O(l) → H<sub>2</sub>CO<sub>3</sub>(aq)</p>
+        <p>You'll also test water with <strong>litmus</strong>: acids turn blue litmus paper red, and bases turn red litmus paper blue. Acids taste sour; bases taste bitter and feel slippery (never taste anything in a real lab).</p>
+      </div>
+    </section>
+
+    <!-- 3. The blackwater river -->
+    <section id="river" aria-labelledby="river-title" style="--z: var(--z-river)">
+      <h2 id="river-title"><span class="step" aria-hidden="true">3</span>The blackwater river <span class="field">Botany and ecology</span></h2>
+      <figure class="hero">
+        <img src="img/river-rain.jpg" alt="In the game: the board on a tea-brown river between sandy, tree-lined banks, with light rain falling." loading="lazy" width="1280" height="584">
+        <figcaption>In the game: the river runs the color of strong tea, and it is raining.</figcaption>
+      </figure>
+      <div class="split">
+        <div class="prose">
+          <p>Many Florida rivers begin by draining swamps and marshes. As the water seeps slowly through these wetlands, fallen leaves and other plant matter soak in it and release <strong>tannins</strong> and other dissolved organic matter <a class="src" href="#src-fnai">[<span data-src="fnai"></span>]</a>: the same kind of plant chemicals that color a cup of tea.</p>
+          <p>The tannins turn the water a dark, tea-brown color and lower its pH <a class="src" href="#src-srwmd-ph">[<span data-src="srwmd-ph"></span>]</a>. The result is a <strong>blackwater river</strong>: dark, yet often clean, and naturally <strong>acidic</strong>, usually between pH 4.0 and 6.0 <a class="src" href="#src-fnai">[<span data-src="fnai"></span>]</a>. The upper Suwannee River is a Florida example <a class="src" href="#src-dep-suwannee">[<span data-src="dep-suwannee"></span>]</a>. Plants, and the microbes that break them down, set the river's chemistry: botany and ecology, written in chemistry.</p>
+        </div>
+        <figure class="diagram">
+          <svg viewBox="0 0 520 270" role="img" aria-label="Left: a swamp with a cypress tree dropping leaves into dark water, brown swirls of tannins spreading out. Right: a tea bag in a cup, with the same brown swirls. Both are labeled: plant chemicals soak out into the water.">
+            <rect x="0" y="0" width="520" height="270" rx="8" fill="#f4f1ea"/>
+            <!-- swamp -->
+            <rect x="20" y="150" width="230" height="96" rx="6" fill="#5b3a1a" opacity="0.85"/>
+            <path d="M70 150 L78 40 L86 150 Z" fill="#6b5137"/>
+            <path d="M60 154 q 6 -18 10 0 M92 154 q 6 -14 10 0" stroke="#6b5137" stroke-width="5" fill="none"/>
+            <ellipse cx="78" cy="48" rx="46" ry="26" fill="#6e8f3c"/>
+            <ellipse cx="62" cy="62" rx="28" ry="16" fill="#7aa045"/>
+            <ellipse cx="100" cy="64" rx="26" ry="15" fill="#5f8234"/>
+            <g fill="#b07a2a"><path d="M140 70 q 8 -6 14 2 q -8 6 -14 -2 z"/><path d="M166 104 q 8 -6 14 2 q -8 6 -14 -2 z"/><path d="M150 136 q 8 -6 14 2 q -8 6 -14 -2 z"/></g>
+            <g fill="none" stroke="#c98f4a" stroke-width="2.5" opacity="0.9">
+              <path d="M140 170 q 20 10 40 0 t 40 0"/><path d="M60 196 q 20 10 40 0 t 40 0 t 40 0"/><path d="M100 222 q 20 10 40 0 t 40 0"/>
+            </g>
+            <g fill="#a9772f"><path d="M150 152 q 8 -4 14 2 q -8 4 -14 -2 z"/><path d="M190 160 q 8 -4 14 2 q -8 4 -14 -2 z"/></g>
+            <text x="150" y="40" class="sch-b">Swamp</text>
+            <text x="140" y="262" class="sch-s" text-anchor="middle">leaf litter soaks and decays</text>
+            <!-- arrow -->
+            <text x="285" y="150" class="sch-b" text-anchor="middle">same</text>
+            <text x="285" y="166" class="sch-b" text-anchor="middle">idea</text>
+            <path d="M262 180 H 306" stroke="#1c4c9a" stroke-width="2.5"/><path d="M306 174 L316 180 L306 186 Z" fill="#1c4c9a"/>
+            <!-- teacup -->
+            <path d="M340 120 H470 L458 230 Q 456 244 440 244 H370 Q 354 244 352 230 Z" fill="#ffffff" stroke="#8d9994" stroke-width="2"/>
+            <path d="M346 140 H464 L456 226 Q 454 238 440 238 H370 Q 356 238 354 226 Z" fill="#8a5525"/>
+            <path d="M470 150 q 30 4 26 34 q -4 22 -32 22" fill="none" stroke="#8d9994" stroke-width="6"/>
+            <line x1="405" y1="60" x2="405" y2="150" stroke="#b9b0a0" stroke-width="1.5"/>
+            <rect x="392" y="150" width="26" height="34" rx="3" fill="#e7d9b8" stroke="#b9a881"/>
+            <rect x="398" y="46" width="16" height="14" fill="#e45b4c"/>
+            <g fill="none" stroke="#c98f4a" stroke-width="2.5"><path d="M368 196 q 14 8 28 0 t 28 0 t 20 0"/><path d="M372 214 q 14 8 28 0 t 28 0"/></g>
+            <text x="405" y="32" class="sch-b" text-anchor="middle">Tea</text>
+            <text x="405" y="262" class="sch-s" text-anchor="middle">tannins soak out of the leaves</text>
+          </svg>
+          <figcaption>Not to scale. The brown color is the plants' own chemicals, not dirt.</figcaption>
+        </figure>
+      </div>
+
+      <div class="explorer" id="acid-ex">
+        <h3>Strong acid or weak acid?</h3>
+        <p class="explorer-help">The river's plant acids are <strong>weak</strong>: only a few of their molecules hand a proton (H<sup>+</sup>) to water. A <strong>strong</strong> acid gives away all of them. Switch between the two and count the ions. (A drawing, not real numbers.)</p>
+        <div class="toggle" role="group" aria-label="Choose an acid">
+          <button type="button" data-acid="strong" aria-pressed="true">Strong acid, like HNO<sub>3</sub></button>
+          <button type="button" data-acid="weak" aria-pressed="false">Weak acid, like the river's</button>
+        </div>
+        <div class="ex-grid">
+          <svg id="acid-svg" viewBox="0 0 360 230" role="img" aria-label="A beaker of acid in water, drawn as particles."></svg>
+          <div class="readout" aria-live="polite">
+            <p class="big" id="acid-big"></p>
+            <p id="acid-text"></p>
+            <p class="soft" style="font-size:0.85rem;margin:0">Key: <b style="color:#5b3a9a">HA</b> acid molecule · <b style="color:#c41e3a">H<sub>3</sub>O<sup>+</sup></b> hydronium ion · <b style="color:#2a6fb0">A<sup>−</sup></b> the acid's leftover ion</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards" id="cards-river"></div>
+
+      <div class="chem" style="--z: var(--z-river)">
+        <h3>Chapter 14 on the river <span class="sec">· Sections 14.3, 14.7 and 14.8</span></h3>
+        <p>Only six common acids are <strong>strong</strong>: HCl, HBr, HI, HNO<sub>3</sub>, H<sub>2</sub>SO<sub>4</sub> and HClO<sub>4</sub>. Every other acid, including carbonic acid and the river's plant acids, is <strong>weak</strong>. Acid rain brings two of the strong ones, H<sub>2</sub>SO<sub>4</sub> and HNO<sub>3</sub>.</p>
+        <p>At the titration dock you'll find how much acid is in a river sample. You add a <strong>standard</strong> NaOH solution (one whose molarity you know) from a buret, a drop at a time, until the indicator <strong>phenolphthalein</strong> turns the faintest pink that stays. That is the <strong>end point</strong>: just enough base to neutralize all the acid.</p>
+        <div class="worked">
+          <p><strong>Worked example</strong> (made-up numbers; the game gives you your own):</p>
+          <p>A 25.0 mL river sample needs 18.5 mL of 0.100 M NaOH.</p>
+          <p>moles NaOH = 0.100 mol/L × 0.0185 L = 0.00185 mol, so moles of acid = 0.00185 mol (they react one to one)</p>
+          <p>molarity of acid = 0.00185 mol ÷ 0.0250 L = <strong>0.0740 M</strong></p>
+        </div>
+      </div>
+      <div class="pair">
+        <figure><img src="img/titration-dock.jpg" alt="In the game: a wooden titration dock on the river bank with a buret stand, a flask and a bottle of NaOH." loading="lazy" width="1280" height="584"><figcaption>The titration dock on the river bank.</figcaption></figure>
+        <figure><img src="img/river-rain.jpg" alt="In the game: rain falling on the blackwater river." loading="lazy" width="1280" height="584" style="object-position: 70% 50%"><figcaption>Rain on the river. Alastair lies down and hides from it.</figcaption></figure>
+      </div>
+    </section>
+
+    <!-- 4. The seagrass lagoon -->
+    <section id="lagoon" aria-labelledby="lagoon-title" style="--z: var(--z-lagoon)">
+      <h2 id="lagoon-title"><span class="step" aria-hidden="true">4</span>The seagrass lagoon <span class="field">Marine biology and ecology</span></h2>
+      <figure class="hero">
+        <img src="img/seagrass.jpg" alt="In the game: snorkeling over a shallow sandy lagoon floor covered with swaying seagrass." loading="lazy" width="1280" height="584">
+        <figcaption>In the game: snorkeling over the seagrass meadow.</figcaption>
+      </figure>
+      <div class="prose">
+        <p>Where rivers meet the sea, fresh water and seawater mix into <strong>brackish</strong> water; places like this are called <strong>estuaries</strong> <a class="src" href="#src-noaa-estuary">[<span data-src="noaa-estuary"></span>]</a>. Florida's Indian River Lagoon, on the Atlantic coast, is one. Its shallow floor is covered by <strong>seagrasses</strong>, plants that grow completely underwater, and seagrass is a major food source for manatees <a class="src" href="#src-fwc-food">[<span data-src="fwc-food"></span>]</a>.</p>
+        <p>Like every plant, seagrass runs on <strong>photosynthesis</strong>. When living things photosynthesize, they remove carbon dioxide from the water; <strong>respiration</strong>, which goes on day and night, puts it back and lowers the pH. So shallow coastal waters follow a daily cycle: pH goes <strong>up during the day and down at night</strong> <a class="src" href="#src-ifas-ph">[<span data-src="ifas-ph"></span>]</a>. In Tampa Bay, seagrass beds have been measured raising the pH of the water around them <a class="src" href="#src-usgs-tampa">[<span data-src="usgs-tampa"></span>]</a>.</p>
+      </div>
+
+      <div class="explorer" id="grass-ex">
+        <h3>Day and night in the meadow</h3>
+        <p class="explorer-help">Switch between day and night. Watch which way the carbon dioxide moves, and what that does to the pH. (A drawing; the arrows show direction, not amounts.)</p>
+        <div class="toggle" role="group" aria-label="Choose the time of day">
+          <button type="button" data-time="day" aria-pressed="true">☀ Day</button>
+          <button type="button" data-time="night" aria-pressed="false">☾ Night</button>
+        </div>
+        <div class="ex-grid">
+          <svg id="grass-svg" viewBox="0 0 360 250" role="img" aria-label="Seagrass growing from a sandy floor under water. In daytime, arrows carry carbon dioxide into the blades and oxygen bubbles rise. At night, arrows carry carbon dioxide out of the blades.">
+            <defs>
+              <marker id="g-in" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#1c4c9a"/></marker>
+              <marker id="g-out" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#c41e3a"/></marker>
+            </defs>
+            <rect class="sky" x="0" y="0" width="360" height="54" fill="#cfe8f7"/>
+            <rect x="0" y="54" width="360" height="160" fill="#6fb4cf" opacity="0.55"/>
+            <path d="M0 54 Q 30 48 60 54 T 120 54 T 180 54 T 240 54 T 300 54 T 360 54" fill="none" stroke="#2d5f8f" stroke-width="1.5"/>
+            <rect x="0" y="206" width="360" height="44" fill="#e2d2a4"/>
+            <g class="day-only"><circle cx="318" cy="27" r="16" fill="#f6c73f"/><g stroke="#f6c73f" stroke-width="2.5" stroke-linecap="round"><line x1="318" y1="2" x2="318" y2="7"/><line x1="293" y1="27" x2="298" y2="27"/><line x1="300" y1="9" x2="304" y2="13"/><line x1="336" y1="9" x2="332" y2="13"/></g></g>
+            <g class="night-only"><circle cx="318" cy="27" r="14" fill="#f2efe0"/><circle cx="324" cy="22" r="12" fill="#1f2c4d"/><circle cx="260" cy="16" r="1.4" fill="#fff"/><circle cx="230" cy="34" r="1.2" fill="#fff"/><circle cx="286" cy="40" r="1.1" fill="#fff"/></g>
+            <g fill="#3f8a4a" stroke="#2a6234" stroke-width="1">
+              <path d="M60 208 Q 56 150 70 96 Q 64 152 68 208 Z"/><path d="M76 208 Q 84 160 96 120 Q 86 164 84 208 Z"/><path d="M48 208 Q 40 170 30 140 Q 46 170 56 208 Z"/>
+              <path d="M170 208 Q 164 140 180 86 Q 174 146 178 208 Z"/><path d="M186 208 Q 196 156 210 112 Q 198 160 194 208 Z"/><path d="M158 208 Q 148 166 136 132 Q 154 168 166 208 Z"/>
+              <path d="M276 208 Q 270 150 284 100 Q 278 154 282 208 Z"/><path d="M292 208 Q 302 166 314 128 Q 304 170 300 208 Z"/><path d="M264 208 Q 254 174 244 148 Q 260 176 272 208 Z"/>
+            </g>
+            <g class="day-only" font-family="system-ui, sans-serif">
+              <path d="M112 120 L 88 132" stroke="#1c4c9a" stroke-width="2" marker-end="url(#g-in)"/><text x="114" y="118" class="sch-b" style="font-size:12px">CO₂</text>
+              <path d="M222 100 L 196 112" stroke="#1c4c9a" stroke-width="2" marker-end="url(#g-in)"/><text x="224" y="98" class="sch-b" style="font-size:12px">CO₂</text>
+              <path d="M240 150 L 264 158" stroke="#1c4c9a" stroke-width="2" marker-end="url(#g-in)"/><text x="214" y="152" class="sch-b" style="font-size:12px">CO₂</text>
+              <g fill="#fff" stroke="#2d5f8f" stroke-width="0.8"><circle cx="72" cy="88" r="3"/><circle cx="76" cy="74" r="2.3"/><circle cx="182" cy="78" r="3"/><circle cx="178" cy="64" r="2.2"/><circle cx="286" cy="92" r="3"/><circle cx="290" cy="76" r="2.4"/></g>
+              <text x="296" y="72" class="sch-s">O₂</text>
+            </g>
+            <g class="night-only">
+              <path d="M88 132 L 112 120" stroke="#c41e3a" stroke-width="2" marker-end="url(#g-out)"/><text x="114" y="118" class="sch-b" style="font-size:12px;fill:#c41e3a">CO₂</text>
+              <path d="M196 112 L 222 100" stroke="#c41e3a" stroke-width="2" marker-end="url(#g-out)"/><text x="224" y="98" class="sch-b" style="font-size:12px;fill:#c41e3a">CO₂</text>
+              <path d="M264 158 L 240 150" stroke="#c41e3a" stroke-width="2" marker-end="url(#g-out)"/><text x="214" y="152" class="sch-b" style="font-size:12px;fill:#c41e3a">CO₂</text>
+            </g>
+            <text x="12" y="238" class="sch-s">seagrass on a sandy lagoon floor</text>
+          </svg>
+          <div class="readout" aria-live="polite">
+            <p class="big" id="grass-big"></p>
+            <p><span class="kind" id="grass-kind"></span></p>
+            <p id="grass-text"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pair">
+        <figure><img src="img/seagrass-damaged.jpg" alt="In the game: a patch of short, sparse, brownish seagrass beside the green meadow." loading="lazy" width="1280" height="584"><figcaption>In the game: a damaged patch next to the healthy meadow. You'll compare the two.</figcaption></figure>
+        <figure><img src="img/manatee.jpg" alt="In the game: a gray manatee swimming over the seagrass meadow." loading="lazy" width="1280" height="584"><figcaption>A manatee grazing the meadow. Watch for one coming up to breathe.</figcaption></figure>
+      </div>
+
+      <div class="cards" id="cards-lagoon"></div>
+
+      <div class="chem" style="--z: var(--z-lagoon)">
+        <h3>Chapter 14 in the lagoon <span class="sec">· Section 14.2</span></h3>
+        <p>A <strong>Brønsted–Lowry acid</strong> donates a proton (H<sup>+</sup>); a <strong>base</strong> accepts it. When carbonic acid gives a proton to water, water is the base:</p>
+        <p class="eq">H<sub>2</sub>CO<sub>3</sub> + H<sub>2</sub>O → HCO<sub>3</sub><sup>−</sup> + H<sub>3</sub>O<sup>+</sup></p>
+        <p>An acid and the particle it becomes after losing one proton form a <strong>conjugate acid–base pair</strong>: H<sub>2</sub>CO<sub>3</sub>/HCO<sub>3</sub><sup>−</sup> and H<sub>3</sub>O<sup>+</sup>/H<sub>2</sub>O. Bicarbonate, HCO<sub>3</sub><sup>−</sup>, can act both ways: it can give a proton (becoming CO<sub>3</sub><sup>2−</sup>) or take one (becoming H<sub>2</sub>CO<sub>3</sub>). In the game you'll snorkel down and <em>catch the proton</em>: touch the donor, then the acceptor.</p>
+      </div>
+    </section>
+
+    <!-- 5. The inlet -->
+    <section id="inlet" aria-labelledby="inlet-title" style="--z: var(--z-inlet)">
+      <h2 id="inlet-title"><span class="step" aria-hidden="true">5</span>The inlet <span class="field">Physics and astronomy</span></h2>
+      <figure class="hero">
+        <img src="img/inlet-ride.jpg" alt="In the game: the board surfing out through the inlet on a breaking wave, past the end of a sand dune." loading="lazy" width="1280" height="584">
+        <figcaption>In the game: catching a wave out through the inlet. Alastair lies flat. He is not enjoying it.</figcaption>
+      </figure>
+      <div class="split">
+        <div class="prose">
+          <p>An <strong>inlet</strong> is a gap in a barrier island that joins a lagoon to the ocean. On the rising (<strong>flood</strong>) tide, ocean water pours in through the gap; on the falling (<strong>ebb</strong>) tide, lagoon water drains back out. The water rushing through can be fast and rough: perfect for a surf ride.</p>
+          <p>Tides are <strong>gravity</strong> at work, and the Moon is the main force behind them <a class="src" href="#src-noaa-tides-cause">[<span data-src="noaa-tides-cause"></span>]</a>. It pulls hardest on the side of Earth facing it and least on the far side, so the ocean bulges out on both sides. As Earth turns, a coast passes through both bulges, which gives the East Coast its usual pattern of two high tides and two low tides a day <a class="src" href="#src-noaa-tides-cycles">[<span data-src="noaa-tides-cycles"></span>]</a>. The Sun's tide-making force is about half the Moon's <a class="src" href="#src-noaa-tides-cause">[<span data-src="noaa-tides-cause"></span>]</a>. At new and full moon the Sun and Moon line up and the tides are biggest: <strong>spring tides</strong>. At the first and third quarter moon they pull at right angles and the tides are smallest: <strong>neap tides</strong> <a class="src" href="#src-noaa-springtide">[<span data-src="noaa-springtide"></span>]</a>.</p>
+        </div>
+        <div class="callout">
+          <h3>Fresh, brackish, salty</h3>
+          <p>Ocean scientists measure saltiness, or <strong>salinity</strong>, in parts per thousand (ppt). Seawater typically holds close to 35 grams of dissolved salts in each liter: 35 ppt <a class="src" href="#src-noaa-seawater">[<span data-src="noaa-seawater"></span>]</a>.</p>
+          <ul style="margin:0 0 10px; padding-left:1.1em">
+            <li><strong>Fresh water</strong> (spring, river): below about 0.5 ppt.</li>
+            <li><strong>Brackish water</strong> (lagoon, inlet): from about 0.5 up to 35 ppt, changing with the tide <a class="src" href="#src-noaa-estuary">[<span data-src="noaa-estuary"></span>]</a>.</li>
+            <li><strong>Seawater</strong> (reef): about 35 ppt.</li>
+          </ul>
+          <p>Salinity and pH are different measurements: one counts salt, the other hydronium ions.</p>
+        </div>
+      </div>
+
+      <div class="explorer" id="tide-ex">
+        <h3>Move the Moon, make the tides</h3>
+        <p class="explorer-help">Earth is seen from above the North Pole, with the Sun far off to the left. Change the day of the Moon's month and the hour of the day, and watch the ocean bulge and the tide at the inlet. (A drawing: the bulges are exaggerated a lot.)</p>
+        <div class="slider"><label for="tide-day">Day of the Moon's month: <output id="tide-day-out"></output></label><input type="range" id="tide-day" min="0" max="29.5" step="0.5" value="0"></div>
+        <div class="slider"><label for="tide-hour">Hour of the day at the inlet: <output id="tide-hour-out"></output></label><input type="range" id="tide-hour" min="0" max="24" step="0.25" value="6"></div>
+        <div class="ex-grid">
+          <svg id="tide-svg" viewBox="0 0 360 360" role="img" aria-label="Earth seen from above with its ocean bulging toward and away from the Moon."></svg>
+          <div class="readout" aria-live="polite">
+            <p class="big" id="tide-big"></p>
+            <p><span class="kind calm" id="tide-kind"></span></p>
+            <p id="tide-text"></p>
+            <svg id="tide-curve" viewBox="0 0 300 96" role="img" aria-label="The tide at the inlet over 24 hours." style="width:100%;height:auto"></svg>
+            <p class="soft" style="font-size:0.82rem;margin:0">Water level at the inlet over this day, midnight to midnight. The dot is the hour you picked.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards" id="cards-inlet"></div>
+    </section>
+
+    <!-- 6. The reef -->
+    <section id="reef" aria-labelledby="reef-title" style="--z: var(--z-reef)">
+      <h2 id="reef-title"><span class="step" aria-hidden="true">6</span>The reef <span class="field">Marine biology</span></h2>
+      <figure class="hero">
+        <img src="img/reef-shark.jpg" alt="In the game: snorkeling over a coral reef with pink corals and seagrass, a shark swimming past." loading="lazy" width="1280" height="584">
+        <figcaption>In the game: the reef, at the end of the trip. Sharks patrol it; dolphins leap past on the way out.</figcaption>
+      </figure>
+      <div class="prose">
+        <p>A coral reef looks like rock, but animals build it. Each coral is a colony of tiny animals called <strong>polyps</strong>, and each polyp secretes a hard skeleton of limestone, <strong>calcium carbonate</strong>: the same compound as the rock under Florida's springs <a class="src" href="#src-noaa-coral">[<span data-src="noaa-coral"></span>]</a>. Living inside the polyps are microscopic algae called <strong>zooxanthellae</strong>, which photosynthesize and share the products with the coral <a class="src" href="#src-noaa-zoox">[<span data-src="noaa-zoox"></span>]</a>. When corals are stressed, for example by water that is too warm, they expel the algae and turn white: <strong>coral bleaching</strong> <a class="src" href="#src-noaa-bleach">[<span data-src="noaa-bleach"></span>]</a>.</p>
+        <p>Florida is the only state in the continental United States with extensive shallow coral reefs near its coasts <a class="src" href="#src-dep-reef">[<span data-src="dep-reef"></span>]</a>. Those corals now face a slow change in the chemistry of the water around them.</p>
+      </div>
+
+      <h3>Ocean acidification, one step at a time</h3>
+      <ol class="chain">
+        <li style="--c:#7d8a86"><b>More CO<sub>2</sub> in the air</b>from burning fossil fuels.</li>
+        <li style="--c:#2a8fb0"><b>The ocean absorbs it</b>about a quarter to a third of the CO<sub>2</sub> people release <a class="src" href="#src-pmel">[<span data-src="pmel"></span>]</a> <a class="src" href="#src-epa-oa">[<span data-src="epa-oa"></span>]</a>.</li>
+        <li style="--c:#2f6fb0"><b>It forms carbonic acid</b>CO<sub>2</sub> + H<sub>2</sub>O → H<sub>2</sub>CO<sub>3</sub>, the same reaction as at the spring <a class="src" href="#src-noaa-edu-oa">[<span data-src="noaa-edu-oa"></span>]</a>.</li>
+        <li style="--c:#c41e3a"><b>More H<sub>3</sub>O<sup>+</sup>, lower pH</b>surface pH has fallen by about 0.1 since the industrial revolution began <a class="src" href="#src-noaa-edu-oa">[<span data-src="noaa-edu-oa"></span>]</a>.</li>
+        <li style="--c:#8a5a2b"><b>Fewer carbonate ions</b>H<sub>3</sub>O<sup>+</sup> turns CO<sub>3</sub><sup>2−</sup> into HCO<sub>3</sub><sup>−</sup>.</li>
+        <li style="--c:#c9506e"><b>Harder to build shells</b>corals, clams and oysters need carbonate for their shells and skeletons <a class="src" href="#src-noaa-acid">[<span data-src="noaa-acid"></span>]</a> <a class="src" href="#src-epa-oa">[<span data-src="epa-oa"></span>]</a>.</li>
+      </ol>
+
+      <div class="explorer" id="reef-ex">
+        <h3>How much more acid is a "small" pH drop?</h3>
+        <p class="explorer-help">Slide the ocean's pH. The bars compare the hydronium ion concentration, [H<sub>3</sub>O<sup>+</sup>] = 10<sup>−pH</sup>, with the ocean before the industrial era.</p>
+        <div class="slider"><label for="reef-ph">Ocean surface pH: <output id="reef-ph-out"></output></label><input type="range" id="reef-ph" min="7.70" max="8.20" step="0.01" value="8.10"></div>
+        <div class="hbars" id="hbars">
+          <span>Pre-industrial (8.2)</span><div><div class="hbar ref" id="hbar-ref"></div></div>
+          <span id="hbar-label">Your pH</span><div><div class="hbar" id="hbar-now"></div></div>
+        </div>
+        <div class="readout" aria-live="polite" style="margin-top:12px">
+          <p class="big" id="reef-big"></p>
+          <p id="reef-text"></p>
+        </div>
+      </div>
+
+      <div class="pair">
+        <figure><img src="img/reef-bleached.jpg" alt="In the game: pale, washed-out corals on the sandy reef." loading="lazy" width="1280" height="584"><figcaption>In the game, before the final gate: the reef's corals are pale.</figcaption></figure>
+        <figure><img src="img/reef-recovered.jpg" alt="In the game: the same corals, now bright pink again." loading="lazy" width="1280" height="584"><figcaption>After you clear the final gate, the color comes back.</figcaption></figure>
+      </div>
+
+      <div class="cards" id="cards-reef"></div>
+
+      <div class="chem" style="--z: var(--z-reef)">
+        <h3>Chapter 14 at the reef <span class="sec">· Section 14.6</span></h3>
+        <p><span class="math">pH = −log[H<sub>3</sub>O<sup>+</sup>]</span>, and going back, <span class="math">[H<sub>3</sub>O<sup>+</sup>] = 10<sup>−pH</sup></span>. Every whole pH unit is a factor of ten, so even a drop of 0.1 means <span class="math">10<sup>0.1</sup> ≈ 1.26</span> times as much H<sub>3</sub>O<sup>+</sup>: about a quarter more. (Agencies round the ocean's change to "about 25%" or "about 30%" more acidic <a class="src" href="#src-epa-oa">[<span data-src="epa-oa"></span>]</a> <a class="src" href="#src-noaa-edu-oa">[<span data-src="noaa-edu-oa"></span>]</a>.)</p>
+        <p>Significant figures: the number of <strong>decimal places</strong> in a pH equals the number of significant figures in the concentration. [H<sub>3</sub>O<sup>+</sup>] = 7.9 × 10<sup>−9</sup> M (two significant figures) gives pH = 8.10 (two decimal places). The game's digital meter reads two decimals for this reason.</p>
+      </div>
+    </section>
+
+    <!-- 7. In the game -->
+    <section id="game" aria-labelledby="game-title">
+      <h2 id="game-title"><span class="step" aria-hidden="true">7</span>Your gear and how to play</h2>
+      <div class="split">
+        <div class="prose">
+          <p><strong>Predict, then measure.</strong> Every time you scoop a water sample you first predict: acid, neutral or base? Then you measure it. Predictions don't have to be right, but right ones earn bonus points, and the game counts them.</p>
+          <p><strong>pH paper first, a meter later.</strong> At the spring and on the river you read samples with pH paper and a color chart, to the nearest whole number. Clear the seagrass stop and you earn a <strong>digital pH meter</strong> that reads two decimals, in time for the reef.</p>
+          <p><strong>Ask Alastair.</strong> Each question has one hint from the dog. A question answered with his help scores half points.</p>
+          <p><strong>Finish the trip</strong> and the summary gives you a completion code to enter in D2L, with the photos you took on the way.</p>
+        </div>
+        <table class="keys">
+          <thead><tr><th>Key</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></td><td>Paddle forward and back, turn left and right</td></tr>
+            <tr><td>Right mouse</td><td>Hold and drag to look around; scroll to zoom</td></tr>
+            <tr><td><kbd>C</kbd> (hold)</td><td>Dip the camera under the surface</td></tr>
+            <tr><td><kbd>E</kbd> (hold)</td><td>Anchor and snorkel, or climb back on</td></tr>
+            <tr><td><kbd>R</kbd></td><td>Scoop a water sample (predict, then measure)</td></tr>
+            <tr><td><kbd>Q</kbd></td><td>Start a stop's questions when you're close</td></tr>
+            <tr><td><kbd>P</kbd></td><td>Take a photo for your trip summary</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 8. Check yourself -->
+    <section id="check" aria-labelledby="check-title">
+      <h2 id="check-title"><span class="step" aria-hidden="true">8</span>Check yourself</h2>
+      <p class="prose">Not graded. Pick an answer to see whether it's right and why; you can change your answer as often as you like.</p>
+      <ol class="quiz" id="quiz"></ol>
+      <p class="score" id="score" aria-live="polite"></p>
+    </section>
+
+    <div class="next">
+      <p><strong>Ready?</strong> Grab your paddle, check that Alastair is on board, and head for the spring.</p>
+      <a class="lab-button" href="../">Start paddling <span aria-hidden="true">→</span></a>
+    </div>
+
+    <section class="sources" aria-labelledby="sources-title">
+      <h2 id="sources-title">Sources</h2>
+      <ol id="sources"></ol>
+      <p style="margin-top:10px">Pictures on this page are screenshots from the game. Diagrams are drawn for this page and are not to scale.</p>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // The colors printed on the game's pH paper chart, pH 0 to 14 (the same chart as the CHM1020 pH lab).
+  var PAPER = ['#c41e3a', '#e03232', '#ee622c', '#f49228', '#f7be2d', '#f1de3e', '#c0d644', '#78bc4e',
+               '#37a062', '#209682', '#287eac', '#3658a6', '#544298', '#683486', '#502668'];
+  var LIGHT = { 4: 1, 5: 1, 6: 1 };
+
+  // In order of first use on the page, so the citation numbers run upward.
+  var SOURCES = [
+    { id: 'srwmd-ph', text: 'Suwannee River Water Management District. "pH."', url: 'https://www.mysuwanneeriver.com/423/pH' },
+    { id: 'usgs-springs', text: 'Spechler, R. M., and Schiffer, D. M. "Springs of Florida." U.S. Geological Survey Fact Sheet FS-151-95, 1995.', url: 'https://fl.water.usgs.gov/PDF_files/fs151_95_spechler.pdf' },
+    { id: 'sjrwmd-springs', text: 'St. Johns River Water Management District. "Springs characteristics."', url: 'https://www.sjrwmd.com/waterways/springs/characteristics/' },
+    { id: 'srwmd-karst', text: 'Suwannee River Water Management District. "What is Karst?"', url: 'https://www.mysuwanneeriver.com/269/What-is-Karst' },
+    { id: 'dep-springs', text: 'Florida Department of Environmental Protection. "10 Things You Didn’t Know About Florida Springs" (fact sheet).', url: 'https://floridadep.gov/sites/default/files/Springs%20Fact%20Sheet%20-%20Public%20-%20Final.pdf' },
+    { id: 'swfwmd-springs', text: 'Southwest Florida Water Management District. "The Hydrology and Water Quality of Select Springs in the Southwest Florida Water Management District." 2001, revised 2011.', url: 'https://www.swfwmd.state.fl.us/sites/default/files/medias/documents/springs.pdf' },
+    { id: 'usgs-hardness', text: 'U.S. Geological Survey, Water Science School. "Hardness of Water."', url: 'https://www.usgs.gov/special-topics/water-science-school/science/hardness-water' },
+    { id: 'fnai', text: 'Florida Natural Areas Inventory. "Blackwater Stream." In Guide to the Natural Communities of Florida, 2010 edition.', url: 'https://www.fnai.org/PDFs/NC/Riverine.pdf' },
+    { id: 'dep-suwannee', text: 'Florida Department of Environmental Protection. "Nutrient and Dissolved Oxygen TMDL for the Suwannee River, Santa Fe River…" 2008.', url: 'https://floridadep.gov/sites/default/files/suwanneebasinnutrienttmdl.pdf' },
+    { id: 'epa-rain', text: 'U.S. Environmental Protection Agency. "What is Acid Rain?" (archived January 2025).', url: 'https://19january2025snapshot.epa.gov/acidrain/what-acid-rain' },
+    { id: 'noaa-estuary', text: 'NOAA National Ocean Service, Estuaries tutorial. "What is an Estuary?"', url: 'https://oceanservice.noaa.gov/education/tutorial_estuaries/est01_whatis.html' },
+    { id: 'fwc-food', text: 'Florida Fish and Wildlife Conservation Commission. "Effects of Brown Tide in the Indian River Lagoon (2012)."', url: 'https://myfwc.com/research/redtide/monitoring/historical-events/brown-tide/' },
+    { id: 'ifas-ph', text: 'Krimsky, L., Henry, M., and Patterson, J. "Ocean Acidification: pH Variability across Space and Time" (FA227). UF/IFAS Extension.', url: 'https://ask.ifas.ufl.edu/publication/FA227' },
+    { id: 'usgs-tampa', text: 'Yates, K. K., et al. "Ocean acidification buffering effects of seagrass in Tampa Bay." U.S. Geological Survey, 2016.', url: 'https://www.usgs.gov/publications/ocean-acidification-buffering-effects-seagrass-tampa-bay' },
+    { id: 'noaa-irl', text: 'NOAA Fisheries. "A System-Wide Effort to Restore Florida’s Indian River Lagoon." 2026.', url: 'https://www.fisheries.noaa.gov/feature-story/system-wide-effort-restore-floridas-indian-river-lagoon' },
+    { id: 'sjrwmd-blooms', text: 'St. Johns River Water Management District. "District shares series of articles on science behind algal blooms." 2022.', url: 'https://www.sjrwmd.com/streamlines/district-shares-series-of-articles-on-science-behind-algal-blooms-continues-partnerships-to-address-causes/' },
+    { id: 'fwc-ume', text: 'Florida Fish and Wildlife Conservation Commission. "Closed Manatee Mortality Event Along The East Coast."', url: 'https://myfwc.com/research/manatee/rescue-mortality-response/ume/' },
+    { id: 'noaa-tides-cause', text: 'NOAA National Ocean Service, Tides tutorial. "What Causes Tides?"', url: 'https://oceanservice.noaa.gov/education/tutorial_tides/tides02_cause.html' },
+    { id: 'noaa-tides-cycles', text: 'NOAA National Ocean Service, Tides tutorial. "Tidal Cycles."', url: 'https://oceanservice.noaa.gov/education/tutorial_tides/tides07_cycles.html' },
+    { id: 'noaa-springtide', text: 'NOAA National Ocean Service. "What is a spring tide?"', url: 'https://oceanservice.noaa.gov/facts/springtide.html' },
+    { id: 'noaa-seawater', text: 'NOAA JetStream. "Sea Water."', url: 'https://www.noaa.gov/jetstream/ocean/sea-water' },
+    { id: 'noaa-coral', text: 'NOAA National Ocean Service. "What are corals?"', url: 'https://oceanservice.noaa.gov/facts/coral.html' },
+    { id: 'noaa-zoox', text: 'NOAA National Ocean Service, Corals tutorial. "Zooxanthellae."', url: 'https://oceanservice.noaa.gov/education/tutorial_corals/coral02_zooxanthellae.html' },
+    { id: 'noaa-bleach', text: 'NOAA National Ocean Service. "What is coral bleaching?"', url: 'https://oceanservice.noaa.gov/facts/coral_bleach.html' },
+    { id: 'dep-reef', text: 'Florida Department of Environmental Protection, Coral Protection and Restoration. "Florida’s Coral Reef."', url: 'https://floridadep.gov/rcp/coral-protection-restoration/content/floridas-coral-reef' },
+    { id: 'pmel', text: 'NOAA Pacific Marine Environmental Laboratory, Carbon Program. "Ocean Acidification."', url: 'https://www.pmel.noaa.gov/co2/story/Ocean+Acidification' },
+    { id: 'epa-oa', text: 'U.S. Environmental Protection Agency. "Understanding the Science of Ocean and Coastal Acidification."', url: 'https://www.epa.gov/ocean-acidification/understanding-science-ocean-and-coastal-acidification' },
+    { id: 'noaa-edu-oa', text: 'NOAA Education. "Ocean acidification."', url: 'https://www.noaa.gov/education/resource-collections/ocean-coasts/ocean-acidification' },
+    { id: 'noaa-acid', text: 'NOAA National Ocean Service. "What is Ocean Acidification?"', url: 'https://oceanservice.noaa.gov/facts/acidification.html' },
+    { id: 'dep-coral', text: 'Florida Department of Environmental Protection. "Coral Protection and Restoration."', url: 'https://floridadep.gov/rcp/coral' }
+  ];
+
+  var ZONES = [
+    { id: 'spring', name: 'The spring', field: 'Geology', lo: 7.0, hi: 8.0, color: '#2a8fb0', img: 'img/spring-banks.jpg' },
+    { id: 'river', name: 'The blackwater river', field: 'Botany and ecology', lo: 4.0, hi: 6.0, color: '#8a5a2b', img: 'img/river-rain.jpg' },
+    { id: 'lagoon', name: 'The seagrass lagoon', field: 'Marine biology', lo: 7.5, hi: 8.5, color: '#3b8f4f', img: 'img/seagrass.jpg' },
+    { id: 'inlet', name: 'The inlet', field: 'Physics and astronomy', lo: 8.0, hi: 8.0, color: '#2f6fb0', img: 'img/inlet-ride.jpg', label: 'about 8' },
+    { id: 'reef', name: 'The reef', field: 'Marine biology', lo: 8.1, hi: 8.1, color: '#c9506e', img: 'img/reef-shark.jpg', label: '8.1 today' }
+  ];
+
+  var CARDS = {
+    spring: [
+      { title: 'Water that has touched limestone', src: ['swfwmd-springs'],
+        text: 'Water coming out of Florida’s springs is mostly calcium and bicarbonate dissolved from the rock. Its pH usually sits between 7 and 8, because the water is close to chemical balance with the limestone it flowed through.' },
+      { title: 'Hard water', src: ['usgs-hardness', 'swfwmd-springs'],
+        text: 'Water hardness is the amount of dissolved calcium and magnesium. Water that has run through limestone carries a lot of calcium, so Florida spring water is hard.' },
+      { title: 'Steady as a spring', src: ['usgs-springs'],
+        text: 'Spring water in north Florida averages about 70 °F and in central Florida about 75 °F, and each spring’s temperature stays nearly constant through the year.' },
+      { title: 'Rivers that disappear', src: ['srwmd-karst'],
+        text: 'Karst country has more than caves and sinkholes. Some streams sink into the ground and keep flowing underground through the dissolved rock.' }
+    ],
+    river: [
+      { title: 'Acid rain', src: ['epa-rain'],
+        text: 'Burning fossil fuels releases sulfur dioxide (SO₂) and nitrogen oxides (NOₓ). In the air they react with water, oxygen and other chemicals to form sulfuric and nitric acids, which fall as acid rain.' },
+      { title: 'Even clean rain is acidic', src: ['epa-rain'],
+        text: 'Normal rain has a pH of about 5.6. Carbon dioxide from the air dissolves in the drops and forms weak carbonic acid, the same reaction as at the spring.' },
+      { title: 'More than tannins', src: ['fnai'],
+        text: 'Blackwater streams carry tannins, tiny particles, dissolved organic matter and iron, all drained out of the swamps and marshes upstream.' },
+      { title: 'A drier river is less acidic', src: ['fnai'],
+        text: 'Blackwater streams are usually acidic, but when the water runs low they can become about neutral or even slightly basic.' }
+    ],
+    lagoon: [
+      { title: 'A daily pH swing', src: ['ifas-ph'],
+        text: 'Measured over three days, Florida Bay and Tampa Bay showed an average day-to-night difference in pH of 0.22 units. Photosynthesis by day and respiration around the clock drive the cycle.' },
+      { title: 'Seagrass changes its own water', src: ['usgs-tampa'],
+        text: 'In Tampa Bay, scientists found that seagrass beds raise the pH of the water around them by up to 0.5 pH unit, through photosynthesis.' },
+      { title: 'A lagoon that lost its seagrass', src: ['noaa-irl', 'sjrwmd-blooms'],
+        text: 'Between 2011 and 2020, harmful algae blooms killed an estimated 89 percent of the Indian River Lagoon’s seagrass. The blooms were fed by too many nutrients, mostly nitrogen and phosphorus, and they shaded the water so the seagrass could not get enough light.' },
+      { title: 'Hungry manatees', src: ['fwc-ume'],
+        text: 'From December 2020 to April 2022, 1,255 manatees died along Florida’s east coast. The main cause was starvation: there was not enough seagrass left to eat in the Indian River Lagoon.' }
+    ],
+    inlet: [
+      { title: 'Spring tides are not about spring', src: ['noaa-springtide'],
+        text: 'The name comes from the tide “springing forth” at new and full moon. Spring tides happen every month, all year round.' },
+      { title: 'A week apart', src: ['noaa-springtide'],
+        text: 'About seven days after a spring tide, the Sun and Moon are at right angles to each other, and the smaller neap tides arrive.' }
+    ],
+    reef: [
+      { title: 'A reef 350 nautical miles long', src: ['dep-coral'],
+        text: 'Florida’s Coral Reef runs for more than 350 nautical miles, from the Dry Tortugas to the St. Lucie Inlet in Martin County.' },
+      { title: 'From 8.2 to 8.1', src: ['epa-oa'],
+        text: 'Before the 1700s the ocean’s average pH was about 8.2. Today it is about 8.1. One tenth of a unit sounds tiny, but it is about a quarter more hydronium ions.' },
+      { title: 'Where it could go', src: ['noaa-edu-oa'],
+        text: 'If carbon dioxide emissions keep growing as they have, the surface ocean could reach a pH of around 7.8 by the end of this century.' },
+      { title: 'Shells that dissolve', src: ['noaa-edu-oa'],
+        text: 'In an experiment, the shells of pteropods (tiny swimming sea snails) slowly dissolved over 45 days in seawater set to the pH and carbonate levels projected for the year 2100.' }
+    ]
+  };
+
+  // tag: which stop and science the question belongs to.
+  var QUESTIONS = [
+    { tag: 'Spring · geology', q: 'Rain soaking into the ground picks up carbon dioxide. What weak acid does it form, the one that dissolves limestone?',
+      options: ['Carbonic acid, H₂CO₃', 'Hydrochloric acid, HCl', 'Sodium hydroxide, NaOH', 'Sulfuric acid, H₂SO₄'], answer: 0,
+      why: 'CO₂ + H₂O → H₂CO₃. Over a very long time this weak acid dissolves limestone into caves, sinkholes and springs.' },
+    { tag: 'Spring · geology', q: 'Why does a Florida spring stay at about the same temperature all year?',
+      options: ['Its water comes from deep in the aquifer, far from the weather', 'Volcanoes heat it from below', 'Trees shade it all day', 'It flows too fast to warm up'], answer: 0,
+      why: 'Spring water comes up from the aquifer underground, where the temperature hardly changes with the seasons. That is why springs feel cold in summer and warm in winter.' },
+    { tag: 'River · botany and ecology', q: 'What gives a blackwater river its tea color?',
+      options: ['Tannins and dissolved organic matter from swamp plants', 'Rust from old pipes', 'Mud stirred up by boats', 'Green algae'], answer: 0,
+      why: 'Water draining slowly through swamps and marshes soaks up tannins and other plant matter, which darken it and lower its pH.' },
+    { tag: 'River · chemistry (14.3)', q: 'Which of these is a strong acid?',
+      options: ['HNO₃, from acid rain', 'H₂CO₃, carbonic acid', 'The river’s tannins', 'Acetic acid, in vinegar'], answer: 0,
+      why: 'Only six common acids are strong: HCl, HBr, HI, HNO₃, H₂SO₄ and HClO₄. Every other acid is weak.' },
+    { tag: 'River · chemistry (14.8)', q: 'A 25.0 mL river sample needs 20.0 mL of 0.100 M NaOH to reach the end point. What is the molarity of the acid?',
+      options: ['0.0800 M', '0.125 M', '0.200 M', '0.0500 M'], answer: 0,
+      why: '0.100 mol/L × 0.0200 L = 0.00200 mol NaOH = 0.00200 mol acid. Then 0.00200 mol ÷ 0.0250 L = 0.0800 M.',
+      hint: 'Find moles of NaOH first (convert mL to L), then divide by the sample volume in liters.' },
+    { tag: 'Lagoon · marine biology', q: 'On a sunny afternoon, the seagrass meadow’s photosynthesis makes the lagoon’s pH…',
+      options: ['go up', 'go down', 'stay at exactly 7', 'turn the water neutral'], answer: 0,
+      why: 'Photosynthesis removes CO₂ from the water, so there is less carbonic acid and fewer H₃O⁺ ions, and the pH rises. At night it falls again.' },
+    { tag: 'Lagoon · chemistry (14.2)', q: 'What is the conjugate base of carbonic acid, H₂CO₃?',
+      options: ['HCO₃⁻', 'CO₃²⁻', 'H₃O⁺', 'OH⁻'], answer: 0,
+      why: 'Take away one proton (H⁺): H₂CO₃ becomes HCO₃⁻, bicarbonate.',
+      hint: 'A conjugate base has exactly one H⁺ fewer than its acid.' },
+    { tag: 'Lagoon · ecology', q: 'What caused most of the Indian River Lagoon’s seagrass loss between 2011 and 2020?',
+      options: ['Algae blooms, fed by extra nutrients, that shaded the water', 'Manatees eating it all', 'The water becoming too cold', 'Too much fresh water from springs'], answer: 0,
+      why: 'Blooms fed mostly by nitrogen and phosphorus shaded the lagoon; without light the seagrass died, and manatees then went hungry.' },
+    { tag: 'Inlet · physics', q: 'What is the main cause of Earth’s tides?',
+      options: ['The Moon’s gravity', 'The wind', 'The Sun’s heat', 'Rivers flowing into the sea'], answer: 0,
+      why: 'The Moon is the main force behind the tides. The Sun’s pull adds to it, but its tide-making force is only about half the Moon’s.' },
+    { tag: 'Inlet · astronomy', q: 'When do spring tides happen?',
+      options: ['At new and full moon, when the Sun and Moon line up', 'Only in the spring season', 'At the quarter moons', 'Whenever the wind blows toward land'], answer: 0,
+      why: 'Lined up, the Sun’s and Moon’s pulls add together, so highs are higher and lows are lower. Spring tides come twice a month, all year.' },
+    { tag: 'Inlet · earth science', q: 'Which water on the trip has the highest salinity?',
+      options: ['Seawater at the reef', 'Spring water', 'Brackish water in the lagoon', 'The blackwater river'], answer: 0,
+      why: 'Seawater is about 35 ppt. Spring and river water are fresh, below about 0.5 ppt, and brackish water lies in between.' },
+    { tag: 'Reef · marine biology', q: 'What do coral polyps build their skeletons from?',
+      options: ['Calcium carbonate', 'Sand grains glued together', 'Seagrass fibers', 'Sodium chloride'], answer: 0,
+      why: 'Each polyp secretes a skeleton of calcium carbonate, the same compound as limestone.' },
+    { tag: 'Reef · chemistry (14.6)', q: 'The ocean’s pH drops from 8.1 to 8.0. What happens to [H₃O⁺]?',
+      options: ['It goes up, about 1.26 times', 'It goes down, about 1.26 times', 'It goes up 10 times', 'It does not change'], answer: 0,
+      why: 'Lower pH means more H₃O⁺. A drop of 0.1 is a factor of 10⁰·¹ ≈ 1.26, about a quarter more.' },
+    { tag: 'Reef · chemistry', q: 'Why does more dissolved CO₂ make it harder for corals and clams to build shells and skeletons?',
+      options: ['The extra H₃O⁺ ions use up carbonate ions', 'CO₂ makes the water too cold', 'CO₂ is a strong base', 'Corals cannot breathe CO₂'], answer: 0,
+      why: 'CO₂ forms carbonic acid, adding H₃O⁺. Those ions turn carbonate (CO₃²⁻) into bicarbonate (HCO₃⁻), leaving less carbonate for building calcium carbonate.' }
+  ];
+  // Shuffle each question's options once, so the right answer is not always first.
+  QUESTIONS.forEach(function (q, qi) {
+    var order = q.options.map(function (_, i) { return i; });
+    var seed = qi * 7 + 3;
+    for (var i = order.length - 1; i > 0; i--) { seed = (seed * 9301 + 49297) % 233280; var j = Math.floor(seed / 233280 * (i + 1)); var t = order[i]; order[i] = order[j]; order[j] = t; }
+    q.options = order.map(function (i) { return q.options[i]; });
+    q.answer = order.indexOf(q.answer);
+  });
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function svgEl(tag, attrs) { var e = document.createElementNS('http://www.w3.org/2000/svg', tag); for (var k in attrs) e.setAttribute(k, attrs[k]); return e; }
+  function swatch(pH) { return Math.max(0, Math.min(14, Math.round(pH))); }
+  function pct(pH) { return ((pH + 0.5) / 15 * 100) + '%'; }
+  function rangeText(z) { return z.label ? 'pH ' + z.label : (z.lo === z.hi ? 'pH ' + z.lo : 'pH ' + z.lo + '–' + z.hi); }
+  function rad(d) { return d * Math.PI / 180; }
+
+  // ---- Sources and in-text citation numbers ----
+  var srcIndex = {};
+  SOURCES.forEach(function (s, i) {
+    srcIndex[s.id] = i + 1;
+    var li = el('li'); li.id = 'src-' + s.id;
+    li.appendChild(document.createTextNode(s.text + ' '));
+    var a = el('a', null, s.url.replace(/^https?:\/\//, '').replace(/\/$/, '')); a.href = s.url; a.rel = 'noopener'; a.target = '_blank';
+    li.appendChild(a);
+    $('sources').appendChild(li);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-src]'), function (span) {
+    var n = srcIndex[span.getAttribute('data-src')];
+    span.textContent = n ? String(n) : '?';
+  });
+
+  // ---- Route cards ----
+  var route = $('route');
+  ZONES.forEach(function (z) {
+    var li = el('li'), a = el('a');
+    a.href = '#' + z.id;
+    a.style.setProperty('--z', z.color);
+    var img = el('img'); img.src = z.img; img.alt = ''; img.loading = 'lazy'; img.width = 320; img.height = 200;
+    a.appendChild(img);
+    var body = el('div', 'r-body');
+    body.appendChild(el('div', 'r-name', z.name));
+    body.appendChild(el('div', 'r-field', z.field));
+    var mid = (z.lo + z.hi) / 2;
+    var ph = el('span', 'r-ph' + (LIGHT[swatch(mid)] ? ' dark' : ''), rangeText(z));
+    ph.style.setProperty('--c', PAPER[swatch(mid)]);
+    body.appendChild(ph);
+    a.appendChild(body);
+    li.appendChild(a);
+    route.appendChild(li);
+  });
+
+  // ---- pH map ----
+  var lanes = $('lanes');
+  ZONES.forEach(function (z) {
+    var label = el('a', 'lane-label', z.name.replace(/^The /, ''));
+    label.href = '#' + z.id;
+    label.style.color = z.color;
+    label.style.textDecoration = 'none';
+    lanes.appendChild(label);
+    var lane = el('div', 'lane');
+    var sp = el('span', 'zspan' + (z.hi > z.lo ? '' : ' point'));
+    sp.style.setProperty('--z', z.color);
+    sp.style.left = pct(z.lo);
+    if (z.hi > z.lo) sp.style.width = ((z.hi - z.lo) / 15 * 100) + '%';
+    sp.title = z.name + ': ' + rangeText(z);
+    lane.appendChild(sp);
+    lanes.appendChild(lane);
+  });
+  for (var i = 0; i <= 14; i++) {
+    var s = el('span', LIGHT[i] ? 'dark' : null, String(i));
+    s.style.background = PAPER[i];
+    $('phbar').appendChild(s);
+  }
+
+  // ---- Fact cards ----
+  Object.keys(CARDS).forEach(function (zone) {
+    var wrap = $('cards-' + zone);
+    if (!wrap) return;
+    CARDS[zone].forEach(function (c) {
+      var card = el('article', 'card');
+      card.appendChild(el('h4', null, c.title));
+      card.appendChild(el('p', null, c.text));
+      var cite = el('cite');
+      c.src.forEach(function (id, k) {
+        if (k) cite.appendChild(document.createTextNode(', '));
+        var a = el('a', null, 'Source ' + (srcIndex[id] || '?')); a.href = '#src-' + id;
+        cite.appendChild(a);
+      });
+      card.appendChild(cite);
+      wrap.appendChild(card);
+    });
+  });
+
+  // ---- Strong or weak acid ----
+  var acidSvg = $('acid-svg');
+  function drawAcid(kind) {
+    acidSvg.textContent = '';
+    // beaker
+    acidSvg.appendChild(svgEl('path', { d: 'M40 20 V200 Q40 214 54 214 H306 Q320 214 320 200 V20', fill: 'none', stroke: '#8d9994', 'stroke-width': 2.5 }));
+    acidSvg.appendChild(svgEl('rect', { x: 42, y: 40, width: 276, height: 172, fill: '#d8ebf6' }));
+    var slots = [];
+    for (var r = 0; r < 2; r++) for (var c = 0; c < 5; c++) slots.push({ x: 74 + c * 53, y: 80 + r * 74 });
+    var ionized = kind === 'strong' ? 10 : 1;
+    slots.forEach(function (p, k) {
+      if (k < ionized) {
+        var h = svgEl('g', {});
+        h.appendChild(svgEl('circle', { cx: p.x - 9, cy: p.y - 9, r: 15, fill: '#c41e3a' }));
+        var t1 = svgEl('text', { x: p.x - 9, y: p.y - 5.5, 'text-anchor': 'middle', class: 'sch-w', style: 'font-size:9.5px' }); t1.textContent = 'H₃O⁺';
+        h.appendChild(t1);
+        h.appendChild(svgEl('circle', { cx: p.x + 12, cy: p.y + 16, r: 11, fill: '#2a6fb0' }));
+        var t2 = svgEl('text', { x: p.x + 12, y: p.y + 20, 'text-anchor': 'middle', class: 'sch-w', style: 'font-size:11px' }); t2.textContent = 'A⁻';
+        h.appendChild(t2);
+        acidSvg.appendChild(h);
+      } else {
+        acidSvg.appendChild(svgEl('rect', { x: p.x - 18, y: p.y - 10, width: 36, height: 20, rx: 10, fill: '#5b3a9a' }));
+        var t = svgEl('text', { x: p.x, y: p.y + 4, 'text-anchor': 'middle', class: 'sch-w', style: 'font-size:11px' }); t.textContent = 'HA';
+        acidSvg.appendChild(t);
+      }
+    });
+    var label = svgEl('text', { x: 180, y: 32, 'text-anchor': 'middle', class: 'sch-b' });
+    label.textContent = kind === 'strong' ? 'Strong acid in water' : 'Weak acid in water';
+    acidSvg.appendChild(label);
+    $('acid-big').textContent = kind === 'strong' ? '10 of 10 molecules gave away H⁺' : '1 of 10 molecules gave away H⁺';
+    $('acid-text').textContent = kind === 'strong'
+      ? 'A strong acid ionizes completely: every molecule hands its proton to water, making hydronium ions (H₃O⁺). The sulfuric and nitric acids in acid rain are strong acids.'
+      : 'A weak acid ionizes only a little: most molecules stay whole (HA) and only a few make H₃O⁺. The river is acidic, but the plant acids that make it so are weak. Carbonic acid is weak too.';
+    Array.prototype.forEach.call(document.querySelectorAll('#acid-ex [data-acid]'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-acid') === kind ? 'true' : 'false'); });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#acid-ex [data-acid]'), function (b) {
+    b.addEventListener('click', function () { drawAcid(b.getAttribute('data-acid')); });
+  });
+  drawAcid('strong');
+
+  // ---- Seagrass day and night ----
+  function setTime(t) {
+    var svg = $('grass-svg');
+    svg.classList.toggle('night', t === 'night');
+    svg.querySelector('.sky').setAttribute('fill', t === 'night' ? '#1f2c4d' : '#cfe8f7');
+    var kind = $('grass-kind');
+    if (t === 'day') {
+      $('grass-big').textContent = 'Daytime: photosynthesis';
+      kind.className = 'kind up'; kind.textContent = 'pH goes up';
+      $('grass-text').textContent = 'The blades take carbon dioxide out of the water. Less CO₂ means less carbonic acid, so fewer H₃O⁺ ions and a higher pH. The oxygen they make rises as bubbles.';
+    } else {
+      $('grass-big').textContent = 'Night: no light, only breathing';
+      kind.className = 'kind down'; kind.textContent = 'pH goes down';
+      $('grass-text').textContent = 'Photosynthesis stops, but plants and animals keep breathing out carbon dioxide. More CO₂ means more carbonic acid, so more H₃O⁺ ions and a lower pH.';
+    }
+    Array.prototype.forEach.call(document.querySelectorAll('#grass-ex [data-time]'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-time') === t ? 'true' : 'false'); });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('#grass-ex [data-time]'), function (b) {
+    b.addEventListener('click', function () { setTime(b.getAttribute('data-time')); });
+  });
+  setTime('day');
+
+  // ---- Tides ----
+  // Angles in degrees, counter-clockwise from the +x axis, seen from above the North Pole.
+  // The Sun is far off to the left (180 deg). The Sun's tidal pull is a bit under half the Moon's.
+  var SUN = 180, SUN_RATIO = 0.46, MONTH = 29.53;
+  var tideSvg = $('tide-svg'), curveSvg = $('tide-curve');
+  var CX = 180, CY = 180, R_EARTH = 58;
+
+  function moonAngle(day) { return SUN + day / MONTH * 360; }
+  function inletAngle(hour) { return SUN + (hour - 12) / 24 * 360; }   // noon faces the Sun
+  function tideAt(phi, moon) { return Math.cos(2 * rad(phi - moon)) + SUN_RATIO * Math.cos(2 * rad(phi - SUN)); }
+  function phaseName(day) {
+    var names = [[1.85, 'new moon'], [5.5, 'waxing crescent'], [9.2, 'first quarter'], [12.9, 'waxing gibbous'], [16.6, 'full moon'],
+                 [20.3, 'waning gibbous'], [24.0, 'last quarter'], [27.7, 'waning crescent'], [99, 'new moon']];
+    for (var i = 0; i < names.length; i++) if (day < names[i][0]) return names[i][1];
+    return 'new moon';
+  }
+  function hourText(h) {
+    var hh = Math.floor(h) % 24, mm = Math.round((h - Math.floor(h)) * 60);
+    var ampm = hh < 12 ? 'a.m.' : 'p.m.';
+    var h12 = hh % 12 === 0 ? 12 : hh % 12;
+    if (h >= 24) { h12 = 12; ampm = 'a.m.'; }
+    return h12 + ':' + (mm < 10 ? '0' : '') + mm + ' ' + ampm;
+  }
+
+  function drawTides() {
+    var day = parseFloat($('tide-day').value), hour = parseFloat($('tide-hour').value);
+    $('tide-day-out').textContent = 'day ' + day + ' (' + phaseName(day) + ')';
+    $('tide-hour-out').textContent = hourText(hour);
+    var moon = moonAngle(day), inlet = inletAngle(hour);
+    tideSvg.textContent = '';
+
+    // Sun, far to the left
+    tideSvg.appendChild(svgEl('circle', { cx: -40, cy: CY, r: 70, fill: '#f6c73f', opacity: 0.9 }));
+    var st = svgEl('text', { x: 6, y: CY - 78, class: 'sch-b' }); st.textContent = 'Sun';
+    tideSvg.appendChild(st);
+    var st2 = svgEl('text', { x: 6, y: CY - 64, class: 'sch-s' }); st2.textContent = '(very far away)';
+    tideSvg.appendChild(st2);
+
+    // Moon's orbit
+    tideSvg.appendChild(svgEl('circle', { cx: CX, cy: CY, r: 140, fill: 'none', stroke: '#c7d1cc', 'stroke-dasharray': '4 5' }));
+
+    // Ocean bulge
+    var pts = [];
+    for (var a = 0; a <= 360; a += 4) {
+      var r = R_EARTH + 9 + 11 * tideAt(a, moon) / (1 + SUN_RATIO);
+      pts.push((CX + r * Math.cos(rad(a))).toFixed(1) + ',' + (CY - r * Math.sin(rad(a))).toFixed(1));
+    }
+    tideSvg.appendChild(svgEl('polygon', { points: pts.join(' '), fill: '#5f9fc9', opacity: 0.75 }));
+    // Earth, with its night side shaded
+    tideSvg.appendChild(svgEl('circle', { cx: CX, cy: CY, r: R_EARTH, fill: '#7aa86a' }));
+    tideSvg.appendChild(svgEl('path', { d: 'M' + CX + ' ' + (CY - R_EARTH) + ' A' + R_EARTH + ' ' + R_EARTH + ' 0 0 1 ' + CX + ' ' + (CY + R_EARTH) + ' Z', fill: '#17211e', opacity: 0.35 }));
+    var np = svgEl('text', { x: CX, y: CY + 4, 'text-anchor': 'middle', class: 'sch-w', style: 'font-size:11px' }); np.textContent = 'Earth';
+    tideSvg.appendChild(np);
+
+    // Inlet marker on the coast
+    var mx = CX + (R_EARTH + 1) * Math.cos(rad(inlet)), my = CY - (R_EARTH + 1) * Math.sin(rad(inlet));
+    tideSvg.appendChild(svgEl('circle', { cx: mx, cy: my, r: 6, fill: '#c41e3a', stroke: '#fff', 'stroke-width': 2 }));
+    var lx = CX + (R_EARTH + 26) * Math.cos(rad(inlet)), ly = CY - (R_EARTH + 26) * Math.sin(rad(inlet));
+    var mt = svgEl('text', { x: lx, y: ly + 4, 'text-anchor': 'middle', class: 'sch-b', style: 'font-size:12px;fill:#c41e3a' }); mt.textContent = 'Inlet';
+    tideSvg.appendChild(mt);
+
+    // Moon
+    var ox = CX + 140 * Math.cos(rad(moon)), oy = CY - 140 * Math.sin(rad(moon));
+    tideSvg.appendChild(svgEl('circle', { cx: ox, cy: oy, r: 13, fill: '#d9d6c8', stroke: '#8d9994' }));
+    var mo = svgEl('text', { x: ox, y: oy + 28, 'text-anchor': 'middle', class: 'sch-b', style: 'font-size:12px' }); mo.textContent = 'Moon';
+    tideSvg.appendChild(mo);
+
+    // Readout
+    var h = tideAt(inlet, moon), hNext = tideAt(inletAngle(hour + 0.25), moon);
+    var lo = Infinity, hi = -Infinity, curve = [];
+    for (var t = 0; t <= 24; t += 0.25) { var v = tideAt(inletAngle(t), moon); curve.push(v); if (v < lo) lo = v; if (v > hi) hi = v; }
+    var span = hi - lo, kind = $('tide-kind');
+    if (h > hi - 0.08 * span) { kind.className = 'kind up'; kind.textContent = 'High tide'; }
+    else if (h < lo + 0.08 * span) { kind.className = 'kind down'; kind.textContent = 'Low tide'; }
+    else if (hNext > h) { kind.className = 'kind calm'; kind.textContent = 'Rising: flood tide, water flows in'; }
+    else { kind.className = 'kind calm'; kind.textContent = 'Falling: ebb tide, water flows out'; }
+
+    var align = Math.cos(2 * rad(moon - SUN));      // +1 lined up, -1 at right angles
+    var amp = Math.sqrt(1 + SUN_RATIO * SUN_RATIO + 2 * SUN_RATIO * align);
+    if (align > 0.6) {
+      $('tide-big').textContent = 'Spring tides';
+      $('tide-text').textContent = 'The Sun and Moon are lined up (' + phaseName(day) + '), so their pulls add together. High tides are higher and low tides lower than usual. "Spring" here means "springing up", not the season.';
+    } else if (align < -0.6) {
+      $('tide-big').textContent = 'Neap tides';
+      $('tide-text').textContent = 'The Sun and Moon pull at right angles (' + phaseName(day) + '), so they partly cancel. The difference between high and low tide is the smallest of the month.';
+    } else {
+      $('tide-big').textContent = 'In between';
+      $('tide-text').textContent = 'The Sun and Moon are partly lined up, so the tides are middle-sized. Move the Moon to a new or full moon for spring tides, or to a quarter moon for neap tides.';
+    }
+
+    // Tide curve for the day
+    curveSvg.textContent = '';
+    curveSvg.appendChild(svgEl('line', { x1: 0, y1: 48, x2: 300, y2: 48, stroke: '#c7d1cc' }));
+    var maxAmp = 1 + SUN_RATIO, line = [];
+    curve.forEach(function (v, k) { line.push((k / (curve.length - 1) * 300).toFixed(1) + ',' + (48 - v / maxAmp * 40).toFixed(1)); });
+    curveSvg.appendChild(svgEl('polyline', { points: line.join(' '), fill: 'none', stroke: '#2f6fb0', 'stroke-width': 2.5 }));
+    curveSvg.appendChild(svgEl('circle', { cx: hour / 24 * 300, cy: 48 - h / maxAmp * 40, r: 5, fill: '#c41e3a', stroke: '#fff', 'stroke-width': 1.5 }));
+    void amp;
+  }
+  $('tide-day').addEventListener('input', drawTides);
+  $('tide-hour').addEventListener('input', drawTides);
+  drawTides();
+
+  // ---- Reef pH and hydronium ----
+  var PROJECTED = 7.8;   // NOAA Education: "could have a pH around 7.8" by the end of this century
+  function drawReef() {
+    var ph = parseFloat($('reef-ph').value);
+    $('reef-ph-out').textContent = ph.toFixed(2);
+    var conc = Math.pow(10, -ph), ratio = Math.pow(10, 8.2 - ph);
+    var maxRatio = Math.pow(10, 8.2 - 7.7);
+    $('hbar-ref').style.width = (1 / maxRatio * 100) + '%';
+    $('hbar-now').style.width = (ratio / maxRatio * 100) + '%';
+    $('hbar-label').textContent = 'pH ' + ph.toFixed(2);
+    var exp = Math.floor(Math.log10(conc)), mant = conc / Math.pow(10, exp);
+    $('reef-big').textContent = '[H₃O⁺] = ' + mant.toFixed(1) + ' × 10' + toSup(exp) + ' M';
+    var more = Math.round((ratio - 1) * 100);
+    var note = '';
+    if (Math.abs(ph - 8.2) < 0.005) note = 'This is about where the surface ocean was before the industrial era. ';
+    else if (Math.abs(ph - 8.1) < 0.005) note = 'This is about where the surface ocean is today. ';
+    else if (Math.abs(ph - PROJECTED) < 0.005) note = 'This is about where the surface ocean could be by the end of this century if emissions keep growing. ';
+    $('reef-text').textContent = note + (ratio < 1.005
+      ? 'Same hydronium concentration as the pre-industrial ocean.'
+      : 'That is ' + ratio.toFixed(2) + ' times the pre-industrial [H₃O⁺], or about ' + more + '% more, from a drop of only ' + (8.2 - ph).toFixed(2) + ' pH units.');
+  }
+  function toSup(n) {
+    var map = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+    return String(n).split('').map(function (ch) { return map[ch]; }).join('');
+  }
+  $('reef-ph').addEventListener('input', drawReef);
+  drawReef();
+
+  // ---- Self-check ----
+  var quiz = $('quiz');
+  var state = QUESTIONS.map(function () { return null; });
+  QUESTIONS.forEach(function (q, qi) {
+    var li = el('li', 'q');
+    li.appendChild(el('span', 'q-tag', q.tag));
+    var text = el('p', 'q-text', q.q); text.id = 'q' + qi;
+    li.appendChild(text);
+    var opts = el('div', 'options'); opts.setAttribute('role', 'group'); opts.setAttribute('aria-labelledby', text.id);
+    var fb = el('p', 'feedback'); fb.setAttribute('aria-live', 'polite');
+    q.options.forEach(function (o, oi) {
+      var btn = el('button', null, o); btn.type = 'button';
+      btn.addEventListener('click', function () {
+        state[qi] = oi === q.answer;
+        Array.prototype.forEach.call(opts.children, function (b2, j) {
+          b2.removeAttribute('data-state');
+          b2.setAttribute('aria-pressed', j === oi ? 'true' : 'false');
+        });
+        btn.setAttribute('data-state', state[qi] ? 'right' : 'wrong');
+        fb.textContent = '';
+        fb.appendChild(el('b', state[qi] ? 'right' : 'wrong', state[qi] ? 'Right. ' : 'Not quite. '));
+        fb.appendChild(document.createTextNode(state[qi] ? q.why : 'Try another answer.' + (q.hint ? ' ' + q.hint : '')));
+        score();
+      });
+      opts.appendChild(btn);
+    });
+    li.appendChild(opts);
+    li.appendChild(fb);
+    quiz.appendChild(li);
+  });
+  function score() {
+    var answered = state.filter(function (s) { return s !== null; }).length;
+    var right = state.filter(function (s) { return s === true; }).length;
+    var out = $('score');
+    out.textContent = '';
+    if (!answered) return;
+    if (right === QUESTIONS.length) { out.appendChild(el('span', 'done', 'All ' + right + ' right. You’re ready to paddle.')); return; }
+    out.textContent = right + ' of ' + QUESTIONS.length + ' right so far.';
+  }
+})();
+</script>
+</body>
+</html>
