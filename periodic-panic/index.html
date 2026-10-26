@@ -26,6 +26,11 @@
   #stripText { font-size:22px; line-height:1.15; color:var(--gold); }
   #stripNote { font-size:20px; line-height:1.15; margin-top:6px; }
   #stripNote:empty { display:none; }
+  /* pause / mute / menu buttons for touch screens (keys P and M still work); placed by layoutHudBtns() */
+  #hudBtns { position:fixed; z-index:4; display:none; gap:6px; }
+  #hudBtns.on { display:flex; }
+  #hudBtns button { width:38px; height:38px; padding:0; font-size:15px; line-height:1; color:var(--fg);
+    background:rgba(0,0,0,.65); border:2px solid var(--dim); font-family:'VT323', monospace; }
   .overlay { position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
     background:rgba(2,3,8,.93); z-index:5; padding:16px; }
   .overlay.hidden { display:none; }
@@ -79,6 +84,11 @@
 <div id="wrap">
   <div id="strip" aria-live="polite"><div id="stripLabel"></div><div id="stripText"></div><div id="stripNote"></div></div>
   <canvas id="game" width="800" height="600"></canvas>
+</div>
+<div id="hudBtns">
+  <button id="pauseBtn" type="button" aria-label="Pause" title="Pause (P)">❚❚</button>
+  <button id="muteBtn" type="button" aria-label="Sound on or off" title="Sound (M)">♪</button>
+  <button id="quitBtn" type="button" aria-label="Back to the menu" title="Back to the menu">☰</button>
 </div>
 <div id="touch"><div id="stick"><div id="knob"></div></div><div id="fire">FIRE</div></div>
 

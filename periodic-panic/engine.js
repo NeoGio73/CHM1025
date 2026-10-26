@@ -17,7 +17,16 @@ function fit() {
   const side = touchMode && !portrait ? 2 * 112 : 0;
   const s = portrait ? innerWidth / W : Math.min((innerWidth - side) / W, innerHeight / H);
   cv.style.width = W * s + 'px'; cv.style.height = H * s + 'px';
-  fitScale = s; layoutTouch();
+  fitScale = s; layoutTouch(); layoutHudBtns();
+}
+// Pause / mute / menu buttons: beside the canvas when there is room, otherwise inside the top corner
+// of the play field (under the clue bar); in portrait, centred just under the canvas.
+function layoutHudBtns() {
+  const box = document.getElementById('hudBtns'); if (!box) return;
+  const r = cv.getBoundingClientRect(), bw = 38 * 3 + 12;
+  if (portrait) Object.assign(box.style, { flexDirection: 'row', left: (innerWidth - bw) / 2 + 'px', top: r.bottom + 6 + 'px' });
+  else if (innerWidth - r.right >= 50) Object.assign(box.style, { flexDirection: 'column', left: r.right + 6 + 'px', top: r.top + 6 + 'px' });
+  else Object.assign(box.style, { flexDirection: 'row', left: r.right - bw - 8 + 'px', top: r.top + (HUD_H + 8) * fitScale + 'px' });
 }
 let fitScale = 1;
 function layoutTouch() {
@@ -26,7 +35,7 @@ function layoutTouch() {
   if (!touchMode) { stick.style.cssText = fire.style.cssText = knob.style.cssText = ''; return; }
   let st, fr, sx, fx, bottom;
   if (portrait) {   // in the space below the canvas, which shrinks when the clue strip grows
-    const room = innerHeight - cv.getBoundingClientRect().bottom - 20;
+    const room = innerHeight - cv.getBoundingClientRect().bottom - 20 - 46;   // 46: the pause/mute/menu row
     st = Math.max(70, Math.min(150, room)); fr = Math.max(64, Math.min(110, room * 0.75));
     sx = Math.round(innerWidth * 0.06); fx = Math.round(innerWidth * 0.06); bottom = 12;
   } else {          // in the side margins left beside the canvas
@@ -41,7 +50,7 @@ function layoutTouch() {
 }
 addEventListener('resize', fit); addEventListener('orientationchange', fit); fit();
 // the portrait clue strip changes height with its text; keep the touch controls clear of the canvas
-if (window.ResizeObserver) new ResizeObserver(() => { if (portrait) layoutTouch(); }).observe(document.getElementById('strip'));
+if (window.ResizeObserver) new ResizeObserver(() => { if (portrait) { layoutTouch(); layoutHudBtns(); } }).observe(document.getElementById('strip'));
 
 const rand = (a, b) => a + Math.random() * (b - a);
 const ri = (a, b) => Math.floor(rand(a, b + 1));
@@ -579,6 +588,7 @@ function updateStrip() {
   strip.label.textContent = label; strip.text.textContent = text;
   strip.note.textContent = note; strip.note.style.color = noteColor;
   document.getElementById('strip').style.borderBottomColor = S.color;
+  layoutTouch(); layoutHudBtns();   // the strip's height may have changed, moving the canvas
 }
 function drawCard() {
   // stage title card (start of game and every warp)
@@ -607,6 +617,7 @@ function drawCard() {
 }
 function draw() {
   ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  syncHudBtns();
   if (!G) return;
   G.stage.draw();
   for (const p of G.particles) { ctx.globalAlpha = clamp(p.life * 1.5, 0, 1); ctx.fillStyle = p.color; ctx.fillRect(p.x - 1.5, p.y - 1.5, 3, 3); }
@@ -617,8 +628,23 @@ function draw() {
   updateStrip();
   if (G.paused) {
     ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(0, 0, W, H);
-    ctx.textAlign = 'center'; ctx.font = '22px "Press Start 2P", monospace'; ctx.fillStyle = '#ffd23f'; ctx.fillText('PAUSED', W / 2, H / 2 - 10); ctx.textAlign = 'left';
+    ctx.textAlign = 'center'; ctx.font = '22px "Press Start 2P", monospace'; ctx.fillStyle = '#ffd23f'; ctx.fillText('PAUSED', W / 2, H / 2 - 10);
+    ctx.font = '22px VT323, monospace'; ctx.fillStyle = '#e8f6ff'; ctx.fillText(touchUsed ? 'Tap ❚❚ to keep playing' : 'Press P to keep playing', W / 2, H / 2 + 26);
+    ctx.textAlign = 'left';
   }
+}
+// show the pause/mute/menu buttons during a game; update their icons only when something changed
+let hudBtnsKey = '';
+function syncHudBtns() {
+  const on = !!G && G.state !== 'over' && G.state !== 'finale';
+  const key = `${on}|${on && G.paused}|${Sound.on}`;
+  if (key === hudBtnsKey) return;
+  hudBtnsKey = key;
+  document.getElementById('hudBtns').classList.toggle('on', on);
+  const pb = document.getElementById('pauseBtn'), mb = document.getElementById('muteBtn');
+  pb.textContent = on && G.paused ? '▶' : '❚❚'; pb.setAttribute('aria-label', on && G.paused ? 'Resume' : 'Pause');
+  mb.textContent = Sound.on ? '♪' : '✕'; mb.setAttribute('aria-label', Sound.on ? 'Sound is on; turn it off' : 'Sound is off; turn it on');
+  if (on) layoutHudBtns();
 }
 
 // ============================================================ game over & menus
@@ -711,7 +737,19 @@ function start(mode, idx) {
 function bootArcade() {
   document.getElementById('startBtn').onclick = () => start('arcade', 0);
   document.getElementById('againBtn').onclick = () => start(G ? G.mode : 'arcade', G && G.mode === 'free' ? G.stageIdx : 0);
-  document.getElementById('menuBtn').onclick = () => { G = null; document.getElementById('over').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden'); buildMenu(); };
+  const toMenu = () => { G = null; document.getElementById('over').classList.add('hidden'); document.getElementById('menu').classList.remove('hidden'); buildMenu(); };
+  document.getElementById('menuBtn').onclick = toMenu;
+  // on-screen buttons (touch screens have no P or M key); blur so SPACE never re-presses them
+  const tap = (id, fn) => { const b = document.getElementById(id); b.onclick = () => { Sound.init(); fn(); b.blur(); }; };
+  tap('pauseBtn', () => { if (G && G.state !== 'over') G.paused = !G.paused; });
+  tap('muteBtn', () => { Sound.toggle(); syncButtons(); });
+  let quitArm = -Infinity;   // leaving takes two taps within 3 s, so a stray tap cannot end a game
+  tap('quitBtn', () => {
+    if (!G) return;
+    if (performance.now() - quitArm < 3000) { quitArm = -Infinity; toMenu(); return; }
+    quitArm = performance.now();
+    E.banner('TAP ☰ AGAIN FOR THE MENU', '#ffd23f', 'This game will end.', 3);
+  });
   document.getElementById('soundBtn').onclick = () => { Sound.init(); Sound.toggle(); syncButtons(); };
   document.getElementById('musicBtn').onclick = () => { Sound.toggleMusic(); syncButtons(); };
   document.getElementById('voiceBtn').onclick = () => { Voice.toggle(); syncButtons(); };
