@@ -387,12 +387,15 @@ const E = {   // what stages call
     for (let i = 0; i < n; i++) { const a = rand(0, Math.PI * 2), s = rand(spd * 0.3, spd); G.particles.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, life: rand(0.4, 0.9), color }); }
   },
   banner(text, color, sub, dur = 2.6) { G.banner = { text, color, sub, t: dur }; },
-  // wrong choices for the current target: mostly from the same chapter so they are tempting
+  // wrong choices for the current target: mostly from the same chapter so they are tempting. If the
+  // chosen chapters are too small to fill a round, terms from the other chapters are borrowed.
   distractors(target, n) {
     const same = shuffle(G.pool.filter(t => t.id !== target.id && t.chapter === target.chapter));
     const other = shuffle(G.pool.filter(t => t.id !== target.id && t.chapter !== target.chapter));
+    const inPool = new Set(G.pool.map(t => t.id));
+    const borrowed = shuffle(BANK.filter(t => !inPool.has(t.id)));
     const out = [];
-    for (const t of [...same.slice(0, Math.ceil(n * 0.6)), ...other, ...same]) {
+    for (const t of [...same.slice(0, Math.ceil(n * 0.6)), ...other, ...same, ...borrowed]) {
       if (out.length >= n) break;
       if (!out.includes(t) && t.short.toLowerCase() !== target.short.toLowerCase()) out.push(t);
     }
@@ -442,7 +445,9 @@ function nextTarget() {
   if (!G.queue.length) G.queue = shuffle(G.pool.slice());
   for (let i = 0; i < G.queue.length; i++) if (ok(G.queue[i])) return G.queue.splice(i, 1)[0];
   const fits = G.pool.filter(ok);
-  return fits.length ? pick(fits) : G.queue.shift();
+  if (fits.length) return pick(fits);
+  const borrowed = BANK.filter(ok);   // none of the chosen chapters' terms suit this stage: borrow one
+  return borrowed.length ? pick(borrowed) : G.queue.shift();
 }
 function setReady() { G.ready = readFirst; G.armed = false; G.startReq = false; }
 let selected = new Set(store.get('ca_chapters', [...new Set(BANK.map(t => t.chapter))]));
@@ -653,7 +658,13 @@ function cartSVG(s) {
 function updCount() {
   const n = BANK.filter(t => selected.has(t.chapter)).length;
   document.getElementById('poolCount').textContent = `${n} terms selected`;
-  document.querySelectorAll('#startBtn, [data-needs-terms]').forEach(b => { b.disabled = n < 4; });
+  // any selection can be played: short chapters borrow wrong answers from the others (E.distractors)
+  document.querySelectorAll('#startBtn, [data-needs-terms]').forEach(b => { b.disabled = n < 1; });
+  const note = document.getElementById('chapterNote');
+  if (selected.size === 1 && n < 6) {
+    const ch = [...selected][0];
+    note.textContent = `Chapter ${ch} has ${n} term${n === 1 ? '' : 's'}; other chapters' terms will appear as wrong answers.`;
+  } else note.textContent = '';
 }
 function syncButtons() {
   document.getElementById('soundBtn').textContent = 'SOUND: ' + (Sound.on ? 'ON' : 'OFF');
