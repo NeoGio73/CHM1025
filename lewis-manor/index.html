@@ -387,6 +387,11 @@ button:focus-visible, input:focus-visible { outline: 2px solid var(--ecto); outl
 .cert-img { width: 100%; height: auto; display: block; border: 2px solid #3a2f4d; box-shadow: 6px 6px 0 #000; image-rendering: auto; -webkit-user-select: auto; user-select: auto; -webkit-touch-callout: default; }
 a.btn { text-decoration: none; display: inline-block; }
 .fine2 { margin: 0; color: var(--ink-dim); font-size: 15px; line-height: 1.5; max-width: 70ch; }
+.d2l-box { display: grid; gap: 6px; margin: 4px 0 14px; }
+.d2l-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.d2l-row .textin { flex: 1 1 220px; width: auto; }
+.code-out { margin: 4px 0 0; font-size: 20px; line-height: 1.4; color: var(--ink); }
+.code-out b#codeVal { font-family: "Atkinson Hyperlegible", Verdana, Arial, sans-serif; font-weight: 700; font-size: 26px; letter-spacing: .08em; color: #f2c96a; -webkit-user-select: all; user-select: all; }
 .textin { width: 100%; box-sizing: border-box; font-family: var(--body); font-size: 18px; color: var(--ink); background: #0e0b16; border: 2px solid #4a3d5c; padding: .5em .7em; -webkit-user-select: text; user-select: text; }
 .linkish { background: none; border: 0; padding: 0; color: var(--ink-dim); font-size: max(10px, 1.2cqw); text-decoration: underline; cursor: pointer; margin-top: .5cqw; }
 .tblwrap { overflow-x: auto; margin-top: 8px; }
@@ -491,7 +496,7 @@ a.btn { text-decoration: none; display: inline-block; }
       <button class="btn" id="btnStart">Enter the Manor</button>
     </div>
     <p class="fine">Turn your sound on. Walk with ← →, enter doors with ↑.</p>
-    <button class="linkish" id="btnVerify">Instructor: check a certificate code</button>
+    <button class="linkish" id="btnVerify">Instructor: check a completion code</button>
   </div>
 
   <div id="dawnText" class="dawn-text" hidden><h2>You escaped</h2><p>As the sun comes up over Lewis Manor, all seven seals lie broken behind you.</p></div>
@@ -540,21 +545,31 @@ a.btn { text-decoration: none; display: inline-block; }
   <div class="sheet-inner">
     <h2 id="certTitle">You escaped Lewis Manor</h2>
     <p class="whisper" id="certNote"></p>
-    <img id="certImg" class="cert-img" alt="Your Lewis Manor certificate, showing your name, score, room-by-room results and verification code">
+    <div class="d2l-box">
+      <label class="opt-label" for="d2lInput">Your D2L username</label>
+      <p class="fine2">The name you log in to D2L with, not your email.</p>
+      <div class="d2l-row">
+        <input id="d2lInput" class="textin" maxlength="60" autocomplete="username" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="D2L username">
+        <button class="btn" id="d2lGo">Get my code</button>
+      </div>
+      <p class="err" id="d2lErr" aria-live="polite"></p>
+      <p class="code-out" id="codeOut" hidden aria-live="polite">Your code: <b id="codeVal"></b><br><span class="fine2">for D2L username <b id="codeUser"></b></span></p>
+    </div>
+    <img id="certImg" class="cert-img" alt="Your Lewis Manor certificate, showing your name, score, room-by-room results and completion code">
     <div class="row">
       <a class="btn" id="certDl" download="Lewis-Manor-Certificate.png">Download certificate</a>
       <button class="btn quiet" id="certClose">Back to the Manor</button>
     </div>
-    <p class="fine2">If the download does not start, right-click the certificate (or press and hold it on a phone) and choose Save image. Then upload the image to the Lewis Manor assignment in D2L (Assessments, then Assignments).</p>
+    <p class="fine2">Downloading the certificate is optional; it is a keepsake with your code on it. If the download does not start, right-click the certificate (or press and hold it on a phone) and choose Save image.</p>
   </div>
 </div>
 
 <!-- instructor code checker -->
 <div id="verify" class="sheet" hidden>
   <div class="sheet-inner">
-    <h2>Check a certificate</h2>
-    <p class="whisper">Type the student's name exactly as it appears on the certificate, and the verification code printed on it.</p>
-    <div><label class="opt-label" for="vName">Student name</label><input id="vName" class="textin" autocomplete="off"></div>
+    <h2>Check a completion code</h2>
+    <p class="whisper">Type the student's D2L username and the code they submitted.</p>
+    <div><label class="opt-label" for="vName">D2L username</label><input id="vName" class="textin" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
     <div><label class="opt-label" for="vCode">Verification code</label><input id="vCode" class="textin" placeholder="LM-XXXX-XXXX" autocomplete="off"></div>
     <div class="row"><button class="btn" id="vCheck">Check code</button><button class="btn quiet" id="vClose">Close</button></div>
     <p id="vResult" class="feedback" aria-live="polite"></p>
@@ -619,7 +634,7 @@ const reduceMotion = window.matchMedia && matchMedia('(prefers-reduced-motion: r
    ========================================================= */
 const SAVE_KEY = 'lewisManor1025.v1';   // separate from the CHM 1045 version on the same site
 function freshSave() {
-  return { name: '', look: { style: 'she', skin: 1, hair: 0 }, solved: [false, false, false, false, false, false, false], sound: true, crt: true, started: false };
+  return { name: '', d2l: '', look: { style: 'she', skin: 1, hair: 0 }, solved: [false, false, false, false, false, false, false], sound: true, crt: true, started: false };
 }
 let save = freshSave();
 try {
@@ -1494,11 +1509,13 @@ $('vClose').addEventListener('click', () => { $('verify').hidden = true; mode = 
 $('vCheck').addEventListener('click', () => {
   const name = $('vName').value, code = $('vCode').value;
   const out = $('vResult');
-  if (!name.trim() || !code.trim()) { out.textContent = 'Enter both the name and the code.'; out.className = 'feedback bad'; return; }
+  if (!normalizeUser(name) || !code.trim()) { out.textContent = 'Enter both the D2L username and the code.'; out.className = 'feedback bad'; return; }
   const r = verifyCode(name, code);
-  if (r) { out.textContent = `Valid. This code matches ${name.trim()} with ${fmtPts(r.pts)} of 4 points, issued ${r.day}.`; out.className = 'feedback good'; }
-  else { out.textContent = 'No match. Check the spelling of the name exactly as printed, and the code. Edited certificates will not match.'; out.className = 'feedback bad'; }
+  if (r) { out.textContent = `Valid. This code matches ${normalizeUser(name)} with ${fmtPts(r.pts)} of 4 points, issued ${r.day}.`; out.className = 'feedback good'; }
+  else { out.textContent = 'No match. Check the D2L username and the code. A code only works with the username it was made for.'; out.className = 'feedback bad'; }
 });
+$('d2lGo').addEventListener('click', saveD2l);
+$('d2lInput').addEventListener('keydown', e => { if (e.key === 'Enter') saveD2l(); });
 $('btnCrt').addEventListener('click', () => { save.crt = !save.crt; persist(); refreshHud(); $('btnCrt').blur(); });
 
 let promptTimer = 0;
@@ -3763,21 +3780,69 @@ function startDawn() {
   setTimeout(() => openCert(true), 4200);
 }
 
-// a stable, hard-to-guess code tied to name, score and date
-function certCode(name, pts, day) {
-  const str = name.trim().toLowerCase().replace(/\s+/g, ' ') + '|' + pts + '|' + day + '|lewis-manor-ch10-chm1025';
-  let h1 = 0x811c9dc5, h2 = 0x9747b28c;
-  for (const ch of str) {
-    const c = ch.codePointAt(0);
-    h1 = Math.imul(h1 ^ c, 16777619) >>> 0;
-    h2 = Math.imul(h2 ^ c, 0x5bd1e995) >>> 0; h2 = (h2 ^ (h2 >>> 13)) >>> 0;
-  }
-  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let out = '';
-  for (let i = 0; i < 4; i++) { out += A[h1 & 31]; h1 >>>= 5; }
-  for (let i = 0; i < 4; i++) { out += A[h2 & 31]; h2 >>>= 5; }
-  return `LM-${out.slice(0, 4)}-${out.slice(4)}`;
+/* Completion code, ported from the instructor's code checker (the same steps as Smaller Than Small):
+   SHA-256 of secret|username, first 40 bits as 8 characters (no 0/O/1/I), shown as PREFIX-XXXX-XXXX.
+   This game appends its own fields after the username: secret|username|LM|half-points|YYYY-MM-DD.
+   With no fields appended the function gives exactly the Smaller Than Small code, so one checker
+   verifies every game. The username is normalized as in the checker: trimmed, lowercased, spaces
+   removed, anything after an @ dropped. Lewis Manor has its own secret (this page is public). */
+const CODE_PREFIX = 'LM';
+const CODE_SECRET = '3MGdJggMhJF4YQceAoHSZkau';
+const CODE_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+
+function normalizeUser(u) {
+  u = (u || '').trim().toLowerCase().replace(/ /g, '');
+  const at = u.indexOf('@');
+  return at >= 0 ? u.slice(0, at) : u;
 }
+
+// compact SHA-256 (pure JS, so it runs straight from the file)
+function sha256(bytes) {
+  const K = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+  const H = new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
+  const len = bytes.length, total = ((len + 9 + 63) >> 6) << 6;
+  const m = new Uint8Array(total); m.set(bytes); m[len] = 0x80;
+  const bits = len * 8; const dv = new DataView(m.buffer);
+  dv.setUint32(total - 4, bits >>> 0); dv.setUint32(total - 8, Math.floor(bits / 4294967296));
+  const W = new Uint32Array(64);
+  const r = (x, n) => (x >>> n) | (x << (32 - n));
+  for (let o = 0; o < total; o += 64) {
+    for (let i = 0; i < 16; i++) W[i] = dv.getUint32(o + i * 4);
+    for (let i = 16; i < 64; i++) {
+      const s0 = r(W[i-15], 7) ^ r(W[i-15], 18) ^ (W[i-15] >>> 3);
+      const s1 = r(W[i-2], 17) ^ r(W[i-2], 19) ^ (W[i-2] >>> 10);
+      W[i] = (W[i-16] + s0 + W[i-7] + s1) >>> 0;
+    }
+    let [a, b, c, d, e, f, g, h] = H;
+    for (let i = 0; i < 64; i++) {
+      const t1 = (h + (r(e, 6) ^ r(e, 11) ^ r(e, 25)) + ((e & f) ^ (~e & g)) + K[i] + W[i]) >>> 0;
+      const t2 = ((r(a, 2) ^ r(a, 13) ^ r(a, 22)) + ((a & b) ^ (a & c) ^ (b & c))) >>> 0;
+      h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+    }
+    H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+    H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+  }
+  const out = new Uint8Array(32);
+  for (let i = 0; i < 8; i++) new DataView(out.buffer).setUint32(i * 4, H[i]);
+  return out;
+}
+
+// The checker's code function, with optional fields appended after the username
+function completionCode(prefix, secret, username, fields) {
+  const extra = fields && fields.length ? '|' + fields.join('|') : '';
+  const h = sha256(new TextEncoder().encode(secret + '|' + normalizeUser(username) + extra));
+  let v = 0n;
+  for (let i = 0; i < 5; i++) v = (v << 8n) | BigInt(h[i]);
+  let s = '';
+  for (let i = 0; i < 8; i++) s += CODE_ALPHABET[Number((v >> BigInt(35 - 5 * i)) & 31n)];
+  return `${prefix}-${s.slice(0, 4)}-${s.slice(4)}`;
+}
+
+// Lewis Manor's code: D2L username, points (0-4 in halves, sent as 0-8 half-points) and the local date
+function certCode(username, pts, day) {
+  return completionCode(CODE_PREFIX, CODE_SECRET, username, [CODE_PREFIX, Math.round(pts * 2), day]);
+}
+const cleanCode = c => (c || '').toUpperCase().replace(/[^0-9A-Z]/g, '');
 const dayKey = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 let certPrevMode = 'hall';
@@ -3786,17 +3851,41 @@ async function openCert(final) {
   if (mode !== 'dawn') mode = 'cert';
   promptEl.hidden = true;
   try { await Promise.race([Promise.all(['110px "Jacquard 24"', '30px "Pixelify Sans"', '700 30px "Pixelify Sans"', '24px "Atkinson Hyperlegible"'].map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 1500))]); } catch (e) {}
-  const url = renderCertificate(final);
+  certFinal = final;
+  $('certTitle').textContent = final ? 'You escaped Lewis Manor' : 'Your progress so far';
+  $('certNote').textContent = final
+    ? 'Every seal is broken and the sun is up. Type your D2L username and this code into the Lewis Manor assignment.'
+    : `You have broken ${save.solved.filter(Boolean).length} of 7 seals (${fmtPts(points())} of 4 points). For partial credit now, type your D2L username and this code into the Lewis Manor assignment, or come back and finish the Manor.`;
+  $('certClose').textContent = final ? 'Back to the title screen' : 'Back to the Manor';
+  $('d2lInput').value = save.d2l || '';
+  $('d2lErr').textContent = '';
+  showCode();
+  $('cert').hidden = false; $('cert').scrollTop = 0;
+}
+
+// Shows the code for the saved D2L username, and redraws the certificate with it
+let certFinal = false;
+function showCode() {
+  const user = normalizeUser(save.d2l);
+  const when = certFinal && save.finishedAt ? new Date(save.finishedAt) : new Date();
+  $('codeOut').hidden = !user;
+  if (user) {
+    $('codeVal').textContent = certCode(user, points(), dayKey(when));
+    $('codeUser').textContent = user;
+  }
+  const url = renderCertificate(certFinal);
   $('certImg').src = url;
   const dl = $('certDl');
   dl.href = url;
   dl.download = `Lewis-Manor-Certificate-${save.name.replace(/[^\w\- ]+/g, '').trim().replace(/\s+/g, '-') || 'student'}.png`;
-  $('certTitle').textContent = final ? 'You escaped Lewis Manor' : 'Your progress so far';
-  $('certNote').textContent = final
-    ? 'Every seal is broken and the sun is up. Download your certificate and upload it to the Lewis Manor assignment in D2L.'
-    : `You have broken ${save.solved.filter(Boolean).length} of 7 seals (${fmtPts(points())} of 4 points). You can upload this record now for partial credit, or come back and finish the Manor.`;
-  $('certClose').textContent = final ? 'Back to the title screen' : 'Back to the Manor';
-  $('cert').hidden = false; $('cert').scrollTop = 0;
+}
+function saveD2l() {
+  const raw = $('d2lInput').value.trim();
+  if (normalizeUser(raw).length < 2) { $('d2lErr').textContent = 'Type your D2L username first.'; return; }
+  $('d2lErr').textContent = '';
+  save.d2l = raw; persist();
+  showCode();
+  Snd.chime();
 }
 function closeCert() {
   $('cert').hidden = true;
@@ -3863,11 +3952,11 @@ function renderCertificate(final) {
   c.fillText(`Score: ${fmtPts(points())} / 4 points`, CW / 2, top + 7 * rh + 62);
   // footer: date, code, candles
   const when = final && save.finishedAt ? new Date(save.finishedAt) : new Date();
-  const code = certCode(save.name, points(), dayKey(when));
+  const user = normalizeUser(save.d2l);
   c.textAlign = 'left'; c.fillStyle = '#3a2a1a'; c.font = `24px ${pix}`;
   c.fillText(`${final ? 'Escaped' : 'Recorded'} ${when.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })} at ${when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`, 110, 1050);
   c.font = `700 30px ${chem}`; c.fillStyle = '#1a1008';
-  c.fillText(`Verification code: ${code}`, 110, 1094);
+  c.fillText(user ? `Code: ${certCode(user, points(), dayKey(when))}  (D2L: ${user})` : 'Code: type your D2L username on screen', 110, 1094);
   c.font = `22px ${pix}`; c.fillStyle = '#6b4a2a';
   const lost = (save.lost || []).reduce((a, b) => a + b, 0);
   c.fillText(`Candles lost along the way: ${lost}`, 110, 1132);
@@ -3893,13 +3982,14 @@ function renderCertificate(final) {
   return cv.toDataURL('image/png');
 }
 
-function verifyCode(name, code) {
-  const want = code.trim().toUpperCase().replace(/\s+/g, '');
+// Finds the points and date a code was issued for, trying every score on each day of the last 240 days
+function verifyCode(username, code) {
+  const want = cleanCode(code);
   const now = new Date();
   for (let back = -1; back <= 240; back++) {
     const d = new Date(now); d.setDate(now.getDate() - back);
     const day = dayKey(d);
-    for (let k = 0; k <= 8; k++) { const pts = k / 2; if (certCode(name, pts, day) === want) return { pts, day }; }
+    for (let k = 0; k <= 8; k++) { const pts = k / 2; if (cleanCode(certCode(username, pts, day)) === want) return { pts, day }; }
   }
   return null;
 }

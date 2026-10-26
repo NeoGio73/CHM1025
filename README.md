@@ -98,9 +98,9 @@ The game follows the book's values and wording: the electronegativities of Figur
 
 Each room has three candles. A wrong answer blows one out with a hint, and losing all three restarts the room with new questions. The questions change every time. Your browser remembers which seals you have broken, so you can stop and come back with Continue.
 
-Breaking all seven seals ends with a Certificate of Escape: your name, the date, each room's points out of 4, and a verification code. Download it and upload it to the Lewis Manor assignment in D2L. If you stop early, the Certificate button in the corner gives a Record of Progress for the seals you have broken.
+Breaking all seven seals ends on a screen that asks for your **D2L username** (the name you log in to D2L with, not your email) and then shows a completion code like `LM-XXXX-XXXX`. To get credit, type your D2L username and the code into the Lewis Manor assignment in D2L; there is nothing to upload. The code only works with your username and records your points and the date. If you stop early, the Certificate button in the corner gives a code for the seals you have broken so far, for partial credit. The Certificate of Escape (or Record of Progress) with your name, each room's points and the code is still there to download as a keepsake, but downloading it is optional.
 
-**Instructors:** the "Instructor: check a certificate code" link on the title screen confirms a code. Type the student's name exactly as printed and the code; a valid code shows the score and the date it was issued. An edited certificate will not match.
+**Instructors:** completion codes are checked with a private checker page kept by the instructor. The "Instructor: check a completion code" link on the title screen also confirms a code: type the student's D2L username and the code, and a valid code shows the score and the date it was issued.
 
 The game has sound, so turn it on. It contains mild, cartoon-style jump scares. A version for General Chemistry I, built on a different chapter, is in the CHM1045 repository; the two keep separate progress.
 
