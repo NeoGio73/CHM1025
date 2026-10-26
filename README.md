@@ -10,8 +10,8 @@ Games and activities for a college-level introductory chemistry course. Everythi
 | Bonding, shapes, polarity, and intermolecular forces (Ch. 10) | [Escape from Lewis Manor](https://neogio73.github.io/CHM1025/lewis-manor/) | Game (Halloween) |
 | Course policies in the syllabus | [Beaker Catch](https://neogio73.github.io/CHM1025/beaker-catch/) | Game (first week, ungraded) |
 | Key terms from Chapters 1–12 and 14 | [Periodic Panic](https://neogio73.github.io/CHM1025/periodic-panic/) | Game (vocabulary review, ungraded; six arcade games in one) |
-| Key terms from Chapters 1–12 and 14 | [Robo-Lab](https://neogio73.github.io/CHM1025/robo-lab/) | Game (vocabulary review, ungraded) |
-| Key terms from Chapters 1–12 and 14 | [Mole Hole](https://neogio73.github.io/CHM1025/mole-hole/) | Game (vocabulary review, ungraded) |
+| Key terms from Chapters 1–12 and 14 | [Robo-Lab](https://neogio73.github.io/CHM1025/robo-lab/) | Opens Periodic Panic at stage 1 (the old link still works) |
+| Key terms from Chapters 1–12 and 14 | [Mole Hole](https://neogio73.github.io/CHM1025/mole-hole/) | Opens Periodic Panic at stage 2 (the old link still works) |
 | Acids and bases (Ch. 14) | [Spring to Sea](https://neogio73.github.io/CHM1025/spring-to-sea/) | Game (3D, WebGL) — in progress |
 
 ## Smaller Than Small
@@ -122,7 +122,25 @@ The vocabulary review games in one arcade game, using the Key Terms of Chapters 
 - **Free play** lets students pick one game from a row of cartridges and practice it as long as they like.
 - Students choose the chapters, each stage opens with a screen of instructions that stays up until they press a key or tap, every round starts paused so they can read the clue, and the end screen lists every term they missed across the whole run, with its clue and textbook section.
 - **Sound** comes from emulations of the sound chips each game's era used (an early-80s arcade board for Robo-Lab, the ColecoVision's SN76489 for Mole Hole, Isotope, and Zip Sort, the Atari 2600's TIA for Jungle Jump and Shield Spell). No recordings are used, and every sound effect and tune is original.
+- **Phones and tablets:** in portrait the clue sits in a readable strip above the game; a touch stick and fire button appear at the first touch, beside or below the play field, along with pause, sound, and menu buttons (leaving for the menu takes two taps).
 - **Nothing is recorded.** It is a practice tool.
+
+### Robo-Lab (stage 1)
+
+In the style of early-1980s maze shooters. A clue appears at the top of the screen, and robots wander the maze carrying key terms. Zap the robot whose term matches the clue to unlock the doors, then move on to the next room.
+
+- **Move** with the arrow keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> and fire with <kbd>Space</kbd>, in the direction you face. On a phone, an on-screen stick and fire button appear at the first touch.
+- **Wrong answers** make the robot say what its own term means, and it gets angry. After three misses the right robot glows. Missed terms come back a few rooms later.
+- **The walls are electrified**, and waiting too long brings the Free Radical, which cannot be shot. When it appears the doors unlock so students can escape.
+
+### Mole Hole (stage 2)
+
+In the style of early-1980s digging games. You play a mole in goggles. A clue appears at the top of the screen, and four crystals labeled with terms are buried in the dirt. Tunnel to the crystal whose term matches the clue to clear the field and get a new one.
+
+- **Dig** with the arrow keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>. On a phone, an on-screen stick and throw button appear at the first touch.
+- **Wrong crystals** shatter, show what their term means, and let out another grime blob. After two misses the right crystal glows. Missed terms come back a few fields later.
+- **Grime blobs** chase the mole through its tunnels, and now and then one turns into a digger that burrows straight through the dirt. Dig under a boulder to drop it on them, or press <kbd>Space</kbd> to throw the catalyst, which bounces through the tunnels and recharges after a hit. Boulders can flatten the mole too.
+- **Electrons** in the dirt are worth points, with a bonus for collecting them all. A tune plays only while the mole is moving; the menu can turn it off.
 
 ### Jungle Jump (stage 3)
 
@@ -158,31 +176,6 @@ The finale, in the style of early-1980s box-zipping maze games, and the stage th
 - A box that fits the category turns green, and a counter shows how many are left; a box that does not turns red and shows what its term means. After two wrong boxes, the remaining right ones glow.
 - Roaming eyes chase the zipper pull. Closing the pitchfork box lets it chase them for a few seconds.
 - There are 19 categories, built only from the Key Terms already in the game (a category is used only when at least three of its terms are in the course). A missed category appears on the end screen with all of its members.
-
-## Robo-Lab
-
-A vocabulary review game in the style of early-1980s maze shooters. A clue appears at the top of the screen, and robots wander the maze carrying key terms. Zap the robot whose term matches the clue to unlock the doors, then move on to the next room. The terms are the Key Terms of Chapters 1–12 and 14 of Timberlake, *Basic Chemistry*, 6th edition, except those from sections this course does not cover (204 terms), and students choose which chapters to play.
-
-- **Move** with the arrow keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> and fire with <kbd>Space</kbd>, in the direction you face. On a phone, an on-screen stick and fire button appear at the first touch.
-- **Each room starts paused** so students can read the clue and scan the robots' terms; moving, firing, or tapping starts it. The menu can turn this off.
-- **Wrong answers** make the robot say what its own term means, and it gets angry. After three misses the right robot glows. Missed terms come back a few rooms later.
-- **The walls are electrified**, and waiting too long brings the Free Radical, which cannot be shot. When it appears the doors unlock so students can escape.
-- **Five lives**, plus a bonus life every 5,000 points. The end screen lists every term the student missed, with its clue and textbook section, to review.
-- **Nothing is recorded.** It is a practice tool.
-
-The clues are written for this game in plain language, not quoted from the textbook.
-
-## Mole Hole
-
-A vocabulary review game in the style of early-1980s digging games, using the same 204 Key Terms as Robo-Lab. You play a mole in goggles. A clue appears at the top of the screen, and four crystals labeled with terms are buried in the dirt. Tunnel to the crystal whose term matches the clue to clear the field and get a new one.
-
-- **Dig** with the arrow keys or <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd>. On a phone, an on-screen stick and throw button appear at the first touch.
-- **Each field starts paused** so students can read the clue and the crystal labels; moving or tapping starts it. The menu can turn this off.
-- **Wrong crystals** shatter, show what their term means, and let out another grime blob. After two misses the right crystal glows. Missed terms come back a few fields later.
-- **Grime blobs** chase the mole through its tunnels, and now and then one turns into a digger that burrows straight through the dirt. Dig under a boulder to drop it on them, or press <kbd>Space</kbd> to throw the catalyst, which bounces through the tunnels and recharges after a hit. Boulders can flatten the mole too.
-- **Electrons** in the dirt are worth points, with a bonus for collecting them all. A tune plays only while the mole is moving; the menu can turn it off.
-- **Five lives**, plus a bonus life every 5,000 points. The end screen lists every term the student missed, with its clue and textbook section, to review.
-- **Nothing is recorded.** It is a practice tool.
 
 ## Spring to Sea (in progress)
 
@@ -223,7 +216,7 @@ The plain link is for students who read the announcement by email or in the Puls
 
 Periodic Panic is in [`periodic-panic/`](periodic-panic/index.html): `index.html`, the shared `engine.js` (sound, controls, clue bar, scoring, menus), one file per stage in `stages/` (their order in `index.html` is the order of arcade mode), and the same generated `terms.js` as the stand-alone games. Like them, it is built outside this repository and replaced as a whole, and it opens straight from the file with a double-click.
 
-Robo-Lab is two files: [`robo-lab/index.html`](robo-lab/index.html), the game, with its art and sound made in code, and [`robo-lab/terms.js`](robo-lab/terms.js), the term bank. The term bank is generated from source files kept outside this repository, so the folder is replaced as a whole when the terms change. The game loads two fonts from Google Fonts and opens straight from the file with a double-click. Mole Hole, in [`mole-hole/`](mole-hole/index.html), is built the same way and shares the same term bank.
+Robo-Lab and Mole Hole began as separate games and are now stages 1 and 2 of Periodic Panic. Their old folders, [`robo-lab/`](robo-lab/index.html) and [`mole-hole/`](mole-hole/index.html), each hold one small page that forwards to Periodic Panic at that stage, so links already posted in D2L keep working. Any stage can be linked the same way by adding `?stage=` and its name to the Periodic Panic address: `robo-lab`, `mole-hole`, `jungle-jump`, `shield-spell`, `isotope`, or `zip-sort` (for example [`periodic-panic/?stage=isotope`](https://neogio73.github.io/CHM1025/periodic-panic/?stage=isotope)). The link opens that stage in free play with the chapters the student last chose.
 
 Smaller Than Small is a finished build of a Unity project that is kept outside this repository. Its folder is replaced as a whole when the game changes, so edits made to its files here would be lost. To run a copy on your own computer, serve the folder with a web server, for example `python -m http.server 8000`, then open `http://localhost:8000/smaller-than-small/`.
 

@@ -109,7 +109,8 @@ const Sound = (() => {
   let ac = null, master = null, on = store.get('ca_sound', true), music = store.get('ca_music', true);
   const cache = {};
   function init() {
-    if (ac) return;
+    // browsers (iOS especially) keep audio suspended until a tap or key press; any later press wakes it
+    if (ac) { if (ac.state === 'suspended' && ac.resume) ac.resume().catch(() => {}); return; }
     try {
       ac = new (window.AudioContext || window.webkitAudioContext)();
       master = ac.createGain(); master.gain.value = 0.55;
@@ -358,7 +359,9 @@ const keys = {};
 let touchUsed = false, pressLatch = false, fireLatch = false, lastAxisKey = null;
 let readFirst = store.get('ca_readfirst', true);
 const touchVec = { x: 0, y: 0, fire: false };
+addEventListener('pointerdown', () => Sound.init(), { passive: true });   // unlock audio on the first tap
 addEventListener('keydown', e => {
+  Sound.init();   // ...or the first key press
   const k = e.key.toLowerCase();
   if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k) && G) e.preventDefault();
   keys[k] = true;
@@ -773,6 +776,10 @@ function bootArcade() {
     box.appendChild(row);
   });
   syncButtons(); buildMenu();
+  // ?stage=<id> opens one stage straight away in free play (e.g. ?stage=robo-lab); the old
+  // stand-alone Robo-Lab and Mole Hole pages forward here this way, so their links keep working
+  const wanted = STAGES.findIndex(s => s.id === new URLSearchParams(location.search).get('stage'));
+  if (wanted >= 0) start('free', wanted);
   // Wait for the (embedded) fonts before the first frame, so canvas text never starts in a fallback
   // font and swaps mid-read; give up after 3 s so the game still starts if they cannot load.
   const fontLoads = document.fonts && document.fonts.load
