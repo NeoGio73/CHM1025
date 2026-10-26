@@ -100,7 +100,7 @@ function drawTurret(t) {
 function drawTank(t) {
   const rel = t.z - S.camZ, [x, y] = proj(t.x, rel, 0);
   ctx.fillStyle = '#2a2f40'; ctx.beginPath(); ctx.ellipse(x, y, 12, 5, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#ffb347'; ctx.fillRect(x - 9, y - 18, 18, 16); ctx.fillStyle = '#000'; ctx.font = '12px VT323'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = '#ffb347'; ctx.fillRect(x - 9, y - 18, 18, 16); ctx.fillStyle = '#000'; ctx.font = '12px VT323, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
   ctx.fillText('FUEL', x, y - 10); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
 }
 function drawShip(x, alt, bank, col) {
@@ -227,7 +227,7 @@ registerStage({
     items.sort((a, b) => b.z - a.z).forEach(i => i.d());
     // gate legend: which colour is which term
     const opens = S.gate ? S.gate.openings : [];
-    ctx.font = '22px VT323'; ctx.textBaseline = 'middle';
+    ctx.font = '22px VT323, monospace'; ctx.textBaseline = 'middle';
     let x = 14;
     for (const o of opens) {
       const glow = S.reveal && o.term.id === S.target.id, label = o.term.short;
@@ -243,11 +243,11 @@ registerStage({
     ctx.fillStyle = '#1d2636'; ctx.fillRect(mx, my0 - mh, 10, mh);
     ctx.fillStyle = '#7b96ff'; ctx.fillRect(mx, my0 - mh * P.alt / ALT_MAX, 10, mh * P.alt / ALT_MAX);
     if (S.gate) for (const o of S.gate.openings) { ctx.fillStyle = o.col; ctx.fillRect(mx + 12, my0 - mh * o.hi / ALT_MAX, 4, mh * (o.hi - o.lo) / ALT_MAX); }
-    ctx.font = '16px VT323'; ctx.fillStyle = '#5d6b80'; ctx.fillText('ALT', mx - 2, my0 + 4);
+    ctx.font = '16px VT323, monospace'; ctx.fillStyle = '#5d6b80'; ctx.fillText('ALT', mx - 2, my0 + 4);
   },
   drawHud() {
     const f = clamp(fuel / 100, 0, 1), low = fuel < 25;
-    ctx.font = '16px VT323'; ctx.textAlign = 'right'; ctx.textBaseline = 'top'; ctx.fillStyle = low && Math.floor(E.time * 4) % 2 ? '#ff4d6d' : '#ffb347';
+    ctx.font = '16px VT323, monospace'; ctx.textAlign = 'right'; ctx.textBaseline = 'top'; ctx.fillStyle = low && Math.floor(E.time * 4) % 2 ? '#ff4d6d' : '#ffb347';
     ctx.fillText('FUEL', W - 118, 58); ctx.textAlign = 'left';
     ctx.fillStyle = '#1d2636'; ctx.fillRect(W - 112, 62, 98, 8);
     ctx.fillStyle = low ? '#ff4d6d' : '#ffb347'; ctx.fillRect(W - 112, 62, 98 * f, 8);

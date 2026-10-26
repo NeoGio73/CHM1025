@@ -132,7 +132,7 @@ function moveEye(e, dt) {
 
 // ---------- drawing
 function wrap2(text, maxW) {
-  ctx.font = '20px VT323';
+  ctx.font = '20px VT323, monospace';
   if (ctx.measureText(text).width <= maxW) return [text];
   const words = text.split(' '); let a = '', i = 0;
   for (; i < words.length; i++) { const t = a ? a + ' ' + words[i] : words[i]; if (ctx.measureText(t).width > maxW && a) break; a = t; }
@@ -217,10 +217,10 @@ registerStage({
       } else if (glow) { ctx.fillStyle = `rgba(56,240,200,${0.12 + 0.1 * Math.sin(E.time * 6)})`; ctx.fillRect(x + 3, y + 3, BW - 6, BH - 6); }
       if (b.term) {
         const lines = wrap2(b.term.short, BW - 16);
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '20px VT323';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '20px VT323, monospace';
         ctx.fillStyle = glow ? '#38f0c8' : b.filled ? '#ffffff' : '#e8f6ff';
         lines.forEach((l, i) => ctx.fillText(l, cx, cy + (i - (lines.length - 1) / 2) * 20));
-        if (b.filled) { ctx.font = '14px "Press Start 2P"'; ctx.fillStyle = b.good ? '#38f0c8' : '#ff4d6d'; ctx.fillText(b.good ? '✓' : '✗', x + BW - 16, y + 16); }
+        if (b.filled) { ctx.font = '14px "Press Start 2P", monospace'; ctx.fillStyle = b.good ? '#38f0c8' : '#ff4d6d'; ctx.fillText(b.good ? '✓' : '✗', x + BW - 16, y + 16); }
         ctx.textAlign = 'left'; ctx.textBaseline = 'top';
       } else if (b.fork && !b.filled) {   // pitchfork power-up
         ctx.strokeStyle = '#ffd23f'; ctx.lineWidth = 3; ctx.beginPath();
@@ -237,7 +237,7 @@ registerStage({
     else if (!P.burst) { const zc = ['#ffffff', '#ff4d6d', '#ffd23f', '#38f0c8']; drawPull(P.x, P.y, zc[Math.floor(E.time * 24) % zc.length]); }
   },
   drawHud() {
-    ctx.font = '16px VT323'; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+    ctx.font = '16px VT323, monospace'; ctx.textAlign = 'right'; ctx.textBaseline = 'top';
     const left = Math.max(0, S.need - S.got);
     ctx.fillStyle = '#c77dff'; ctx.fillText(S.solved ? 'ALL FOUND!' : `${left} TO ZIP`, W - 14, 58);
     if (S.power > 0) { ctx.fillStyle = '#ffd23f'; ctx.fillText(`PITCHFORK ${Math.ceil(S.power)}`, W - 90, 58); }

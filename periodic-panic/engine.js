@@ -461,7 +461,7 @@ function drawHUD() {
   const S = G.stage, accent = S.hudColor ? S.hudColor() : S.color;
   ctx.fillStyle = '#080a10'; ctx.fillRect(0, 0, W, HUD_H);
   ctx.fillStyle = accent; ctx.fillRect(0, HUD_H - 3, W, 3);
-  ctx.textBaseline = 'top'; ctx.textAlign = 'left'; ctx.font = '10px "Press Start 2P"';
+  ctx.textBaseline = 'top'; ctx.textAlign = 'left'; ctx.font = '10px "Press Start 2P", monospace';
   if (G.ready && !(S.isDying && S.isDying())) {
     ctx.fillStyle = Math.floor(G.t * 2) % 2 ? '#ffd23f' : '#e8f6ff';
     ctx.fillText(touchUsed ? 'READ THE CLUE · TAP TO START' : 'READ THE CLUE · MOVE OR SPACE TO START', 14, 10);
@@ -477,19 +477,19 @@ function drawHUD() {
   }
   if (S.drawHud) S.drawHud();
   if (portrait) return;   // in portrait the clue is in the HTML strip, at a readable size
-  const lines = wrapText(G.target.clue, W - 170, '26px VT323');
-  ctx.font = '26px VT323'; ctx.fillStyle = S.isSolved && S.isSolved() ? '#38f0c8' : '#ffd23f';
+  const lines = wrapText(G.target.clue, W - 170, '26px VT323, monospace');
+  ctx.font = '26px VT323, monospace'; ctx.fillStyle = S.isSolved && S.isSolved() ? '#38f0c8' : '#ffd23f';
   lines.slice(0, 2).forEach((l, i) => ctx.fillText(l, 14, 28 + i * 26));
 }
 function drawBanner() {
   const b = G.banner; if (!b || portrait) return;   // in portrait, feedback shows in the strip
   ctx.globalAlpha = clamp(b.t * 3, 0, 1);
-  const subLines = b.sub ? wrapText(b.sub, W - 180, '24px VT323') : [];
+  const subLines = b.sub ? wrapText(b.sub, W - 180, '24px VT323, monospace') : [];
   const bh = 44 + subLines.length * 24, by = H - bh - 22;
   ctx.fillStyle = 'rgba(0,0,0,.88)'; ctx.fillRect(70, by, W - 140, bh);
   ctx.strokeStyle = b.color; ctx.lineWidth = 2; ctx.strokeRect(70, by, W - 140, bh);
-  ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.font = '14px "Press Start 2P"'; ctx.fillStyle = b.color; ctx.fillText(b.text, W / 2, by + 12);
-  ctx.font = '24px VT323'; ctx.fillStyle = '#e8f6ff'; subLines.forEach((l, i) => ctx.fillText(l, W / 2, by + 34 + i * 24));
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.font = '14px "Press Start 2P", monospace'; ctx.fillStyle = b.color; ctx.fillText(b.text, W / 2, by + 12);
+  ctx.font = '24px VT323, monospace'; ctx.fillStyle = '#e8f6ff'; subLines.forEach((l, i) => ctx.fillText(l, W / 2, by + 34 + i * 24));
   ctx.textAlign = 'left'; ctx.globalAlpha = 1;
 }
 // Portrait phones: mirror the clue, the stage instructions, and feedback into the HTML strip,
@@ -528,16 +528,16 @@ function drawCard() {
     }
   }
   ctx.globalAlpha = k; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  ctx.font = '12px "Press Start 2P"'; ctx.fillStyle = '#5d6b80';
+  ctx.font = '12px "Press Start 2P", monospace'; ctx.fillStyle = '#5d6b80';
   const label = G.mode === 'arcade' ? `STAGE ${G.stageIdx + 1} OF ${STAGES.length}` + (G.loop > 1 ? `  ·  LOOP ${G.loop}` : '') : 'FREE PLAY';
   ctx.fillText(G.warp ? 'WARP!  ' + label : label, W / 2, 170);
-  ctx.font = '40px "Press Start 2P"'; ctx.fillStyle = S.color; ctx.fillText(S.name, W / 2, 205);
-  ctx.font = '26px VT323'; ctx.fillStyle = '#e8f6ff';
+  ctx.font = '40px "Press Start 2P", monospace'; ctx.fillStyle = S.color; ctx.fillText(S.name, W / 2, 205);
+  ctx.font = '26px VT323, monospace'; ctx.fillStyle = '#e8f6ff';
   S.howTo.forEach((l, i) => ctx.fillText(l, W / 2, 285 + i * 30));
   if (G.mode === 'arcade') { ctx.fillStyle = '#5d6b80'; ctx.fillText(`${ROUNDS_PER_STAGE} correct answers warp you to the next stage.`, W / 2, 285 + S.howTo.length * 30 + 20); }
   // stays up until the player is ready
   if (G.cardT > 0.8 && Math.floor(G.t * 2.5) % 2) {
-    ctx.font = '14px "Press Start 2P"'; ctx.fillStyle = '#ffd23f';
+    ctx.font = '14px "Press Start 2P", monospace'; ctx.fillStyle = '#ffd23f';
     ctx.fillText(touchUsed ? 'TAP TO START' : 'PRESS SPACE TO START', W / 2, 470);
   }
   ctx.textAlign = 'left'; ctx.globalAlpha = 1;
@@ -554,7 +554,7 @@ function draw() {
   updateStrip();
   if (G.paused) {
     ctx.fillStyle = 'rgba(0,0,0,.6)'; ctx.fillRect(0, 0, W, H);
-    ctx.textAlign = 'center'; ctx.font = '22px "Press Start 2P"'; ctx.fillStyle = '#ffd23f'; ctx.fillText('PAUSED', W / 2, H / 2 - 10); ctx.textAlign = 'left';
+    ctx.textAlign = 'center'; ctx.font = '22px "Press Start 2P", monospace'; ctx.fillStyle = '#ffd23f'; ctx.fillText('PAUSED', W / 2, H / 2 - 10); ctx.textAlign = 'left';
   }
 }
 
@@ -666,6 +666,12 @@ function bootArcade() {
     box.appendChild(row);
   });
   syncButtons(); buildMenu();
-  let lastT = performance.now();
-  (function frame(now) { const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now; update(dt); draw(); requestAnimationFrame(frame); })(lastT);
+  // Wait for the (embedded) fonts before the first frame, so canvas text never starts in a fallback
+  // font and swaps mid-read; give up after 3 s so the game still starts if they cannot load.
+  const fontLoads = document.fonts && document.fonts.load
+    ? Promise.all([document.fonts.load('20px VT323'), document.fonts.load('12px "Press Start 2P"')]) : Promise.resolve();
+  Promise.race([fontLoads, new Promise(r => setTimeout(r, 3000))]).catch(() => {}).then(() => {
+    let lastT = performance.now();
+    (function frame(now) { const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now; update(dt); draw(); requestAnimationFrame(frame); })(lastT);
+  });
 }

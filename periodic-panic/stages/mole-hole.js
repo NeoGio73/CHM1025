@@ -239,7 +239,7 @@ function drawCrystal(cr) {
 }
 function drawLabel(cr) {
   const glow = L.reveal && cr.term.id === L.target.id;
-  ctx.font = '20px VT323'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.font = '20px VT323, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
   const label = cr.term.short, tw = ctx.measureText(label).width;
   const lx = clamp(tc(cr.c), X0 + tw / 2 + 4, X0 + COLS * T - tw / 2 - 4), ly = tr(cr.r) - 17;
   ctx.fillStyle = 'rgba(0,0,0,.8)'; ctx.fillRect(lx - tw / 2 - 4, ly - 17, tw + 8, 18);
@@ -372,7 +372,7 @@ registerStage({
   drawHud() {
     const rdy = !L.ball && L.ballCool <= 0;
     ctx.fillStyle = rdy ? '#ffd23f' : '#4a3f36'; ctx.beginPath(); ctx.arc(W - 22, 66, 6, 0, Math.PI * 2); ctx.fill();
-    ctx.font = '16px VT323'; ctx.textAlign = 'right'; ctx.textBaseline = 'top'; ctx.fillStyle = rdy ? '#ffd23f' : '#7a6a5d';
+    ctx.font = '16px VT323, monospace'; ctx.textAlign = 'right'; ctx.textBaseline = 'top'; ctx.fillStyle = rdy ? '#ffd23f' : '#7a6a5d';
     ctx.fillText(rdy ? 'CATALYST' : 'RECHARGING', W - 34, 58); ctx.textAlign = 'left';
   },
   drawLifeIcon(x, y) { ctx.save(); ctx.translate(x, y + 4); ctx.scale(0.42, 0.42); drawMole(0, 0, 'left', 0); ctx.restore(); }

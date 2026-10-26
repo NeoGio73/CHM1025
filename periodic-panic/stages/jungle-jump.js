@@ -158,7 +158,7 @@ function drawTreasure(tr) {
   ctx.shadowBlur = 0; ctx.fillStyle = hi; ctx.fillRect(tr.x - 7, y - 10, 9, 2);
   if (Math.floor(E.time * 2 + tr.x) % 4 === 0) { ctx.fillStyle = '#fff'; ctx.fillRect(tr.x + 5, y - 15, 2, 2); }
   ctx.restore();
-  ctx.font = '20px VT323'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.font = '20px VT323, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
   const label = tr.term.short, tw = ctx.measureText(label).width;
   const lx = clamp(tr.x, tw / 2 + 6, W - tw / 2 - 6), ly = y - 46;
   ctx.fillStyle = 'rgba(0,0,0,.8)'; ctx.fillRect(lx - tw / 2 - 4, ly - 17, tw + 8, 18);
@@ -178,7 +178,7 @@ function drawExit() {
   if (!S.solved) {
     for (let i = 0; i < 5; i++) { ctx.fillStyle = i % 2 ? '#1f6b2a' : '#2a8a35'; ctx.beginPath(); ctx.arc(EXIT_X + 12 + (i % 2) * 10, GY - 10 - i * 14, 18, 0, Math.PI * 2); ctx.fill(); }
   } else if (Math.floor(E.time * 3) % 2) {
-    ctx.fillStyle = '#38f0c8'; ctx.font = '16px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#38f0c8'; ctx.font = '16px "Press Start 2P", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText('▶', EXIT_X + 10, GY - 30); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   }
 }

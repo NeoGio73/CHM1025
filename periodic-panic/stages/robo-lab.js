@@ -135,7 +135,7 @@ function drawRobot(r) {
   ctx.fillRect(-3, 10, 3, 6); ctx.fillRect(18, 10, 3, 6);
   ctx.fillRect(3, 17, 4, 5); ctx.fillRect(11, 17, 4, 5);
   ctx.restore();
-  ctx.font = '19px VT323'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.font = '19px VT323, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
   const label = r.term.short, tw = ctx.measureText(label).width;
   const lx = clamp(r.x + r.w / 2, MX + tw / 2 + 6, MX + COLS * CW - tw / 2 - 6), ly = r.y - 9;
   ctx.fillStyle = 'rgba(0,0,0,.75)'; ctx.fillRect(lx - tw / 2 - 4, ly - 17, tw + 8, 18);
@@ -274,7 +274,7 @@ registerStage({
         ctx.fillStyle = side === R.maze.entry ? '#5d6b80' : (Math.floor(t * 4) % 2 ? '#ff4d6d' : '#7a1f30');
         ctx.fillRect(d.x + (d.w > d.h ? 0 : 1), d.y + (d.w > d.h ? 1 : 0), d.w - (d.w > d.h ? 0 : 2), d.h - (d.w > d.h ? 2 : 0));
       } else if (Math.floor(t * 3) % 2) {
-        ctx.fillStyle = '#38f0c8'; ctx.font = '14px "Press Start 2P"'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#38f0c8'; ctx.font = '14px "Press Start 2P", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         const ax = d.x + d.w / 2 + ({ left: 14, right: -14 }[side] || 0), ay = d.y + d.h / 2 + ({ top: 14, bottom: -14 }[side] || 0);
         ctx.fillText({ left: '◀', right: '▶', top: '▲', bottom: '▼' }[side], ax, ay); ctx.textAlign = 'left'; ctx.textBaseline = 'top';
       }

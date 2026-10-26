@@ -220,7 +220,7 @@ registerStage({
     const t = E.time;
     // spelling bar
     const chars = [...S.word], bw = Math.min(30, (W - 40) / chars.length), bx = W / 2 - chars.length * bw / 2;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '26px VT323';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '26px VT323, monospace';
     chars.forEach((ch, i) => {
       const x = bx + i * bw + bw / 2, y = 118;
       if (isAuto(ch)) { ctx.fillStyle = '#5d6b80'; ctx.fillText(ch === ' ' ? '·' : ch, x, y); return; }
@@ -237,7 +237,7 @@ registerStage({
     }
     ctx.globalAlpha = 1;
     // shield
-    ctx.font = '21px VT323'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = '21px VT323, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     const nextCh = S.word[S.pos];
     for (const cl of S.cells) {
       const r = cellRect(cl);
