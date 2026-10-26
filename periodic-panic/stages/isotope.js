@@ -230,11 +230,15 @@ registerStage({
     ctx.font = '22px VT323, monospace'; ctx.textBaseline = 'middle';
     let x = 14;
     for (const o of opens) {
-      const glow = S.reveal && o.term.id === S.target.id, label = o.term.short;
-      ctx.fillStyle = 'rgba(0,0,0,.8)'; const w = ctx.measureText(label).width + 30;
-      ctx.fillRect(x, 98, w, 24); ctx.strokeStyle = o.col; ctx.lineWidth = glow ? 3 : 1; ctx.strokeRect(x, 98, w, 24);
-      ctx.fillStyle = o.col; ctx.fillRect(x + 6, 104, 12, 12);
-      ctx.fillStyle = glow ? '#ffffff' : '#e8f6ff'; ctx.fillText(label, x + 24, 111);
+      // the short label, on two lines if a chip would be wider than 200 px
+      const glow = S.reveal && o.term.id === S.target.id;
+      if (!o.fit) o.fit = fitLabel(o.term.short, 200, 22);
+      const lh = Math.round(o.fit.size * 0.95), w = o.fit.w + 32, h = Math.max(24, o.fit.h + 6);
+      ctx.fillStyle = 'rgba(0,0,0,.8)'; ctx.fillRect(x, 98, w, h);
+      ctx.strokeStyle = o.col; ctx.lineWidth = glow ? 3 : 1; ctx.strokeRect(x, 98, w, h);
+      ctx.fillStyle = o.col; ctx.fillRect(x + 6, 98 + h / 2 - 6, 12, 12);
+      ctx.font = `${o.fit.size}px VT323, monospace`; ctx.textBaseline = 'middle'; ctx.fillStyle = glow ? '#ffffff' : '#e8f6ff';
+      o.fit.lines.forEach((l, i) => ctx.fillText(l, x + 24, 98 + h / 2 + (i - (o.fit.lines.length - 1) / 2) * lh));
       x += w + 10;
     }
     ctx.textBaseline = 'top';

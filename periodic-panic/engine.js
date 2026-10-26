@@ -27,6 +27,34 @@ const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
 };
+// Term labels: try the base size on one line, then one step smaller, and only then wrap onto two
+// lines (at the larger size if it fits, else the smaller). Returns lines, size, and box size.
+function fitLabel(text, maxW, base = 19) {
+  const sizes = [base, base - 2, base - 4];
+  const width = (t, s) => { ctx.font = `${s}px VT323, monospace`; return ctx.measureText(t).width; };
+  for (const s of sizes.slice(0, 2)) { const w = width(text, s); if (w <= maxW) return { lines: [text], size: s, w, h: Math.round(s * 0.95) }; }
+  const words = text.split(' ');
+  for (const s of sizes) {
+    let best = null;
+    for (let i = 1; i < words.length; i++) {   // the most balanced split into two lines
+      const a = words.slice(0, i).join(' '), b = words.slice(i).join(' '), w = Math.max(width(a, s), width(b, s));
+      if (!best || w < best.w) best = { lines: [a, b], w };
+    }
+    if (best && best.w <= maxW) return { lines: best.lines, size: s, w: best.w, h: Math.round(s * 0.95) * 2 };
+  }
+  const s = sizes[2];   // a single long word: smallest size, even if a little wide
+  return { lines: [text], size: s, w: width(text, s), h: Math.round(s * 0.95) };
+}
+// Draw a fitted label in a dark box whose top-left is (x, y); returns the box.
+function drawFittedLabel(fit, x, y, textColor, borderColor) {
+  const bw = fit.w + 8, bh = fit.h + 3, lh = Math.round(fit.size * 0.95);
+  ctx.fillStyle = 'rgba(0,0,0,.8)'; ctx.fillRect(x, y, bw, bh);
+  if (borderColor) { ctx.strokeStyle = borderColor; ctx.lineWidth = 1; ctx.strokeRect(x + 0.5, y + 0.5, bw - 1, bh - 1); }
+  ctx.font = `${fit.size}px VT323, monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'top'; ctx.fillStyle = textColor;
+  fit.lines.forEach((l, i) => ctx.fillText(l, x + bw / 2, y + 2 + i * lh));
+  ctx.textAlign = 'left';
+  return { x, y, w: bw, h: bh };
+}
 function wrapText(text, maxW, font) {
   ctx.font = font; const words = text.split(' '), lines = []; let line = '';
   for (const w of words) { const t = line ? line + ' ' + w : w; if (ctx.measureText(t).width > maxW && line) { lines.push(line); line = w; } else line = t; }

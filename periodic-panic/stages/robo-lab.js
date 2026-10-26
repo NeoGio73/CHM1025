@@ -135,12 +135,42 @@ function drawRobot(r) {
   ctx.fillRect(-3, 10, 3, 6); ctx.fillRect(18, 10, 3, 6);
   ctx.fillRect(3, 17, 4, 5); ctx.fillRect(11, 17, 4, 5);
   ctx.restore();
-  ctx.font = '19px VT323, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-  const label = r.term.short, tw = ctx.measureText(label).width;
-  const lx = clamp(r.x + r.w / 2, MX + tw / 2 + 6, MX + COLS * CW - tw / 2 - 6), ly = r.y - 9;
-  ctx.fillStyle = 'rgba(0,0,0,.75)'; ctx.fillRect(lx - tw / 2 - 4, ly - 17, tw + 8, 18);
-  ctx.fillStyle = r.wrongHit ? '#ff4d6d' : (glow ? '#38f0c8' : '#e8f6ff'); ctx.fillText(label, lx, ly + 1);
-  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+}
+
+// Labels show the full term (fitted to two lines at most). Each frame every label picks a spot near
+// its robot (above, below, shifted, or beside) that stays clear of walls and the labels already
+// placed; it keeps its last spot while that is still clear, so labels do not jump around.
+const overlapArea = (a, b) => Math.max(0, Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x)) * Math.max(0, Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y));
+function placeLabels() {
+  const alive = R.robots.filter(r => r.alive), placed = [];
+  const x0 = MX + WT + 1, x1 = MX + COLS * CW - WT - 1, y0 = MY + WT + 1, y1 = MY + ROWS * CH - WT - 1;
+  const bodies = alive.map(r => ({ x: r.x - 3, y: r.y - 7, w: r.w + 6, h: r.h + 7 }));
+  for (const r of alive) {
+    if (!r.fit) r.fit = fitLabel(r.term.term, 120, 19);   // narrower than a maze cell, so it can fit between walls
+    const bw = r.fit.w + 8, bh = r.fit.h + 3, cx = r.x + r.w / 2, above = r.y - 9 - bh, below = r.y + r.h + 4, mid = r.y + r.h / 2 - bh / 2;
+    // preferred spots first (centred above, centred below), then shifted and stacked variants
+    const spots = [[cx - bw / 2, above], [cx - bw / 2, below]];
+    for (const y of [above, below, above - 12, below + 12, mid]) for (const k of [0.5, 0.25, 0.75, 0, 1]) spots.push([cx - bw * k, y]);
+    spots.push([r.x + r.w + 6, mid], [r.x - 6 - bw, mid]);
+    const score = i => {
+      const box = { x: clamp(spots[i][0], x0, x1 - bw), y: clamp(spots[i][1], y0, y1 - bh), w: bw, h: bh };
+      let o = 0;
+      for (const w of R.maze.walls) o += overlapArea(box, w);
+      for (const p of placed) o += overlapArea(box, p) * 2;
+      bodies.forEach((b, k) => { if (alive[k] !== r) o += overlapArea(box, b) * 0.5; });
+      return { box, o, i };
+    };
+    let best = r.labSpot !== undefined ? score(r.labSpot) : null;
+    if (!best || best.o > 0) for (let i = 0; i < spots.length; i++) { const s = score(i); if (!best || s.o < best.o - 0.01) best = s; if (s.o === 0) break; }
+    r.labSpot = best.i; r.lab = best.box; placed.push(best.box);
+  }
+}
+function drawLabels() {
+  for (const r of R.robots) {
+    if (!r.alive || !r.lab) continue;
+    const glow = R.reveal && r.term.id === R.target.id;
+    drawFittedLabel(r.fit, r.lab.x, r.lab.y, r.wrongHit ? '#ff4d6d' : (glow ? '#38f0c8' : '#e8f6ff'), glow ? '#38f0c8' : null);
+  }
 }
 function drawRadical(rd) {
   // a nucleus with one lonely, unpaired electron
@@ -183,6 +213,7 @@ registerStage({
   },
   isDying: () => P && P.dead > 0,
   isSolved: () => R && R.solved,
+  _debug: () => ({ R, P, placeLabels, overlapArea }),   // for automated tests
   hudColor: () => R ? R.wall : '#2b59ff',
 
   update(dt, inp) {
@@ -288,6 +319,7 @@ registerStage({
     if (P.dead <= 0 && !(P.inv > 0 && !ready && Math.floor(t * 12) % 2)) drawPerson(P.x + P.w / 2, P.y + 12, 1, '#38f0c8', P.walk);
     if (P.dead > 0 && !P.burst) { const zc = ['#ffffff', '#ff4d6d', '#ffd23f', '#38f0c8', '#c77dff', '#2b59ff']; drawPerson(P.x + P.w / 2, P.y + 12, 1, zc[Math.floor(t * 24) % zc.length], 0); }
     if (R.radical) drawRadical(R.radical);
+    placeLabels(); drawLabels();   // labels on top, clear of walls and of each other
   },
   drawHud() {
     if (!R.radical && !R.solved && !G.ready) {

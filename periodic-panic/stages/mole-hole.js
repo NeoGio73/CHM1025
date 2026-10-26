@@ -239,13 +239,11 @@ function drawCrystal(cr) {
 }
 function drawLabel(cr) {
   const glow = L.reveal && cr.term.id === L.target.id;
-  ctx.font = '20px VT323, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-  const label = cr.term.short, tw = ctx.measureText(label).width;
-  const lx = clamp(tc(cr.c), X0 + tw / 2 + 4, X0 + COLS * T - tw / 2 - 4), ly = tr(cr.r) - 17;
-  ctx.fillStyle = 'rgba(0,0,0,.8)'; ctx.fillRect(lx - tw / 2 - 4, ly - 17, tw + 8, 18);
-  ctx.strokeStyle = cr.col; ctx.lineWidth = 1; ctx.strokeRect(lx - tw / 2 - 4, ly - 17, tw + 8, 18);
-  ctx.fillStyle = glow ? '#38f0c8' : '#fff4e6'; ctx.fillText(label, lx, ly + 1);
-  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  // the short label, on two lines if it is wider than three dirt tiles
+  if (!cr.fit) cr.fit = fitLabel(cr.term.short, T * 3, 20);
+  const bw = cr.fit.w + 8, bh = cr.fit.h + 3;
+  const x = clamp(tc(cr.c) - bw / 2, X0 + 4, X0 + COLS * T - bw - 4), y = tr(cr.r) - 16 - bh;
+  drawFittedLabel(cr.fit, x, y, glow ? '#38f0c8' : '#fff4e6', cr.col);
 }
 function drawBoulder(b) {
   const wob = b.state === 'wobble' ? Math.sin(E.time * 40) * 3 : 0;

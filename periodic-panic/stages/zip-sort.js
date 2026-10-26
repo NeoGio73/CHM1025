@@ -131,13 +131,6 @@ function moveEye(e, dt) {
 }
 
 // ---------- drawing
-function wrap2(text, maxW) {
-  ctx.font = '20px VT323, monospace';
-  if (ctx.measureText(text).width <= maxW) return [text];
-  const words = text.split(' '); let a = '', i = 0;
-  for (; i < words.length; i++) { const t = a ? a + ' ' + words[i] : words[i]; if (ctx.measureText(t).width > maxW && a) break; a = t; }
-  return [a, words.slice(i).join(' ')];
-}
 function drawPull(x, y, col) {
   // a zipper pull with eyes (original sprite)
   ctx.save(); ctx.translate(x, y);
@@ -216,10 +209,12 @@ registerStage({
         ctx.fillRect(x + 3, y + 3, BW - 6, BH - 6);
       } else if (glow) { ctx.fillStyle = `rgba(56,240,200,${0.12 + 0.1 * Math.sin(E.time * 6)})`; ctx.fillRect(x + 3, y + 3, BW - 6, BH - 6); }
       if (b.term) {
-        const lines = wrap2(b.term.short, BW - 16);
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = '20px VT323, monospace';
+        // the full term, fitted to the box (one step smaller, then two lines, if needed)
+        if (!b.fit) b.fit = fitLabel(b.term.term, BW - 16, 20);
+        const lh = Math.round(b.fit.size * 0.95);
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.font = `${b.fit.size}px VT323, monospace`;
         ctx.fillStyle = glow ? '#38f0c8' : b.filled ? '#ffffff' : '#e8f6ff';
-        lines.forEach((l, i) => ctx.fillText(l, cx, cy + (i - (lines.length - 1) / 2) * 20));
+        b.fit.lines.forEach((l, i) => ctx.fillText(l, cx, cy + (i - (b.fit.lines.length - 1) / 2) * lh));
         if (b.filled) { ctx.font = '14px "Press Start 2P", monospace'; ctx.fillStyle = b.good ? '#38f0c8' : '#ff4d6d'; ctx.fillText(b.good ? '✓' : '✗', x + BW - 16, y + 16); }
         ctx.textAlign = 'left'; ctx.textBaseline = 'top';
       } else if (b.fork && !b.filled) {   // pitchfork power-up

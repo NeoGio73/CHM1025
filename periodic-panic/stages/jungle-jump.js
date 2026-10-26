@@ -158,14 +158,23 @@ function drawTreasure(tr) {
   ctx.shadowBlur = 0; ctx.fillStyle = hi; ctx.fillRect(tr.x - 7, y - 10, 9, 2);
   if (Math.floor(E.time * 2 + tr.x) % 4 === 0) { ctx.fillStyle = '#fff'; ctx.fillRect(tr.x + 5, y - 15, 2, 2); }
   ctx.restore();
-  ctx.font = '20px VT323, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
-  const label = tr.term.short, tw = ctx.measureText(label).width;
-  const lx = clamp(tr.x, tw / 2 + 6, W - tw / 2 - 6), ly = y - 46;
-  ctx.fillStyle = 'rgba(0,0,0,.8)'; ctx.fillRect(lx - tw / 2 - 4, ly - 17, tw + 8, 18);
-  ctx.strokeStyle = c; ctx.lineWidth = 1; ctx.strokeRect(lx - tw / 2 - 4, ly - 17, tw + 8, 18);
-  ctx.fillStyle = glow ? '#38f0c8' : '#fff4e6'; ctx.fillText(label, lx, ly + 1);
-  ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.beginPath(); ctx.moveTo(tr.x, ly + 2); ctx.lineTo(tr.x, y - 16); ctx.stroke();
-  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  // full-term label (placed by layoutTreasureLabels) with a thin line down to its ingot
+  const L = tr.lab; if (!L) return;
+  ctx.strokeStyle = 'rgba(255,255,255,.25)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(tr.x, L.y + L.h); ctx.lineTo(tr.x, y - 16); ctx.stroke();
+  drawFittedLabel(tr.fit, L.x, L.y, glow ? '#38f0c8' : '#fff4e6', c);
+}
+// Labels show the full term (up to two lines) above each ingot; when two would collide, the later
+// one is lifted above the other, so they stack instead of overlapping.
+function layoutTreasureLabels() {
+  const placed = [];
+  for (const tr of S.treasures.filter(t => !t.broken).sort((a, b) => a.x - b.x)) {
+    if (!tr.fit) tr.fit = fitLabel(tr.term.term, 170, 20);
+    const bw = tr.fit.w + 8, bh = tr.fit.h + 3;
+    const box = { x: clamp(tr.x - bw / 2, 6, W - bw - 6), y: GY - 46 - bh, w: bw, h: bh };
+    let moved = true;
+    while (moved) { moved = false; for (const p of placed) if (box.x < p.x + p.w + 4 && box.x + box.w + 4 > p.x && box.y < p.y + p.h + 4 && box.y + box.h + 4 > p.y) { box.y = p.y - bh - 6; moved = true; } }
+    tr.lab = box; placed.push(box);
+  }
 }
 function drawLog(l) {
   ctx.save(); ctx.translate(l.x, l.y - 12); ctx.rotate(l.rot);
@@ -275,6 +284,7 @@ registerStage({
     drawBackground();
     drawHazard();
     drawExit();
+    layoutTreasureLabels();
     for (const tr of S.treasures) if (!tr.broken) drawTreasure(tr);
     if (S.kind === 'vine') drawVine();
     for (const l of S.logs) drawLog(l);
