@@ -8,14 +8,40 @@ const cv = document.getElementById('game'), ctx = cv.getContext('2d');
 const W = 800, H = 600, HUD_H = 92;
 // Landscape: the canvas fills the screen. Portrait phones: the canvas spans the full width under a
 // readable HTML strip that carries the clue and feedback (see updateStrip); controls go below it.
-let portrait = false;
+let portrait = false, touchMode = false;   // touchMode turns on at the first touch
 function fit() {
   portrait = innerHeight > innerWidth && innerWidth < 900;
   document.body.classList.toggle('portrait', portrait);
-  const s = portrait ? innerWidth / W : Math.min(innerWidth / W, innerHeight / H);
+  // landscape with touch: leave a margin each side for the stick and fire button, so they never
+  // cover the play field (Zip Sort's bottom row of boxes, for example)
+  const side = touchMode && !portrait ? 2 * 112 : 0;
+  const s = portrait ? innerWidth / W : Math.min((innerWidth - side) / W, innerHeight / H);
   cv.style.width = W * s + 'px'; cv.style.height = H * s + 'px';
+  fitScale = s; layoutTouch();
+}
+let fitScale = 1;
+function layoutTouch() {
+  const stick = document.getElementById('stick'), fire = document.getElementById('fire'), knob = document.getElementById('knob');
+  if (!stick || !fire || !knob) return;
+  if (!touchMode) { stick.style.cssText = fire.style.cssText = knob.style.cssText = ''; return; }
+  let st, fr, sx, fx, bottom;
+  if (portrait) {   // in the space below the canvas, which shrinks when the clue strip grows
+    const room = innerHeight - cv.getBoundingClientRect().bottom - 20;
+    st = Math.max(70, Math.min(150, room)); fr = Math.max(64, Math.min(110, room * 0.75));
+    sx = Math.round(innerWidth * 0.06); fx = Math.round(innerWidth * 0.06); bottom = 12;
+  } else {          // in the side margins left beside the canvas
+    const margin = (innerWidth - W * fitScale) / 2;
+    st = Math.max(70, Math.min(150, margin - 16)); fr = Math.max(64, Math.min(110, margin - 16));
+    sx = Math.max(6, (margin - st) / 2); fx = Math.max(6, (margin - fr) / 2); bottom = 14;
+  }
+  const k = Math.round(st * 0.4);
+  Object.assign(stick.style, { width: st + 'px', height: st + 'px', left: sx + 'px', bottom: bottom + 'px' });
+  Object.assign(fire.style, { width: fr + 'px', height: fr + 'px', right: fx + 'px', bottom: bottom + 4 + 'px' });
+  Object.assign(knob.style, { width: k + 'px', height: k + 'px', margin: -k / 2 + 'px' });
 }
 addEventListener('resize', fit); addEventListener('orientationchange', fit); fit();
+// the portrait clue strip changes height with its text; keep the touch controls clear of the canvas
+if (window.ResizeObserver) new ResizeObserver(() => { if (portrait) layoutTouch(); }).observe(document.getElementById('strip'));
 
 const rand = (a, b) => a + Math.random() * (b - a);
 const ri = (a, b) => Math.floor(rand(a, b + 1));
@@ -336,7 +362,7 @@ addEventListener('keydown', e => {
 });
 addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
 (function setupTouch() {
-  addEventListener('touchstart', () => { touchUsed = true; document.getElementById('touch').classList.add('on'); }, { once: true, passive: true });
+  addEventListener('touchstart', () => { touchUsed = true; touchMode = true; document.getElementById('touch').classList.add('on'); fit(); }, { once: true, passive: true });
   cv.addEventListener('pointerdown', () => { if (G) G.startReq = true; });
   document.getElementById('strip').addEventListener('pointerdown', () => { if (G) G.startReq = true; });   // portrait clue strip
   const stick = document.getElementById('stick'), knob = document.getElementById('knob'), fire = document.getElementById('fire');
@@ -449,7 +475,8 @@ function nextTarget() {
   const borrowed = BANK.filter(ok);   // none of the chosen chapters' terms suit this stage: borrow one
   return borrowed.length ? pick(borrowed) : G.queue.shift();
 }
-function setReady() { G.ready = readFirst; G.armed = false; G.startReq = false; }
+const IGNORE_PRESS = 0.3;   // seconds after a title card or a new round during which presses are ignored
+function setReady() { G.ready = readFirst; G.readyT = 0; G.startReq = false; }
 let selected = new Set(store.get('ca_chapters', [...new Set(BANK.map(t => t.chapter))]));
 
 function newGame(mode, stageIdx) {
@@ -457,7 +484,7 @@ function newGame(mode, stageIdx) {
   store.set('ca_chapters', [...selected]);
   G = { mode, stageIdx: 0, stage: null, pool, queue: shuffle(pool.slice()), score: 0, lives: 5, level: 1, loop: 1,
         solved: 0, stageSolved: 0, missed: new Map(), state: 'card', cardT: 0, paused: false, t: 0,
-        particles: [], banner: null, nextLifeAt: 5000, ready: false, armed: false, startReq: false, target: null };
+        particles: [], banner: null, nextLifeAt: 5000, ready: false, readyT: 0, startReq: false, target: null };
   startStage(stageIdx || 0, false);
 }
 function startStage(idx, warp) {
@@ -475,14 +502,17 @@ function update(dt) {
   if (G.banner && (G.banner.t -= dt) <= 0) G.banner = null;
   if (G.state === 'card') {
     G.cardT += dt;   // time the title card has been up
-    // the card stays until a key press or tap; presses in the first moment don't count (no accidental skips)
-    if (G.cardT > 0.8 && (pressLatch || G.startReq || touchVec.fire)) { G.state = 'play'; setReady(); Sound.blip(); }
+    // the card stays until a key press or tap; presses in the first 0.3 s don't count (no accidental skips)
+    if (G.cardT > IGNORE_PRESS && (pressLatch || G.startReq || touchVec.fire)) { G.state = 'play'; setReady(); Sound.blip(); }
     pressLatch = false; G.startReq = false;
     return;
   }
   const inp = readInput();
   if (G.ready) {
-    if (!G.armed) { G.armed = true; pressLatch = false; }
+    // read-the-clue pause: a press in the first 0.3 s is dropped (it was meant for the screen before);
+    // the next press starts play, and the status line switches to the stage's instruction at once
+    G.readyT += dt;
+    if (G.readyT < IGNORE_PRESS) { pressLatch = false; G.startReq = false; return; }
     if (pressLatch || G.startReq || touchVec.x || touchVec.y) { G.ready = false; pressLatch = false; G.startReq = false; Sound.blip(); }
     else return;
   }
@@ -535,7 +565,7 @@ function updateStrip() {
   if (G.state === 'card') {
     label = G.mode === 'arcade' ? `STAGE ${G.stageIdx + 1} OF ${STAGES.length}` + (G.loop > 1 ? ` · LOOP ${G.loop}` : '') : 'FREE PLAY';
     text = `${S.name}: ${S.howTo.join(' ')}`;
-    note = G.cardT > 0.8 ? 'Tap to start. (Tip: turn your phone sideways for a bigger playfield.)' : '';
+    note = G.cardT > IGNORE_PRESS ? 'Tap to start. (Tip: turn your phone sideways for a bigger playfield.)' : '';
     noteColor = '#ffd23f';
   } else {
     const dying = S.isDying && S.isDying();
@@ -569,7 +599,7 @@ function drawCard() {
   S.howTo.forEach((l, i) => ctx.fillText(l, W / 2, 285 + i * 30));
   if (G.mode === 'arcade') { ctx.fillStyle = '#5d6b80'; ctx.fillText(`${ROUNDS_PER_STAGE} correct answers warp you to the next stage.`, W / 2, 285 + S.howTo.length * 30 + 20); }
   // stays up until the player is ready
-  if (G.cardT > 0.8 && Math.floor(G.t * 2.5) % 2) {
+  if (G.cardT > IGNORE_PRESS && Math.floor(G.t * 2.5) % 2) {
     ctx.font = '14px "Press Start 2P", monospace'; ctx.fillStyle = '#ffd23f';
     ctx.fillText(touchUsed ? 'TAP TO START' : 'PRESS SPACE TO START', W / 2, 470);
   }
