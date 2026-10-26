@@ -213,6 +213,7 @@ registerStage({
   },
   isDying: () => P && P.dead > 0,
   isSolved: () => R && R.solved,
+  choices: () => R.robots.filter(r => r.alive).map(r => ({ text: r.term.term })),   // for the portrait strip
   _debug: () => ({ R, P, placeLabels, overlapArea }),   // for automated tests
   hudColor: () => R ? R.wall : '#2b59ff',
 

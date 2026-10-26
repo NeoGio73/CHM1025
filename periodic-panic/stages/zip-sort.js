@@ -178,6 +178,7 @@ registerStage({
   respawn() { if (S.solved) return E.nextRound(); resetActors(); },
   isDying: () => P && P.dead > 0,
   isSolved: () => S && S.solved,
+  choices: () => S.boxes.filter(b => b.term && !b.filled).map(b => ({ text: b.term.term })),   // for the portrait strip
   _debug: () => ({ S, P, arrive, checkBox }),
 
   update(dt, inp) {

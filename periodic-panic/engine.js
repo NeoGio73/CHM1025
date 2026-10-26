@@ -569,11 +569,22 @@ function drawBanner() {
 }
 // Portrait phones: mirror the clue, the stage instructions, and feedback into the HTML strip,
 // where they read at phone size (the canvas is only ~half scale there). DOM is touched only on change.
-const strip = { label: document.getElementById('stripLabel'), text: document.getElementById('stripText'), note: document.getElementById('stripNote'), last: '' };
+const strip = { label: document.getElementById('stripLabel'), text: document.getElementById('stripText'), note: document.getElementById('stripNote'),
+                choices: document.getElementById('stripChoices'), last: '' };
+// the choices currently on screen, from the stage (stage.choices() returns [{ text, color?, mark? }])
+function renderChoices(list) {
+  strip.choices.replaceChildren(...list.map(c => {
+    const span = document.createElement('span'); span.className = 'ch';
+    if (c.color) { const sw = document.createElement('span'); sw.className = 'sw'; sw.style.background = c.color; span.appendChild(sw); }
+    if (c.mark) { const mk = document.createElement('span'); mk.className = 'mk'; mk.textContent = c.mark; if (c.color) mk.style.color = c.color; span.appendChild(mk); }
+    span.appendChild(document.createTextNode(c.text));
+    return span;
+  }));
+}
 function updateStrip() {
   if (!portrait || !G) return;
   const S = G.stage;
-  let label, text, note = '', noteColor = '#e8f6ff';
+  let label, text, note = '', noteColor = '#e8f6ff', choices = [];
   if (G.state === 'card') {
     label = G.mode === 'arcade' ? `STAGE ${G.stageIdx + 1} OF ${STAGES.length}` + (G.loop > 1 ? ` · LOOP ${G.loop}` : '') : 'FREE PLAY';
     text = `${S.name}: ${S.howTo.join(' ')}`;
@@ -584,11 +595,13 @@ function updateStrip() {
     label = G.ready && !dying ? 'READ THE CLUE · TAP TO START' : `CH ${G.target.chapter} · ${S.hudLabel}`;
     text = G.target.clue;
     if (G.banner) { note = G.banner.text + (G.banner.sub ? ': ' + G.banner.sub : ''); noteColor = G.banner.color; }
+    if (S.choices && !(S.isSolved && S.isSolved())) choices = S.choices();
   }
-  const key = label + '|' + text + '|' + note;
+  const key = label + '|' + text + '|' + note + '|' + choices.map(c => (c.mark || '') + c.text + (c.color || '')).join('/');
   if (key === strip.last) return;
   strip.last = key;
   strip.label.textContent = label; strip.text.textContent = text;
+  renderChoices(choices);
   strip.note.textContent = note; strip.note.style.color = noteColor;
   document.getElementById('strip').style.borderBottomColor = S.color;
   layoutTouch(); layoutHudBtns();   // the strip's height may have changed, moving the canvas

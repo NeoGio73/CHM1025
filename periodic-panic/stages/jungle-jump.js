@@ -211,6 +211,7 @@ registerStage({
   respawn() { if (S.solved) return E.nextRound(); resetPlayer(); },
   isDying: () => P && P.dead > 0,
   isSolved: () => S && S.solved,
+  choices: () => S.treasures.filter(t => !t.broken).map(t => ({ text: t.term.term, color: t.metal[0] })),   // for the portrait strip
   _debug: () => ({ S, P, vineState, buildScreen }),   // for automated tests
 
   update(dt, inp) {

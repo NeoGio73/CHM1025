@@ -304,6 +304,7 @@ registerStage({
   respawn() { if (L.solved) return E.nextRound(); resetPlayer(); },
   isDying: () => P && P.dead > 0,
   isSolved: () => L && L.solved,
+  choices: () => L.crystals.filter(c => !c.broken).map(c => ({ text: c.term.short, color: c.col })),   // for the portrait strip
   hudColor: () => L ? L.pal[0] : '#8a4f1d',
 
   update(dt, inp) {

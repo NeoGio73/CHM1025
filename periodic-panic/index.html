@@ -26,6 +26,12 @@
   #stripText { font-size:22px; line-height:1.15; color:var(--gold); }
   #stripNote { font-size:20px; line-height:1.15; margin-top:6px; }
   #stripNote:empty { display:none; }
+  /* the choices on screen, readable at phone size (the canvas labels are small in portrait) */
+  #stripChoices { font-size:19px; line-height:1.25; margin-top:6px; color:var(--fg); }
+  #stripChoices:empty { display:none; }
+  #stripChoices .ch { display:inline-block; margin:0 10px 2px 0; white-space:nowrap; }
+  #stripChoices .sw { display:inline-block; width:10px; height:10px; margin-right:5px; vertical-align:1px; }
+  #stripChoices .mk { font-family:'Press Start 2P', monospace; font-size:10px; margin-right:5px; }
   /* pause / mute / menu buttons for touch screens (keys P and M still work); placed by layoutHudBtns() */
   #hudBtns { position:fixed; z-index:4; display:none; gap:6px; }
   #hudBtns.on { display:flex; }
@@ -82,7 +88,7 @@
 </head>
 <body>
 <div id="wrap">
-  <div id="strip" aria-live="polite"><div id="stripLabel"></div><div id="stripText"></div><div id="stripNote"></div></div>
+  <div id="strip" aria-live="polite"><div id="stripLabel"></div><div id="stripText"></div><div id="stripChoices"></div><div id="stripNote"></div></div>
   <canvas id="game" width="800" height="600"></canvas>
 </div>
 <div id="hudBtns">

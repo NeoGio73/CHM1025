@@ -132,6 +132,7 @@ registerStage({
   respawn() { if (S.solved) return E.nextRound(); fuel = 100; buildCourse(true); resetShip(); },
   isDying: () => P && P.dead > 0,
   isSolved: () => S && S.solved,
+  choices: () => S.gate ? S.gate.openings.map(o => ({ text: o.term.short, color: o.col, mark: o.mark })) : [],   // for the portrait strip
   _debug: () => ({ S, P, getFuel: () => fuel, setFuel: v => { fuel = v; } }),
 
   update(dt, inp) {
