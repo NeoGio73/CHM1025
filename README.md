@@ -6,7 +6,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 
 | Topic | Activity | Type |
 | --- | --- | --- |
-| Scale, metric prefixes, scientific notation, atoms, ions, isotopes, and atomic mass | [Smaller Than Small](https://neogio73.github.io/CHM1025/smaller-than-small/) | Game (3D, WebGL) |
+| Scale, metric prefixes, scientific notation, atoms, ions, isotopes, atomic mass, light, and energy levels | [Smaller Than Small](https://neogio73.github.io/CHM1025/smaller-than-small/) | Game (3D, WebGL) |
 | Bonding, shapes, polarity, and intermolecular forces (Ch. 10) | [Escape from Lewis Manor](https://neogio73.github.io/CHM1025/lewis-manor/) | Game (Halloween) |
 | Course policies in the syllabus | [Beaker Catch](https://neogio73.github.io/CHM1025/beaker-catch/) | Game (first week, ungraded) |
 | Key terms from Chapters 1–12 and 14 | [Periodic Panic](https://neogio73.github.io/CHM1025/periodic-panic/) | Game (vocabulary review, ungraded; six arcade games in one) |
@@ -18,7 +18,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 
 A 3D game about the size of things. You play Ångström, a scientist in a shrinking suit, guided by BOHR, the suit's lab assistant. Each trip on a shrink pad makes you 1000 times smaller, from a chemistry lab down to the sodium and chloride ions of a single grain of salt.
 
-The game is being built one level at a time. Levels 1 to 3 are playable now; finishing each level leads straight into the next.
+The game is being built one level at a time. Levels 1 to 4 are playable now; finishing each level leads straight into the next.
 
 **Level 1: Scale Drop**
 
@@ -51,12 +51,22 @@ Four multiple-choice checkpoints sit between the builds: what a new proton does,
 
 Atomic-mass answers must be within 0.02 amu, because a 2% margin would also accept wrong methods, such as averaging the two isotope masses. Isotope masses and abundances come from the NIST [Atomic Weights and Isotopic Compositions](https://www.nist.gov/pml/atomic-weights-and-isotopic-compositions-relative-atomic-masses) tables, rounded to two decimal places.
 
+**Level 4: Light & Energy Levels** (sections 5.1 and 5.2, concepts only: no E = hν or c = λν calculations).
+
+| Zone | Your height | What it practices |
+| --- | --- | --- |
+| Wave Deck | 185 nm | Wavelength measured in your own heights, frequency from crests counted at a gate, photons, the electromagnetic spectrum, then a typed calculation |
+| Energy Ladder (inside a hydrogen atom) | 1.85 pm | Energy levels, ground and excited states; moving the electron between levels makes hydrogen's red, blue-green, and violet lines |
+| Flame Bench (back in the lab) | 1.85 m | Flame colors of sodium (yellow), strontium (red), and copper (green, an extension), then a boss that matches mystery spectra to hydrogen, helium, or sodium |
+
+Line wavelengths come from the NIST [Atomic Spectra Database](https://physics.nist.gov/asd); the flame colors of strontium and copper follow Baldwin et al., *J. Chem. Educ.* **2010**, *87*, 790–792.
+
 - **Move** with <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> or the arrow keys, hold <kbd>Shift</kbd> to walk, and press <kbd>Space</kbd> to jump. Hold the right mouse button and drag to look around, and scroll to zoom.
-- **Use** a terminal, pad, or the Atom Forge console with <kbd>E</kbd>. <kbd>Space</kbd> or a click moves BOHR's dialogue along. In the Atom Forge, hold a **+** or **-** button to change a count quickly, and press **Lock in** or <kbd>Enter</kbd>.
+- **Use** a terminal, pad, or the Atom Forge console with <kbd>E</kbd>. <kbd>Space</kbd> or a click moves BOHR's dialogue along. In the Atom Forge, hold a **+** or **-** button to change a count quickly, and press **Lock in** or <kbd>Enter</kbd>. On the energy ladder, click a level to move the electron there; at the flame bench, click each sample.
 - **Wrong answers** give a hint, then a worked example with different numbers. Typed answers are accepted within 2%, except atomic masses, which must be within 0.02 amu.
 - **Sound** is on by default. Press <kbd>M</kbd> to mute or unmute.
 - **Nothing is sent anywhere.** The mission report at the end of each level shows how many checkpoints were right on the first try. The browser remembers which levels are finished, so students can stop and come back later on the same computer and browser.
-- **Extra credit.** After the last level, a student who has finished every level types their D2L username and gets a completion code (like `STS-XXXX-XXXX`) that only matches that username. They submit the username and code in D2L.
+- **Extra credit.** After Level 3, a student who has finished Levels 1 to 3 types their D2L username and gets a completion code (like `STS-XXXX-XXXX`) that only matches that username. They submit the username and code in D2L. Level 4 is not required for the code yet (that will change when Level 5 is added); the code screen appears again at the end of Level 4.
 
 The game needs a computer with a browser that supports WebGL 2, which covers current versions of Chrome, Edge, Firefox, and Safari. The first load downloads about 31 MB.
 
