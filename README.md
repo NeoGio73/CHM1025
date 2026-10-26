@@ -58,7 +58,7 @@ Atomic-mass answers must be within 0.02 amu, because a 2% margin would also acce
 - **Nothing is sent anywhere.** The mission report at the end of each level shows how many checkpoints were right on the first try. The browser remembers which levels are finished, so students can stop and come back later on the same computer and browser.
 - **Extra credit.** After the last level, a student who has finished every level types their D2L username and gets a completion code (like `STS-XXXX-XXXX`) that only matches that username. They submit the username and code in D2L.
 
-The game needs a computer with a browser that supports WebGL 2, which covers current versions of Chrome, Edge, Firefox, and Safari. The first load downloads about 50 MB.
+The game needs a computer with a browser that supports WebGL 2, which covers current versions of Chrome, Edge, Firefox, and Safari. The first load downloads about 31 MB.
 
 ## Escape from Lewis Manor
 
