@@ -18,7 +18,10 @@ const shipZ = () => S.camZ + SHIP_REL;
 function makeGate(z, terms) {
   // openings spread across the fortress, each at its own height band
   const xs = shuffle([48, 120, 192]), bands = shuffle([8, 38, 70]);
-  return { z, flash: 0, openings: terms.map((term, i) => ({ term, x: xs[i], w: 58, lo: bands[i], hi: bands[i] + 48, col: GATE_COLS[i] })) };
+  const openings = terms.map((term, i) => ({ term, x: xs[i], w: 58, lo: bands[i], hi: bands[i] + 48, col: GATE_COLS[i] }));
+  // letters as well as colours (for colour-blind players): A, B, C from left to right across the wall
+  openings.sort((a, b) => a.x - b.x).forEach((o, i) => { o.mark = 'ABC'[i]; });
+  return { z, flash: 0, openings };
 }
 function buildCourse(fresh) {
   const z0 = S.camZ;
@@ -79,6 +82,12 @@ function drawGate(g) {
     const glow = S.reveal && o.term.id === S.target.id;
     ctx.lineWidth = glow ? 4 : 3;
     poly([proj(o.x - o.w / 2, rel, o.lo), proj(o.x - o.w / 2, rel, o.hi), proj(o.x + o.w / 2, rel, o.hi), proj(o.x + o.w / 2, rel, o.lo)], null, glow && Math.floor(E.time * 6) % 2 ? '#ffffff' : o.col);
+    // the opening's letter, in the middle of the opening
+    const [mx, my] = proj(o.x, rel, (o.lo + o.hi) / 2);
+    ctx.font = '14px "Press Start 2P", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.lineWidth = 4; ctx.strokeStyle = '#000'; ctx.strokeText(o.mark, mx, my);
+    ctx.fillStyle = o.col; ctx.fillText(o.mark, mx, my);
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top';
   }
   // pylons
   for (const x of [0, LW]) poly([proj(x, rel - 6, 0), proj(x, rel + 6, 0), proj(x, rel + 6, WALL_H + 10), proj(x, rel - 6, WALL_H + 10)], '#5a6a99');
@@ -237,7 +246,9 @@ registerStage({
       const lh = Math.round(o.fit.size * 0.95), w = o.fit.w + 32, h = Math.max(24, o.fit.h + 6);
       ctx.fillStyle = 'rgba(0,0,0,.8)'; ctx.fillRect(x, 98, w, h);
       ctx.strokeStyle = o.col; ctx.lineWidth = glow ? 3 : 1; ctx.strokeRect(x, 98, w, h);
-      ctx.fillStyle = o.col; ctx.fillRect(x + 6, 98 + h / 2 - 6, 12, 12);
+      ctx.fillStyle = o.col; ctx.fillRect(x + 5, 98 + h / 2 - 7, 14, 14);   // colour swatch with the gate's letter
+      ctx.font = '10px "Press Start 2P", monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#000';
+      ctx.fillText(o.mark, x + 12, 98 + h / 2 + 1); ctx.textAlign = 'left';
       ctx.font = `${o.fit.size}px VT323, monospace`; ctx.textBaseline = 'middle'; ctx.fillStyle = glow ? '#ffffff' : '#e8f6ff';
       o.fit.lines.forEach((l, i) => ctx.fillText(l, x + 24, 98 + h / 2 + (i - (o.fit.lines.length - 1) / 2) * lh));
       x += w + 10;
