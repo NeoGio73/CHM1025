@@ -18,7 +18,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 
 A 3D game about the size of things. You play Ångström, a scientist in a shrinking suit, guided by BOHR, the suit's lab assistant. Each trip on a shrink pad makes you 1000 times smaller, from a chemistry lab down to the sodium and chloride ions of a single grain of salt.
 
-The game has five levels; finishing each level leads straight into the next.
+The game has five levels; finishing each level leads straight into the next. It opens on a title screen with **Start** (or **Continue** at the first unfinished level), a card for each level marked when finished, sound on or off, credits, and, once all five levels are done, a way to look up the completion code again. A link with `?level=N` (for example `?level=4`) skips the title screen and opens that level.
 
 **Level 1: Scale Drop**
 
