@@ -333,7 +333,7 @@ const Sound = (() => {
 
 // Optional robot voice for Robo-Lab: browser text-to-speech with original lines.
 const Voice = (() => {
-  let on = store.get('ca_voice', true), last = 0;
+  let on = store.get('ca_voice', false), last = 0;
   const lines = {
     enter: ['Intruder in the lab.', 'Human detected. Begin quiz.', 'Scientist located.', 'Prepare for review.'],
     wrong: ['Incorrect, human.', 'Wrong term.', 'Check your notes.', 'Error. Error.'],
