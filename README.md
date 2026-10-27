@@ -61,13 +61,13 @@ Atomic-mass answers must be within 0.02 amu, because a 2% margin would also acce
 
 Line wavelengths come from the NIST [Atomic Spectra Database](https://physics.nist.gov/asd); the flame colors of strontium and copper follow Baldwin et al., *J. Chem. Educ.* **2010**, *87*, 790–792.
 
-**Level 5: Electron Shells** (sections 5.3 to 5.6, and the octet from 6.1; stops at calcium, with 4s filling before 3d).
+**Level 5: Electron Shells** (sections 5.3 to 5.6, and the octet from 6.1; goes up to krypton, element 36, with 4s filling before 3d and no f electrons).
 
 | Part | Your height | What it practices |
 | --- | --- | --- |
 | Shell Hall | 1.85 pm | Energy levels, sublevels (s, p, d, f), orbitals and their shapes, and how many electrons each holds, then a typed calculation |
-| Orbital Builder | 1.85 pm | Orbital diagrams and electron configurations for oxygen, sodium, phosphorus, potassium, and calcium (boss), including abbreviated forms such as [Ne] 3s<sup>1</sup> |
-| Periodic table wall (back in the lab) | 1.85 m | s and p blocks, valence electrons, Lewis symbols, and the octet: why sodium and chlorine form Na<sup>+</sup> and Cl<sup>−</sup>; boss: identify a mystery element and its ion |
+| Orbital Builder | 1.85 pm | Orbital diagrams and electron configurations for oxygen, sodium, phosphorus, potassium, calcium, and iron (boss: [Ar] 4s<sup>2</sup> 3d<sup>6</sup>), including abbreviated forms such as [Ne] 3s<sup>1</sup> |
+| Periodic table wall (back in the lab) | 1.85 m | A table of the first 36 elements: s, p and d blocks, valence electrons, Lewis symbols, and the octet: why sodium and chlorine form Na<sup>+</sup> and Cl<sup>−</sup>; boss: identify a mystery element and its ion |
 
 Ground-state electron configurations were checked against the NIST [Atomic Spectra Database](https://physics.nist.gov/asd).
 
