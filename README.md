@@ -7,6 +7,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 | Topic | Activity | Type |
 | --- | --- | --- |
 | Scale, metric prefixes, scientific notation, atoms, ions, isotopes, atomic mass, light, energy levels, and electron configurations | [Smaller Than Small](https://neogio73.github.io/CHM1025/smaller-than-small/) | Game (3D, WebGL) |
+| Balancing equations, stoichiometry, and Lewis structures | [Retro Reactions](https://neogio73.github.io/CHM1025/retro-reactions/) | Game (four retro arcade stages, extra credit) |
 | Bonding, shapes, polarity, and intermolecular forces (Ch. 10) | [Escape from Lewis Manor](https://neogio73.github.io/CHM1025/lewis-manor/) | Game (Halloween) |
 | Course policies in the syllabus | [Beaker Catch](https://neogio73.github.io/CHM1025/beaker-catch/) | Game (first week, ungraded) |
 | Key terms from Chapters 1–12 and 14 | [Periodic Panic](https://neogio73.github.io/CHM1025/periodic-panic/) | Game (vocabulary review, ungraded; six arcade games in one) |
@@ -79,6 +80,19 @@ Ground-state electron configurations were checked against the NIST [Atomic Spect
 - **Extra credit.** After Level 5, a student who has finished all five levels types their D2L username and gets a completion code (like `STS-XXXX-XXXX`) that only matches that username. They submit the username and code in D2L. If a level is missing, the screen lists it instead.
 
 The game needs a computer with a browser that supports WebGL 2, which covers current versions of Chrome, Edge, Firefox, and Safari. The first load downloads about 31 MB.
+
+## Retro Reactions
+
+A review game in four retro arcade stages, each in the spirit of a 1980s arcade genre:
+
+| Stage | Game | What it practices |
+| --- | --- | --- |
+| 1 | Crater Patrol (a moon-buggy side-scroller) | Balancing equations |
+| 2 | River Run (a river-canyon shooter) | Stoichiometry |
+| 3 | Bond Defender (a horizontal defense shooter) | Lewis structures |
+| 4 | Reaction Brawl (a one-on-one arcade showdown) | All three, in five fights with the Reaction Gang and then the final boss, Lord Barkium (Ba) |
+
+Short intro clips play before and between the stages, and students can skip them. Finishing all four stages is worth 8 points of extra credit. The mission report asks for the student's **D2L username** (the name they log in to D2L with, not their email) and shows a completion code like `RR-XXXX-XXXX`. To get credit, students type their D2L username and the code into the Retro Reactions assignment in D2L; there is nothing to upload. The Certificate of Completion is still there to download as a keepsake, but downloading it is optional. After each stage and at the end, students can rate the game from 1 to 5 stars; the ratings are anonymous.
 
 ## Escape from Lewis Manor
 
@@ -207,6 +221,8 @@ To check a later part without replaying from the start, add `?zone=1`, `?zone=2`
 
 Escape from Lewis Manor is a single file, [`lewis-manor/index.html`](lewis-manor/index.html), with its art and sound made in code; it loads three fonts from Google Fonts and opens straight from the file with a double-click.
 
+Retro Reactions is a single file, [`retro-reactions/index.html`](retro-reactions/index.html), with its intro clips beside it. It is built outside this repository and replaced as a whole, so edits made to it here would be lost. The same game also has its own repository, [NeoGio73/retro-reactions](https://github.com/NeoGio73/retro-reactions), which serves it at `https://neogio73.github.io/retro-reactions/`; both copies are kept, with the same contents, so links already posted keep working. Both are on the same site, so a student's progress carries over between them. [`retro-reactions/banner.html`](retro-reactions/banner.html) is the animated trailer banner for the D2L announcement (embed it in an iframe); it plays `trailer.mp4` muted, and viewers can turn the sound on.
+
 Beaker Catch is a single file, [`beaker-catch/index.html`](beaker-catch/index.html). The statements and settings are in a block at the top of the file: where students find the syllabus (`syllabusNote`), an optional direct link to it (`syllabusUrl`), the number of statements per game, and the bonus round. The bonus answer is caffeine, drawn small at the bottom of the Falcon Online Forgiveness section of the syllabus. If the syllabus in D2L doesn't have the drawing, set `bonus.enabled` to `false`. To show it in a D2L announcement, add this in the HTML editor:
 
 ```html
@@ -231,3 +247,4 @@ Spring to Sea, in [`spring-to-sea/`](spring-to-sea/), is built the same way: a U
 - The hero is the [Sci Fi Space Soldier](https://assetstore.unity.com/packages/3d/characters/humanoids/sci-fi/sci-fi-space-soldier-polygonr-66384) model by PolygonR from the Unity Asset Store, recolored. Its animations are from [Mixamo](https://www.mixamo.com/).
 - In Spring to Sea, the paddleboard is "Colorfull sup board with fin" by Ernest Szarek ([BlendKit](https://blendkit.art/), royalty free); the paddler and the base paddling motion are from [Mixamo](https://www.mixamo.com/); the water, river, and grass rendering use [Stylized Water 3](https://assetstore.unity.com/packages/vfx/shaders/stylized-water-3-287769) and the [Stylized Grass Shader](https://assetstore.unity.com/packages/vfx/shaders/stylized-grass-shader-143830) by Staggart Creations from the Unity Asset Store. The wildlife and bank vegetation come from [Poly Pizza](https://poly.pizza/): ["Oak Tree"](https://poly.pizza/m/56cDueZB7TR) by Esdras Paravizo (CC-BY 3.0), ["Manatee"](https://poly.pizza/m/7nDfJjW0Csq) and ["Dolphin"](https://poly.pizza/m/1y2iPj1CFg7) by Poly by Google (CC-BY 3.0), and public-domain (CC0) trees, bushes, fish, and shark by Quaternius and Kenney. Alastair is a real dog.
 - Periodic Panic embeds two fonts in its page so it loads nothing from outside: [VT323](https://fonts.google.com/specimen/VT323) by Peter Hull and [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) by CodeMan38, both under the [SIL Open Font License 1.1](https://openfontlicense.org/), which permits embedding. Its art, music, and sound effects are made in code.
+- Retro Reactions is an original game in the spirit of 1980s arcade genres; its characters, artwork, sound, and intro clips were made for it. The people whose likenesses appear in the Reaction Gang gave their permission, and those likenesses are not licensed for reuse outside the game. Lord Barkium is the author's dog, Alastair. It uses the fonts Oxanium, Silkscreen, and Atkinson Hyperlegible from Google Fonts (SIL Open Font License).
