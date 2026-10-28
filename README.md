@@ -77,7 +77,7 @@ Ground-state electron configurations were checked against the NIST [Atomic Spect
 - **Wrong answers** give a hint, then a worked example with different numbers. Typed answers are accepted within 2%, except atomic masses, which must be within 0.02 amu.
 - **Sound** is on by default. Press <kbd>M</kbd> to mute or unmute.
 - **Nothing is sent anywhere.** The mission report at the end of each level shows how many checkpoints were right on the first try. The browser remembers which levels are finished, so students can stop and come back later on the same computer and browser.
-- **Extra credit.** After Level 5, a student who has finished all five levels types their D2L username and gets a completion code (like `STS-XXXX-XXXX`) that only matches that username. They submit the username and code in D2L. If a level is missing, the screen lists it instead.
+- **Extra credit: 5 points, all or nothing.** After Level 5, a student who has finished all five levels types their D2L username and gets a completion code (like `STS-XXXX-XXXX`) that only matches that username. They submit the username and code in D2L. If a level is missing, the screen lists it instead, and there is no partial credit.
 
 The game needs a computer with a browser that supports WebGL 2, which covers current versions of Chrome, Edge, Firefox, and Safari. The first load downloads about 31 MB.
 
