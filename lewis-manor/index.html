@@ -4594,8 +4594,10 @@ const IMF_MOLS = [
   ['CF₄', 'disp', 'CF₄ is nonpolar (tetrahedral, dipoles cancel): dispersion forces only.'], ['O₂', 'disp', 'O₂ is nonpolar: dispersion forces only.']
 ];
 function towerForces(host, api) {
-  const items = shuffle([...['hb', 'dd', 'disp'].map(k => pick(IMF_MOLS.filter(m => m[1] === k))), ...shuffle(IMF_MOLS).slice(0, 4)])
-    .filter((m, i, a) => a.findIndex(x => x[0] === m[0]) === i).slice(0, 5);
+  // one molecule of each force class is guaranteed; two more distinct molecules fill the five clumps
+  const must = ['hb', 'dd', 'disp'].map(k => pick(IMF_MOLS.filter(m => m[1] === k)));
+  const extra = shuffle(IMF_MOLS).filter(m => !must.some(x => x[0] === m[0])).slice(0, 2);
+  const items = shuffle([...must, ...extra]);
   header(host, 'What holds them together?',
     'Molecules climb the Tower in clumps, held by <b>intermolecular forces</b>. Name the major force between the molecules of each one. Five clumps climb the stairs.');
   const holder = document.createElement('div'); holder.className = 'stack'; host.appendChild(holder);
@@ -4652,7 +4654,7 @@ const MP_PAIRS = [
   ['H₂O', 'H₂Se', 'H₂O', 'H₂O forms hydrogen bonds; H₂Se cannot.'],
   ['NH₃', 'PH₃', 'NH₃', 'NH₃ forms hydrogen bonds; PH₃ cannot.'],
   ['F₂', 'HF', 'HF', 'HF forms hydrogen bonds; F₂ has only dispersion forces.'],
-  ['Br₂', 'PBr₃', 'PBr₃', 'PBr₃ is polar (dipole–dipole); Br₂ is nonpolar (dispersion only).'],
+  ['Cl₂', 'PCl₃', 'PCl₃', 'PCl₃ is polar (dipole–dipole); Cl₂ is nonpolar (dispersion only). PCl₃ melts at −94 °C and boils at 76 °C; Cl₂ melts at −102 °C and boils at −34 °C.'],
   ['CH₄', 'CH₃OH', 'CH₃OH', 'CH₃OH forms hydrogen bonds; CH₄ has only dispersion forces.'],
   ['H₂', 'HCl', 'HCl', 'HCl is polar (dipole–dipole); H₂ has only dispersion forces.'],
   ['Cl₂', 'Br₂', 'Br₂', 'Both are nonpolar, but Br₂ is larger, with more electrons and stronger dispersion forces (Br₂ melts at −7 °C, Cl₂ at −101 °C).']

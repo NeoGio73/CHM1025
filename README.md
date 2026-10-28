@@ -120,7 +120,7 @@ The game has sound, so turn it on. It contains mild, cartoon-style jump scares. 
 
 ## Beaker Catch
 
-A short game for the first week that sends students to the syllabus. True and false statements about course policies fall from the top of the screen. Catch the true ones in the beaker and let the false ones splash on the bench. Each game draws 10 statements from a pool of 38, so it changes every time.
+A short game for the first week that sends students to the syllabus. True and false statements about course policies fall from the top of the screen. Catch the true ones in the beaker and let the false ones splash on the bench. Each game draws 10 statements from a pool of 39, so it changes every time.
 
 - **Move** the beaker by dragging, or with the <kbd>←</kbd> <kbd>→</kbd> keys. It works on phones and computers.
 - **Wrong answers** show what the syllabus says and which section to read. The end screen lists them again.
