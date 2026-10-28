@@ -1,0 +1,95 @@
+{
+ "draws": 2000,
+ "statements": 39,
+ "checks": {
+  "field:text non-empty": {
+   "pass": 39,
+   "fail": 0
+  },
+  "field:fix non-empty": {
+   "pass": 39,
+   "fail": 0
+  },
+  "field:section non-empty": {
+   "pass": 39,
+   "fail": 0
+  },
+  "field:topic non-empty": {
+   "pass": 39,
+   "fail": 0
+  },
+  "field:isTrue boolean": {
+   "pass": 39,
+   "fail": 0
+  },
+  "text length <= 80 chars (author guideline ~70)": {
+   "pass": 39,
+   "fail": 0
+  },
+  "no duplicate statement text": {
+   "pass": 39,
+   "fail": 0
+  },
+  "text does not contain the words true/false": {
+   "pass": 39,
+   "fail": 0
+  },
+  "false statement: fix differs from text": {
+   "pass": 19,
+   "fail": 0
+  },
+  "enough topics for a full round": {
+   "pass": 1,
+   "fail": 0
+  },
+  "bonus: exactly one choice matches answer": {
+   "pass": 1,
+   "fail": 0
+  },
+  "bonus: choice ids unique": {
+   "pass": 1,
+   "fail": 0
+  },
+  "bonus: question does not contain the answer name": {
+   "pass": 1,
+   "fail": 0
+  },
+  "draw: exactly roundsPerGame statements": {
+   "pass": 2000,
+   "fail": 0
+  },
+  "draw: 10 distinct statements": {
+   "pass": 2000,
+   "fail": 0
+  },
+  "draw: 10 distinct texts": {
+   "pass": 2000,
+   "fail": 0
+  },
+  "draw: no two statements share a topic": {
+   "pass": 2000,
+   "fail": 0
+  },
+  "draw: true/false split is 6/4": {
+   "pass": 2000,
+   "fail": 0
+  },
+  "draw: every statement is from the pool": {
+   "pass": 2000,
+   "fail": 0
+  },
+  "draw: isTrue flag identical to the pool entry": {
+   "pass": 20000,
+   "fail": 0
+  },
+  "statement keeps one flag across all draws": {
+   "pass": 39,
+   "fail": 0
+  }
+ },
+ "faults": [],
+ "trueCounts": {
+  "6": 2000
+ },
+ "neverDrawn": []
+}

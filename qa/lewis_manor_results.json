@@ -1,0 +1,831 @@
+{
+ "draws": 300,
+ "rooms": [
+  "I The Foyer (Lewis Symbols): 4 trials",
+  "II The Crypt (Lewis Structures): 4 trials",
+  "III The Phantom Gallery (Resonance Structures): 4 trials",
+  "IV The Topiary Garden (Shapes of Molecules (VSEPR)): 4 trials",
+  "V The Séance Parlor (Electronegativity and Bond Polarity): 4 trials",
+  "VI The Hall of Mirrors (Polarity of Molecules): 3 trials",
+  "VII The Tower (Intermolecular Forces): 4 trials"
+ ],
+ "checks": {
+  "foyerValence10: element in table": {
+   "pass": 2700,
+   "fail": 0
+  },
+  "foyerValence10: game valence = reference": {
+   "pass": 2700,
+   "fail": 0
+  },
+  "foyerValence10: prompt does not state the count": {
+   "pass": 2700,
+   "fail": 0
+  },
+  "foyerValence10: 8 electron spots": {
+   "pass": 2700,
+   "fail": 0
+  },
+  "foyerValence10: Check gives good iff count = valence": {
+   "pass": 2700,
+   "fail": 0
+  },
+  "feedback text has no undefined/NaN": {
+   "pass": 63926,
+   "fail": 0
+  },
+  "foyerValence10: good message states the right group and count": {
+   "pass": 295,
+   "fail": 0
+  },
+  "foyerBonds: Lewis symbol shows the right number of dots": {
+   "pass": 900,
+   "fail": 0
+  },
+  "foyerBonds: exactly one option matches the recomputed answer": {
+   "pass": 900,
+   "fail": 0
+  },
+  "foyerBonds: option labels unique": {
+   "pass": 900,
+   "fail": 0
+  },
+  "foyerBonds: wrong option rejected": {
+   "pass": 2700,
+   "fail": 0
+  },
+  "foyerBonds: recomputed answer accepted": {
+   "pass": 900,
+   "fail": 0
+  },
+  "foyerBonds: three different elements": {
+   "pass": 300,
+   "fail": 0
+  },
+  "foyerShare: 14 electrons drawn (7 per atom)": {
+   "pass": 300,
+   "fail": 0
+  },
+  "foyerShare: each atom has exactly one unpaired electron": {
+   "pass": 600,
+   "fail": 0
+  },
+  "foyerShare: paired electron rejected": {
+   "pass": 600,
+   "fail": 0
+  },
+  "foyerShare: unpaired electron accepted silently": {
+   "pass": 600,
+   "fail": 0
+  },
+  "foyerShare: bonded view appeared with 4 options": {
+   "pass": 300,
+   "fail": 0
+  },
+  "foyerShare: exactly one option matches the recomputed answer": {
+   "pass": 300,
+   "fail": 0
+  },
+  "foyerShare: option labels unique": {
+   "pass": 300,
+   "fail": 0
+  },
+  "foyerShare: wrong option rejected": {
+   "pass": 900,
+   "fail": 0
+  },
+  "foyerShare: recomputed answer accepted": {
+   "pass": 300,
+   "fail": 0
+  },
+  "foyerLonePairs: lone-pair count = reference": {
+   "pass": 300,
+   "fail": 0
+  },
+  "foyerLonePairs: bonding pair rejected": {
+   "pass": 625,
+   "fail": 0
+  },
+  "foyerLonePairs: partial progress is silent": {
+   "pass": 275,
+   "fail": 0
+  },
+  "foyerLonePairs: last lone pair gives good": {
+   "pass": 300,
+   "fail": 0
+  },
+  "foyerLonePairs: good message counts agree": {
+   "pass": 300,
+   "fail": 0
+  },
+  "cryptCount: formula in reference": {
+   "pass": 900,
+   "fail": 0
+  },
+  "cryptCount: wrong total rejected": {
+   "pass": 2700,
+   "fail": 0
+  },
+  "cryptCount: reference total accepted": {
+   "pass": 900,
+   "fail": 0
+  },
+  "cryptCount: message shows the same total": {
+   "pass": 900,
+   "fail": 0
+  },
+  "cryptCount: one neutral + two ions, all distinct": {
+   "pass": 300,
+   "fail": 0
+  },
+  "cryptIonic: four drawings": {
+   "pass": 300,
+   "fail": 0
+  },
+  "cryptIonic: the four variants are all different": {
+   "pass": 300,
+   "fail": 0
+  },
+  "cryptIonic: correct drawing has the right charges and an octet on the anion": {
+   "pass": 300,
+   "fail": 0
+  },
+  "cryptIonic: wrong drawing rejected": {
+   "pass": 900,
+   "fail": 0
+  },
+  "cryptIonic: correct drawing accepted": {
+   "pass": 300,
+   "fail": 0
+  },
+  "cryptIonic: good message names the ions": {
+   "pass": 300,
+   "fail": 0
+  },
+  "cryptBuild: every builder molecule has an accepted octet structure": {
+   "pass": 15,
+   "fail": 0
+  },
+  "cryptBuild: bare skeleton rejected": {
+   "pass": 286,
+   "fail": 0
+  },
+  "cryptBuild: skeleton message reports the drawn count": {
+   "pass": 286,
+   "fail": 0
+  },
+  "cryptBuild: an empty lone-pair spot is available where the solution needs one": {
+   "pass": 1619,
+   "fail": 0
+  },
+  "cryptBuild: tally shows the full electron count": {
+   "pass": 300,
+   "fail": 0
+  },
+  "cryptBuild: recomputed octet structure accepted": {
+   "pass": 300,
+   "fail": 0
+  },
+  "cryptBuild: good message counts agree": {
+   "pass": 300,
+   "fail": 0
+  },
+  "galleryCatch: resonance form has the right electron count": {
+   "pass": 10,
+   "fail": 0
+  },
+  "galleryCatch: every atom in each resonance form has an octet": {
+   "pass": 36,
+   "fail": 0
+  },
+  "galleryCatch: hanging before every form is captured is rejected": {
+   "pass": 300,
+   "fail": 0
+  },
+  "galleryCatch: one hit area per bond": {
+   "pass": 300,
+   "fail": 0
+  },
+  "galleryCatch: still incomplete is rejected": {
+   "pass": 173,
+   "fail": 0
+  },
+  "galleryCatch: shelf shows every form": {
+   "pass": 300,
+   "fail": 0
+  },
+  "galleryCatch: all forms captured is accepted": {
+   "pass": 300,
+   "fail": 0
+  },
+  "galleryCatch: message states the number of forms": {
+   "pass": 300,
+   "fail": 0
+  },
+  "galleryRealFake: exactly one option matches the recomputed answer": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "galleryRealFake: option labels unique": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "galleryRealFake: wrong option rejected": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "galleryRealFake: recomputed answer accepted": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "galleryRealFake: four distinct pairs": {
+   "pass": 300,
+   "fail": 0
+  },
+  "galleryWhich: four distinct formulas, 2 with resonance and 2 without": {
+   "pass": 300,
+   "fail": 0
+  },
+  "galleryWhich: selecting nothing is rejected": {
+   "pass": 300,
+   "fail": 0
+  },
+  "galleryWhich: one flipped tile is rejected": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "galleryWhich: the reference set is accepted": {
+   "pass": 300,
+   "fail": 0
+  },
+  "galleryWhich: explanation names all four": {
+   "pass": 300,
+   "fail": 0
+  },
+  "galleryTruth: four options": {
+   "pass": 600,
+   "fail": 0
+  },
+  "galleryTruth: exactly one option matches the recomputed answer": {
+   "pass": 600,
+   "fail": 0
+  },
+  "galleryTruth: option labels unique": {
+   "pass": 600,
+   "fail": 0
+  },
+  "galleryTruth: wrong option rejected": {
+   "pass": 1800,
+   "fail": 0
+  },
+  "galleryTruth: recomputed answer accepted": {
+   "pass": 600,
+   "fail": 0
+  },
+  "vsShape = reference (groups, bonded, name, angle)": {
+   "pass": 28,
+   "fail": 0
+  },
+  "gardenGroups: drawn molecule has the right electron count": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenGroups: exactly one option matches the recomputed answer": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenGroups: option labels unique": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenGroups: wrong option rejected": {
+   "pass": 1800,
+   "fail": 0
+  },
+  "gardenGroups: recomputed answer accepted": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenGroups: feedback names the formula": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenGroups: three hedges of three different shapes": {
+   "pass": 300,
+   "fail": 0
+  },
+  "gardenTrim: exactly one option matches the recomputed answer": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenTrim: option labels unique": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenTrim: wrong option rejected": {
+   "pass": 4500,
+   "fail": 0
+  },
+  "gardenTrim: recomputed answer accepted": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenTrim: feedback names the formula": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenTrim: three hedges of three different shapes": {
+   "pass": 300,
+   "fail": 0
+  },
+  "gardenAngles: exactly one option matches the recomputed answer": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenAngles: option labels unique": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenAngles: wrong option rejected": {
+   "pass": 1800,
+   "fail": 0
+  },
+  "gardenAngles: recomputed answer accepted": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenAngles: feedback names the formula": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenAngles: three hedges of three different shapes": {
+   "pass": 300,
+   "fail": 0
+  },
+  "gardenNotes: exactly one option matches the recomputed answer": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenNotes: option labels unique": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenNotes: wrong option rejected": {
+   "pass": 4500,
+   "fail": 0
+  },
+  "gardenNotes: recomputed answer accepted": {
+   "pass": 900,
+   "fail": 0
+  },
+  "gardenNotes: three different descriptions": {
+   "pass": 300,
+   "fail": 0
+  },
+  "EN table = Timberlake Figure 10.2 values": {
+   "pass": 36,
+   "fail": 0
+  },
+  "EN table has no extra elements": {
+   "pass": 1,
+   "fail": 0
+  },
+  "POOL classification = reference cutoffs": {
+   "pass": 39,
+   "fail": 0
+  },
+  "parlorBoard: both atoms in the EN table": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "parlorBoard: exactly one option matches the recomputed answer": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "parlorBoard: option labels unique": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "parlorBoard: wrong option rejected": {
+   "pass": 2400,
+   "fail": 0
+  },
+  "parlorBoard: recomputed answer accepted": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "parlorBoard: shown arithmetic is right and uses the table values": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "parlorBoard: message names the class": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "parlorBoard: four different bonds": {
+   "pass": 300,
+   "fail": 0
+  },
+  "parlorBoard: all three classes appear": {
+   "pass": 300,
+   "fail": 0
+  },
+  "parlorDeltas: bond is covalent (not ionic)": {
+   "pass": 900,
+   "fail": 0
+  },
+  "parlorDeltas (charges): exactly one option matches the recomputed answer": {
+   "pass": 900,
+   "fail": 0
+  },
+  "parlorDeltas (charges): option labels unique": {
+   "pass": 900,
+   "fail": 0
+  },
+  "parlorDeltas (charges): wrong option rejected": {
+   "pass": 1800,
+   "fail": 0
+  },
+  "parlorDeltas (charges): recomputed answer accepted": {
+   "pass": 300,
+   "fail": 0
+  },
+  "parlorDeltas: nonpolar message gives ΔEN": {
+   "pass": 300,
+   "fail": 0
+  },
+  "parlorDeltas: polar bond has no EN tie": {
+   "pass": 600,
+   "fail": 0
+  },
+  "parlorDeltas (charges): recomputed answer accepted (silently, next step follows)": {
+   "pass": 600,
+   "fail": 0
+  },
+  "parlorDeltas (arrow): exactly one option matches the recomputed answer": {
+   "pass": 600,
+   "fail": 0
+  },
+  "parlorDeltas (arrow): option labels unique": {
+   "pass": 600,
+   "fail": 0
+  },
+  "parlorDeltas (arrow): wrong option rejected": {
+   "pass": 600,
+   "fail": 0
+  },
+  "parlorDeltas (arrow): recomputed answer accepted": {
+   "pass": 600,
+   "fail": 0
+  },
+  "parlorDeltas: arrow message gives ΔEN and the δ− atom": {
+   "pass": 600,
+   "fail": 0
+  },
+  "parlorDeltas: two polar bonds and one nonpolar": {
+   "pass": 300,
+   "fail": 0
+  },
+  "parlorDeltas: three different bonds": {
+   "pass": 300,
+   "fail": 0
+  },
+  "AURA_SETS: molecules classified as the reference": {
+   "pass": 4,
+   "fail": 0
+  },
+  "parlorAuras: three auras of three kinds": {
+   "pass": 300,
+   "fail": 0
+  },
+  "parlorAuras: three molecules of three kinds": {
+   "pass": 300,
+   "fail": 0
+  },
+  "parlorAuras: wrong assignment rejected": {
+   "pass": 300,
+   "fail": 0
+  },
+  "parlorAuras: reference assignment accepted": {
+   "pass": 300,
+   "fail": 0
+  },
+  "parlorRank: three bonds with distinct ΔEN": {
+   "pass": 300,
+   "fail": 0
+  },
+  "parlorRank: wrong order rejected": {
+   "pass": 1500,
+   "fail": 0
+  },
+  "parlorRank: reference order accepted": {
+   "pass": 300,
+   "fail": 0
+  },
+  "parlorRank: message lists the bonds from most to least polar": {
+   "pass": 300,
+   "fail": 0
+  },
+  "molPolarity = reference for every POLAR_KEYS molecule": {
+   "pass": 22,
+   "fail": 0
+  },
+  "mirrorCancel: formula in reference": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "mirrorCancel: exactly one option matches the recomputed answer": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "mirrorCancel: option labels unique": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "mirrorCancel: wrong option rejected": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "mirrorCancel: recomputed answer accepted": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "mirrorCancel: explanation ends with the same verdict": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "mirrorCancel: stated shape = reference": {
+   "pass": 1072,
+   "fail": 0
+  },
+  "mirrorCancel: four different molecules, two polar and two nonpolar": {
+   "pass": 300,
+   "fail": 0
+  },
+  "mirrorPairs: exactly one of the pair is polar (reference)": {
+   "pass": 900,
+   "fail": 0
+  },
+  "mirrorPairs: nonpolar twin rejected": {
+   "pass": 900,
+   "fail": 0
+  },
+  "mirrorPairs: polar twin accepted": {
+   "pass": 900,
+   "fail": 0
+  },
+  "mirrorPairs: three different pairs": {
+   "pass": 300,
+   "fail": 0
+  },
+  "mirrorTwoQuestions (step 1): exactly one option matches the recomputed answer": {
+   "pass": 600,
+   "fail": 0
+  },
+  "mirrorTwoQuestions (step 1): option labels unique": {
+   "pass": 600,
+   "fail": 0
+  },
+  "mirrorTwoQuestions (step 1): wrong option rejected": {
+   "pass": 600,
+   "fail": 0
+  },
+  "mirrorTwoQuestions (step 1): recomputed answer accepted (silently, next step follows)": {
+   "pass": 442,
+   "fail": 0
+  },
+  "mirrorTwoQuestions: step 2 appears for polar bonds": {
+   "pass": 442,
+   "fail": 0
+  },
+  "mirrorTwoQuestions: step 2 names the reference shape": {
+   "pass": 442,
+   "fail": 0
+  },
+  "mirrorTwoQuestions (step 2): exactly one option matches the recomputed answer": {
+   "pass": 442,
+   "fail": 0
+  },
+  "mirrorTwoQuestions (step 2): option labels unique": {
+   "pass": 442,
+   "fail": 0
+  },
+  "mirrorTwoQuestions (step 2): wrong option rejected": {
+   "pass": 442,
+   "fail": 0
+  },
+  "mirrorTwoQuestions (step 2): recomputed answer accepted": {
+   "pass": 442,
+   "fail": 0
+  },
+  "mirrorTwoQuestions: two different molecules": {
+   "pass": 300,
+   "fail": 0
+  },
+  "mirrorTwoQuestions (step 1): recomputed answer accepted": {
+   "pass": 158,
+   "fail": 0
+  },
+  "mirrorTwoQuestions: no step 2 for nonpolar bonds": {
+   "pass": 158,
+   "fail": 0
+  },
+  "IMF_MOLS = reference": {
+   "pass": 18,
+   "fail": 0
+  },
+  "MP_PAIRS winner = reference": {
+   "pass": 8,
+   "fail": 0
+  },
+  "towerForces: five clumps, as the prompt promises": {
+   "pass": 300,
+   "fail": 0
+  },
+  "towerForces: formula in reference": {
+   "pass": 1500,
+   "fail": 0
+  },
+  "towerForces: exactly one option matches the recomputed answer": {
+   "pass": 1500,
+   "fail": 0
+  },
+  "towerForces: option labels unique": {
+   "pass": 1500,
+   "fail": 0
+  },
+  "towerForces: wrong option rejected": {
+   "pass": 3000,
+   "fail": 0
+  },
+  "towerForces: recomputed answer accepted": {
+   "pass": 1500,
+   "fail": 0
+  },
+  "towerForces: next clump offered": {
+   "pass": 1200,
+   "fail": 0
+  },
+  "towerForces: distinct molecules": {
+   "pass": 300,
+   "fail": 0
+  },
+  "towerForces: all three forces present (design intent of the generator)": {
+   "pass": 300,
+   "fail": 0
+  },
+  "towerRank: three forces offered": {
+   "pass": 300,
+   "fail": 0
+  },
+  "towerRank: only strongest-to-weakest is accepted": {
+   "pass": 1800,
+   "fail": 0
+  },
+  "towerMelt: pair in reference": {
+   "pass": 900,
+   "fail": 0
+  },
+  "towerMelt: weaker-forces candle rejected": {
+   "pass": 900,
+   "fail": 0
+  },
+  "towerMelt: stronger-forces candle accepted": {
+   "pass": 900,
+   "fail": 0
+  },
+  "towerMelt: three different pairs": {
+   "pass": 300,
+   "fail": 0
+  },
+  "towerWaterBoss: wrong first pick rejected": {
+   "pass": 900,
+   "fail": 0
+  },
+  "towerWaterBoss: δ+ hydrogen accepted": {
+   "pass": 300,
+   "fail": 0
+  },
+  "towerWaterBoss: wrong second pick rejected": {
+   "pass": 600,
+   "fail": 0
+  },
+  "towerWaterBoss: lone pair accepted (no feedback event, question appears)": {
+   "pass": 300,
+   "fail": 0
+  },
+  "towerWaterBoss (question): exactly one option matches the recomputed answer": {
+   "pass": 300,
+   "fail": 0
+  },
+  "towerWaterBoss (question): option labels unique": {
+   "pass": 300,
+   "fail": 0
+  },
+  "towerWaterBoss (question): wrong option rejected": {
+   "pass": 900,
+   "fail": 0
+  },
+  "towerWaterBoss (question): recomputed answer accepted": {
+   "pass": 300,
+   "fail": 0
+  }
+ },
+ "info": {
+  "foyerValence10": 300,
+  "foyerBonds": 300,
+  "foyerShare": 300,
+  "foyerLonePairs": 300,
+  "cryptCount": 300,
+  "cryptIonic": 300,
+  "builderSolutions": {
+   "H₂O": {
+    "total": 8,
+    "solutions": 1
+   },
+   "NH₃": {
+    "total": 8,
+    "solutions": 1
+   },
+   "CCl₄": {
+    "total": 32,
+    "solutions": 1
+   },
+   "PCl₃": {
+    "total": 26,
+    "solutions": 1
+   },
+   "OF₂": {
+    "total": 20,
+    "solutions": 1
+   },
+   "HCN": {
+    "total": 10,
+    "solutions": 1
+   },
+   "CH₂O": {
+    "total": 12,
+    "solutions": 1
+   },
+   "Cl₂O": {
+    "total": 20,
+    "solutions": 1
+   },
+   "CN⁻": {
+    "total": 10,
+    "solutions": 1
+   },
+   "ClO₃⁻": {
+    "total": 26,
+    "solutions": 1
+   },
+   "OH⁻": {
+    "total": 8,
+    "solutions": 1
+   },
+   "H₃O⁺": {
+    "total": 8,
+    "solutions": 1
+   },
+   "SO₄²⁻": {
+    "total": 32,
+    "solutions": 1
+   },
+   "ClO₂⁻": {
+    "total": 20,
+    "solutions": 1
+   },
+   "NH₄⁺": {
+    "total": 8,
+    "solutions": 1
+   }
+  },
+  "cryptBuild": 300,
+  "galleryCatch": 300,
+  "galleryRealFake": 300,
+  "galleryWhich": 300,
+  "galleryTruth": 300,
+  "gardenGroups": 300,
+  "gardenTrim": 300,
+  "gardenAngles": 300,
+  "gardenNotes": 300,
+  "poolSizes": {
+   "nonpolar": 11,
+   "polar": 17,
+   "ionic": 11
+  },
+  "parlorBoard": 300,
+  "parlorDeltas": 300,
+  "parlorAuras": 300,
+  "parlorRank": 300,
+  "mirrorCancel": 300,
+  "mirrorPairs": 300,
+  "mirrorTwoQuestions": 300,
+  "towerForces": 300,
+  "towerForcesClumps:5": 300,
+  "towerRank": 300,
+  "towerMelt": 300,
+  "towerWaterBoss": 300
+ },
+ "faults": []
+}
