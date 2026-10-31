@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D Periodic Table</title>
+<meta name="description" content="A 3D periodic table for CHM 1025 where every value shows its source.">
+<link rel="stylesheet" href="src/style.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<a class="skip" href="#data-table">Skip to the data table</a>
+<header class="top">
+  <div class="title">
+    <h1>Periodic Table</h1>
+    <p class="sub">Every number shows where it came from. Click an element, then click a value's source.</p>
+  </div>
+  <div class="controls" role="group" aria-label="Display options">
+    <label class="ctl">Show
+      <select id="prop"></select>
+    </label>
+    <label class="ctl check"><input type="checkbox" id="explore"> Explore more properties</label>
+    <div class="seg" role="radiogroup" aria-label="View">
+      <button type="button" role="radio" aria-checked="true" data-view="3d">3D</button>
+      <button type="button" role="radio" aria-checked="false" data-view="table">Table</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section id="view3d" class="view3d" aria-label="3D periodic table">
+    <div class="stage" id="stage">
+      <canvas id="scene" tabindex="0" role="img"
+        aria-label="3D periodic table. Use the arrow keys to move between elements and Enter to open one. A table version is under the Table button."></canvas>
+      <div id="tip" class="tip" hidden></div>
+      <p class="loading" id="loading">Loading data…</p>
+    </div>
+    <div class="legend" id="legend" aria-live="polite"></div>
+  </section>
+
+  <aside id="panel" class="panel" hidden aria-labelledby="p-name" tabindex="-1">
+    <button type="button" class="close" id="p-close" aria-label="Close element details">×</button>
+    <div id="p-body"></div>
+  </aside>
+
+  <section id="tableview" class="tableview" hidden aria-label="Data table">
+    <table id="data-table">
+      <caption id="t-caption"></caption>
+      <thead><tr>
+        <th scope="col"><button type="button" data-sort="Z">Z</button></th>
+        <th scope="col"><button type="button" data-sort="name">Element</button></th>
+        <th scope="col"><button type="button" data-sort="v" id="t-prop">Value</button></th>
+        <th scope="col">Status</th>
+        <th scope="col">Source</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
+
+<dialog id="srcdlg" aria-labelledby="s-title">
+  <div id="s-body"></div>
+  <form method="dialog"><button class="btn">Close</button></form>
+</dialog>
+
+<footer class="foot">
+  <p>Data: NIST Atomic Spectra Database (NIST Standard Reference Data, © U.S. Secretary of Commerce), IUPAC CIAAW,
+  Cordero et al. 2008, Shannon 1976, Alvarez 2013, Mann–Meek–Allen 2000, PubChem. Full citations open from each value.
+  <a href="data/sources.json">All sources (JSON)</a>.</p>
+</footer>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+{
+ "sources": {
+  "nist_asd": {
+   "short": "NIST ASD v5.12",
+   "citation": "Kramida, A., Ralchenko, Yu., Reader, J. and NIST ASD Team (2024). NIST Atomic Spectra Database (version 5.12). National Institute of Standards and Technology, Gaithersburg, MD.",
+   "doi": "10.18434/T4W30F",
+   "url": "https://physics.nist.gov/asd",
+   "table": "Ionization energies of neutral atoms (H I–Hs I): ground shells, ground level, ionization energy",
+   "license": "NIST Standard Reference Data. Copyright protection on this compilation of data has been secured by the Secretary of the U.S. Department of Commerce on behalf of the United States, pursuant to 15 U.S.C. § 290e. Only the individual values used are reproduced here, with attribution.",
+   "retrieved": "2026-10-30"
+  },
+  "ciaaw_2024": {
+   "short": "CIAAW 2024",
+   "citation": "IUPAC Commission on Isotopic Abundances and Atomic Weights (CIAAW). Standard Atomic Weights 2024 and Abridged Standard Atomic Weights 2024.",
+   "url": "https://www.ciaaw.org/atomic-weights.htm",
+   "table": "Standard atomic weights 2024 (intervals and values); abridged standard atomic weights 2024",
+   "license": "Published reference values, cited with attribution.",
+   "retrieved": "2026-10-30"
+  },
+  "cordero2008": {
+   "short": "Cordero et al. 2008",
+   "citation": "Cordero, B.; Gómez, V.; Platero-Prats, A. E.; Revés, M.; Echeverría, J.; Cremades, E.; Barragán, F.; Alvarez, S. Covalent radii revisited. Dalton Trans. 2008, (21), 2832–2838.",
+   "doi": "10.1039/b801115j",
+   "table": "Covalent radii table (pm), Z = 1–96 (table number to be confirmed against the paper)",
+   "via": "mendeleev",
+   "license": "Published values, cited with attribution.",
+   "retrieved": "2026-10-30"
+  },
+  "alvarez2013": {
+   "short": "Alvarez 2013",
+   "citation": "Alvarez, S. A cartography of the van der Waals territories. Dalton Trans. 2013, 42, 8617–8636.",
+   "doi": "10.1039/c3dt50599e",
+   "table": "Table 1, van der Waals radii (Å, shown in pm); values in brackets are rough estimates",
+   "via": "mendeleev",
+   "license": "Published values, cited with attribution.",
+   "retrieved": "2026-10-30"
+  },
+  "vogt2014": {
+   "short": "Vogt & Alvarez 2014",
+   "citation": "Vogt, J.; Alvarez, S. van der Waals radii of noble gases. Inorg. Chem. 2014, 53, 9260–9266.",
+   "doi": "10.1021/ic501364h",
+   "table": "van der Waals radii of Ar, Kr, Xe, Rn (not yet checked against the paper; paywalled)",
+   "via": "mendeleev",
+   "license": "Published values, cited with attribution.",
+   "retrieved": "2026-10-30"
+  },
+  "shannon1976": {
+   "short": "Shannon 1976",
+   "citation": "Shannon, R. D. Revised effective ionic radii and systematic studies of interatomic distances in halides and chalcogenides. Acta Crystallogr. A 1976, 32, 751–767.",
+   "doi": "10.1107/S0567739476001551",
+   "table": "Table 1, effective ionic radii (IR, Å, shown in pm), by charge, coordination number and spin",
+   "via": "mendeleev",
+   "license": "Published values, cited with attribution.",
+   "retrieved": "2026-10-30"
+  },
+  "allen2000": {
+   "short": "Mann, Meek & Allen 2000",
+   "citation": "Mann, J. B.; Meek, T. L.; Allen, L. C. Configuration energies of the main group elements. J. Am. Chem. Soc. 2000, 122, 2780–2783; Mann, J. B.; Meek, T. L.; Knight, E. T.; Capitani, J. F.; Allen, L. C. Configuration energies of the d-block elements. J. Am. Chem. Soc. 2000, 122, 5132–5137 (doi 10.1021/ja9928677).",
+   "doi": "10.1021/ja992866e",
+   "table": "Configuration energies (eV), the basis of Allen's electronegativity scale (not yet checked against the paper; paywalled)",
+   "via": "mendeleev",
+   "license": "Published values, cited with attribution.",
+   "retrieved": "2026-10-30"
+  },
+  "pubchem": {
+   "short": "PubChem Periodic Table",
+   "citation": "National Center for Biotechnology Information. PubChem Periodic Table of Elements. PubChem element records credit Jefferson Lab and Los Alamos National Laboratory (U.S. DOE) for melting point, boiling point and density, and PubChem Elements for Pauling electronegativity.",
+   "url": "https://pubchem.ncbi.nlm.nih.gov/periodic-table/",
+   "table": "PUG REST periodictable/JSON: Electronegativity, MeltingPoint (K), BoilingPoint (K), Density (g/cm³), ElectronConfiguration",
+   "license": "U.S. Government work (NLM; DOE laboratories); see https://www.nlm.nih.gov/copyright.html.",
+   "retrieved": "2026-10-30"
+  },
+  "mendeleev": {
+   "short": "mendeleev 1.3.0",
+   "citation": "Mentel, Ł. mendeleev – A Python resource for properties of chemical elements, ions and isotopes, version 1.3.0. Used as a machine-readable transcription of the original papers named in each source entry.",
+   "url": "https://github.com/lmmentel/mendeleev",
+   "license": "MIT License",
+   "retrieved": "2026-10-30"
+  }
+ },
+ "check_sources": {
+  "pubchem": "PubChem Periodic Table (NCBI)",
+  "mendeleev": "mendeleev 1.3.0 database",
+  "wikipedia_cordero": "Wikipedia, 'Covalent radius' table (independent transcription of Cordero et al. 2008)",
+  "pymatgen_shannon": "pymatgen Shannon_Radii.csv (independent transcription of Shannon 1976)",
+  "pymatgen_radii": "pymatgen radii.csv"
+ }
+}

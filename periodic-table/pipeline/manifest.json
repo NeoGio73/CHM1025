@@ -1,0 +1,50 @@
+{
+  "nist_ie.csv": {
+    "url": "https://physics.nist.gov/cgi-bin/ASD/ie.pl?spectra=H-Og+I&submit=Retrieve+Data&units=1&format=2&order=0&at_num_out=on&sp_name_out=on&ion_charge_out=on&el_name_out=on&seq_out=on&shells_out=on&conf_out=on&level_out=on&ion_conf_out=on&e_out=0&unc_out=on&biblio=on",
+    "sha256": "af1dd19c91b5b62ea1814a1ecac37d928a2b405dd84658a2f09f0dcc5cd0de71",
+    "bytes": 21201,
+    "retrieved": "2026-10-30"
+  },
+  "ciaaw_standard.htm": {
+    "url": "https://www.ciaaw.org/atomic-weights.htm",
+    "sha256": "b48282594b1fb01eee3cbc9d469ce5e3483b628157ea1b09ede33e3476895cf2",
+    "bytes": 21501,
+    "retrieved": "2026-10-30"
+  },
+  "ciaaw_abridged.htm": {
+    "url": "https://www.ciaaw.org/abridged-atomic-weights.htm",
+    "sha256": "f9e9554471749c55a624aec55151922470a7f4104c62811eb194fed9731b907d",
+    "bytes": 18489,
+    "retrieved": "2026-10-30"
+  },
+  "pubchem_periodictable.json": {
+    "url": "https://pubchem.ncbi.nlm.nih.gov/rest/pug/periodictable/JSON",
+    "sha256": "ff0f75976583b8a6493b18d0b42e83e1b68bd6e112b45d33578d98494ed5d321",
+    "bytes": 44488,
+    "retrieved": "2026-10-30"
+  },
+  "mendeleev-1.3.0.whl": {
+    "url": "https://files.pythonhosted.org/packages/77/c0/c6fe26d8eda3b6eb1c4e3265ced9879dd95f0ca51d3569b042781f98ea76/mendeleev-1.3.0-py3-none-any.whl",
+    "sha256": "76f415767b654634e51dead755513ef431abf200e892eab8468aa659ff218d1c",
+    "bytes": 1380301,
+    "retrieved": "2026-10-30"
+  },
+  "pymatgen_shannon_radii.csv": {
+    "url": "https://raw.githubusercontent.com/materialsproject/pymatgen/main/dev_scripts/periodic_table_resources/Shannon_Radii.csv",
+    "sha256": "d71d42ef465b7ab48bc9fec7e60c7b2fe500b5787b107d1c813410eb3581b52e",
+    "bytes": 10352,
+    "retrieved": "2026-10-30"
+  },
+  "pymatgen_radii.csv": {
+    "url": "https://raw.githubusercontent.com/materialsproject/pymatgen/main/dev_scripts/periodic_table_resources/radii.csv",
+    "sha256": "5257c8bbb552354580127aed5a13245d4e8d8f57ccee414838cd3e769dafb742",
+    "bytes": 2192,
+    "retrieved": "2026-10-30"
+  },
+  "wikipedia_covalent_radius.txt": {
+    "url": "https://en.wikipedia.org/w/index.php?title=Covalent_radius&action=raw",
+    "sha256": "617a4b2d3eeef8a7c26809499a2736e738b50e99877c5e684ebaa759d28a13b9",
+    "bytes": 15495,
+    "retrieved": "2026-10-30"
+  }
+}
