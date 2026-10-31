@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { buildMuseum } from './museum.js';
+import { buildCosmos } from './cosmos.js';
 
 // ------------------------------------------------------------------ data
 const [DATA, SRC] = await Promise.all([
@@ -104,17 +104,17 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 300);
 const TARGET_PLAIN = new THREE.Vector3(0, 0, 1.0);
-const TARGET_MUSEUM = new THREE.Vector3(0, 1.1, -0.2); // aims a little higher so the wall placard shows
+const TARGET_COSMOS = new THREE.Vector3(0, 0.6, 0.6);
 const TARGET = TARGET_PLAIN.clone();
-// looking down at the table from the front; a little lower in the museum so the room shows
+// looking down at the table from the front; a little lower in space so the sky shows
 const VIEW_PLAIN = new THREE.Vector3(0, 0.9, 0.44).normalize();
-const VIEW_MUSEUM = new THREE.Vector3(0, 0.72, 0.69).normalize();
+const VIEW_COSMOS = new THREE.Vector3(0, 0.72, 0.69).normalize();
 let VIEW_DIR = VIEW_PLAIN;
 camera.position.copy(TARGET).addScaledVector(VIEW_DIR, 24);
 const controls = new OrbitControls(camera, canvas);
 controls.target.copy(TARGET);
 controls.enableDamping = true;
-controls.maxPolarAngle = Math.PI * 0.47;
+controls.maxPolarAngle = Math.PI * 0.62; // in space you may look up from below the platform
 controls.minDistance = 6;
 controls.maxDistance = 70;
 
@@ -124,28 +124,29 @@ const sun = new THREE.DirectionalLight(0xffffff, 1.6);
 sun.position.set(-6, 14, 10);
 scene.add(sun);
 
-// Background setting: the museum gallery, or a plain backdrop ("Simple background", remembered per browser).
+// Background setting: "cosmic forge" (stars and nebula), or a plain backdrop ("Simple background", remembered
+// per browser). Students who ask their system for reduced motion get a still sky, no twinkle and no animations.
 const isPhoneLayout = matchMedia('(max-width: 700px)').matches;
-const museum = buildMuseum({ footprint: { minX: -8.5, maxX: 8.5, minZ: -4, maxZ: 6.4 }, isPhone: isPhoneLayout });
+const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cosmos = buildCosmos({ footprint: { minX: -8.5, maxX: 8.5, minZ: -4, maxZ: 6.4 }, isPhone: isPhoneLayout,
+  reducedMotion });
 const simpleBox = document.getElementById('simplebg');
-let museumOn = true;
-try { museumOn = localStorage.getItem('pt-simple-bg') !== '1'; } catch { /* storage unavailable */ }
-simpleBox.checked = !museumOn;
+let fancyOn = true;
+try { fancyOn = localStorage.getItem('pt-simple-bg') !== '1'; } catch { /* storage unavailable */ }
+simpleBox.checked = !fancyOn;
 
 function themeColors() {
-  if (museumOn) {
-    scene.background = museum.background;
-    scene.fog = museum.fog;
+  if (fancyOn) {
+    scene.background = cosmos.background;
     return;
   }
   const cs = getComputedStyle(document.documentElement);
   scene.background = new THREE.Color(cs.getPropertyValue('--scene-bg').trim() || '#eceae4');
-  scene.fog = null;
 }
 function applySetting() {
-  if (museumOn) scene.add(museum.group); else scene.remove(museum.group);
-  VIEW_DIR = museumOn ? VIEW_MUSEUM : VIEW_PLAIN;
-  TARGET.copy(museumOn ? TARGET_MUSEUM : TARGET_PLAIN);
+  for (const g of [cosmos.world, cosmos.sky]) { if (fancyOn) scene.add(g); else scene.remove(g); }
+  VIEW_DIR = fancyOn ? VIEW_COSMOS : VIEW_PLAIN;
+  TARGET.copy(fancyOn ? TARGET_COSMOS : TARGET_PLAIN);
   controls.target.copy(TARGET);
   themeColors();
 }
@@ -195,7 +196,7 @@ function rebuild() {
   group.clear();
   tiles = [];
   const { max } = propRange(prop);
-  const dark = museumOn || matchMedia('(prefers-color-scheme: dark)').matches;
+  const dark = fancyOn || matchMedia('(prefers-color-scheme: dark)').matches;
   const gapBg = dark ? '#3a3b42' : '#d4d2cb';
 
   ELS.forEach((e, idx) => {
@@ -232,6 +233,8 @@ function rebuild() {
       mesh.position.set(x, 0.02, z);
     }
     mesh.userData.idx = idx;
+    mesh.userData.h = mesh.geometry.parameters.height; // final height (the rise animation scales up to it)
+    mesh.userData.delay = (col + row * 0.6) * 32;    // ms: columns rise in a wave from the left
     mesh.castShadow = true; // columns cast shadows on the plinth but never receive them (keeps their colors true)
     group.add(mesh);
     tiles.push({ mesh, e, idx });
@@ -239,6 +242,7 @@ function rebuild() {
   // selection marker
   group.add(selRing);
   placeSelection();
+  startRise();
   renderLegend();
   renderTable();
 }
@@ -249,8 +253,31 @@ const selRing = new THREE.LineSegments(
 function placeSelection() {
   const t = tiles[selected];
   if (!t) return;
-  const box = new THREE.Box3().setFromObject(t.mesh);
-  selRing.position.set(t.mesh.position.x, box.max.y + 0.02, t.mesh.position.z);
+  selRing.position.set(t.mesh.position.x, t.mesh.userData.h + 0.02, t.mesh.position.z);
+}
+
+// Columns grow from zero to their value whenever the property changes (skipped for reduced motion).
+let riseStart = null;
+const RISE_MS = 700;
+function startRise() {
+  if (reducedMotion) return;
+  riseStart = performance.now();
+  for (const t of tiles) setRise(t.mesh, 0);
+}
+function setRise(m, f) {
+  const s = Math.max(0.001, f);
+  m.scale.y = s;
+  m.position.y = (m.userData.h * s) / 2;
+}
+function stepRise(now) {
+  if (riseStart === null) return;
+  let done = true;
+  for (const t of tiles) {
+    const p = Math.min(1, Math.max(0, (now - riseStart - t.mesh.userData.delay) / RISE_MS));
+    if (p < 1) done = false;
+    setRise(t.mesh, 1 - Math.pow(1 - p, 3)); // ease out
+  }
+  if (done) riseStart = null;
 }
 
 function resize() {
@@ -261,32 +288,58 @@ function resize() {
   camera.updateProjectionMatrix();
   // Move the camera back along the view direction until every column fits on screen.
   const pts = [];
-  for (const t of tiles) {
-    const b = new THREE.Box3().setFromObject(t.mesh);
-    pts.push(b.min, b.max, new THREE.Vector3(b.min.x, b.max.y, b.max.z), new THREE.Vector3(b.max.x, b.max.y, b.min.z));
+  for (const t of tiles) { // use final heights, so framing doesn't depend on the rise animation
+    const { x, z } = t.mesh.position, h = t.mesh.userData.h, a = 0.43 * CELL;
+    pts.push(new THREE.Vector3(x - a, 0, z - a), new THREE.Vector3(x + a, h, z + a),
+      new THREE.Vector3(x - a, h, z + a), new THREE.Vector3(x + a, h, z - a));
   }
   let dist = 10;
   for (; dist < 80; dist += 0.5) {
     camera.position.copy(TARGET).addScaledVector(VIEW_DIR, dist);
     camera.lookAt(TARGET);
     camera.updateMatrixWorld();
-    // in the museum, leave a margin so some of the room shows around the table
-    const mx = museumOn ? 0.88 : 0.96, my = museumOn ? 0.8 : 0.94;
+    // in space, leave a margin so some of the sky shows around the table
+    const mx = fancyOn ? 0.86 : 0.96, my = fancyOn ? 0.8 : 0.94;
     if (pts.every(p => { const s = p.clone().project(camera); return Math.abs(s.x) < mx && Math.abs(s.y) < my; })) break;
   }
   controls.update();
+  if (firstFrame && fancyOn && !reducedMotion) startFlyIn();
+  firstFrame = false;
 }
 new ResizeObserver(resize).observe(stage);
 
+// Camera fly-in on first load: from far out and above, down to the starting view. Any drag cancels it.
+let firstFrame = true, fly = null;
+function startFlyIn() {
+  const end = camera.position.clone();
+  const start = end.clone().sub(TARGET).multiplyScalar(2.6).add(TARGET).add(new THREE.Vector3(-14, 10, 0));
+  fly = { start, end, t0: performance.now(), ms: 2600 };
+  camera.position.copy(start);
+}
+controls.addEventListener('start', () => { if (fly) { camera.position.copy(fly.end); fly = null; } });
+function stepFly(now) {
+  if (!fly) return;
+  const p = Math.min(1, (now - fly.t0) / fly.ms), e = 1 - Math.pow(1 - p, 3);
+  camera.position.lerpVectors(fly.start, fly.end, e);
+  camera.lookAt(TARGET);
+  if (p >= 1) fly = null;
+}
+
 simpleBox.addEventListener('change', () => {
-  museumOn = !simpleBox.checked;
-  try { localStorage.setItem('pt-simple-bg', museumOn ? '0' : '1'); } catch { /* storage unavailable */ }
+  fancyOn = !simpleBox.checked;
+  try { localStorage.setItem('pt-simple-bg', fancyOn ? '0' : '1'); } catch { /* storage unavailable */ }
   applySetting();
   rebuild();
   resize();
 });
 
-renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+renderer.setAnimationLoop(now => {
+  stepFly(now);
+  stepRise(now);
+  if (fancyOn) cosmos.update(now);
+  controls.update();
+  renderer.render(scene, camera);
+});
 
 // ------------------------------------------------------------------ picking and hover
 const ray = new THREE.Raycaster();
