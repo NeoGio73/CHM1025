@@ -29,6 +29,10 @@
 .facts { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 0.92rem; margin: 6px 0; }
 .facts dt { color: var(--muted); }
 .facts dd { margin: 0; font-weight: 600; }
+.cmp { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 6px 0; }
+.cmp th, .cmp td { padding: 4px 6px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.cmp thead th { font-weight: 600; }
+.cmp tbody th { font-weight: 400; color: var(--muted); }
 .legend-dots { list-style: none; padding: 0; margin: 4px 0; display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.85rem; }
 .legend-dots i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
 

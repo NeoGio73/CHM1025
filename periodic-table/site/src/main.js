@@ -41,6 +41,7 @@ const COMMON_ION = {
 const ROMAN = { II: 2, III: 3, IV: 4, V: 5, VI: 6, VII: 7, VIII: 8, IX: 9, X: 10, XI: 11, XII: 12, XIV: 14 };
 
 const ATOM_VIEW_MAX_Z = 18; // Stage 2a: the atom view covers H–Ar
+const ION_CLOUDS = [3, 11, 9, 17]; // calculated ion clouds for the panel's common ion (Li+, Na+, F-, Cl-)
 let prop = DEFAULT_PROP;
 let selected = ELS.findIndex(e => e.sym === 'Na');
 
@@ -416,6 +417,7 @@ function openPanel(idx, focus = true) {
       ${ROMAN[ion.cn] ?? ion.cn} neighboring ions. They are different kinds of measurement, so the drawing shows the
       direction of the change (${q > 0 ? 'positive ions are smaller than their atoms' : 'negative ions are larger than their atoms'}),
       not an exact ratio.</p>
+      ${ION_CLOUDS.includes(e.Z) ? `<a class="btn atomlink" href="atom.html?Z=${e.Z}&compare=1">See the atom and ion electron clouds →</a>` : ''}
       <div class="vrow"><span class="lab">${ionName(e.sym, q)} ionic radius</span><span class="val">${fmtNum(ion.v)} pm</span>
       ${metaLine('ion', ion)}</div>`;
     } else {

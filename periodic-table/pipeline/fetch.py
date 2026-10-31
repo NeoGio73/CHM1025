@@ -9,6 +9,7 @@ import hashlib
 import json
 import pathlib
 import sys
+import tarfile
 import urllib.request
 import zipfile
 
@@ -38,6 +39,10 @@ SOURCES = {
     "wikipedia_covalent_radius.txt": "https://en.wikipedia.org/w/index.php?title=Covalent_radius&action=raw",
     # Bunge, Barrientos & Bunge 1993: the authors' RHF.TABLES file, mirrored by CCL
     "bunge1993_rhf_tables.txt": "https://server.ccl.net/cca/data/atomic-RHF-wavefunctions/tables",
+    # Koga, Kanayama, Watanabe & Thakkar 1999 orbitals (atoms, cations, anions), as packaged by theochem/AtomDB
+    # (GPL-3.0 repository; used only as a data source, not redistributed). Pinned to a commit.
+    "atomdb_slater_atom.tar.xz": "https://raw.githubusercontent.com/theochem/AtomDB/"
+                                 "9562659f51198860012f1e4edfc4792f4754d56b/atomdb/data/slater_atom.tar.xz",
 }
 
 
@@ -67,6 +72,9 @@ def main():
     # Unpack the mendeleev SQLite database (data only; no code from the wheel is run).
     with zipfile.ZipFile(RAW / "mendeleev-1.3.0.whl") as z:
         (RAW / "mendeleev_elements.db").write_bytes(z.read("mendeleev/elements.db"))
+    # Unpack the Koga orbital files (plain-text data; the tarfile "data" filter blocks unsafe paths).
+    with tarfile.open(RAW / "atomdb_slater_atom.tar.xz") as t:
+        t.extractall(RAW / "koga1999", filter="data")
     MANIFEST.write_text(json.dumps(new, indent=2) + "\n")
 
 

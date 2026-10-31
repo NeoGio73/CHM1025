@@ -112,7 +112,9 @@ periodic-table/
 - **Nucleus:** protons plus neutrons of the most abundant isotope, labeled "packing is a model."
 - **Ions:**
   - Computed electron clouds only for ions that are stable as free gas-phase ions: cations (Na⁺, Mg²⁺, Al³⁺, K⁺, Ca²⁺, …) and the singly charged anions H⁻, F⁻, Cl⁻, Br⁻, I⁻.
-  - **Source still needed:** Bunge 1993 covers neutral atoms only. Options: published ion tables (Clementi & Roetti 1974 include some ions; Koga et al. published cations and anions), or PySCF once an environment is approved (micromamba + conda-forge, or WSL). Decide before Stage 2a reaches ions.
+  - **Source (decided 2026-10-30):** Koga, Kanayama, Watanabe & Thakkar, Int. J. Quantum Chem. 71, 491 (1999): Hartree–Fock orbitals for He–Xe, Li⁺–Cs⁺ and H⁻–I⁻, taken from the files packaged by theochem/AtomDB (pinned commit; GPL repository used as a data source only, not redistributed). Checked: the kinetic energy recomputed from every file's orbitals matches the printed value (all 198 files, within 3×10⁻⁷), and Koga's neutral atoms agree with Bunge 1993 (⟨r⟩ within 6×10⁻⁶, energies within 10⁻⁶ hartree), which is also the independent cross-check of the Bunge data. PySCF is not needed.
+  - **Built:** H⁻, Li⁺, F⁻, Na⁺, Cl⁻, shown side by side with their atoms (`atom.html?Z=11&compare=1`). The build fails if any cation is not smaller, or any anion not larger, than its atom.
+  - **Not available:** 2+ and 3+ ions (Be²⁺, Mg²⁺, Al³⁺): not in Koga's set; the page says so and gives Shannon's crystal radius. O²⁻, N³⁻, S²⁻, P³⁻: not bound as free ions; the page says so and gives the crystal radius.
   - **O²⁻, N³⁻, S²⁻ and other multiply charged anions are not bound as free ions**, so no wavefunction cloud is drawn for them. Their size appears as a Shannon crystal ionic radius sphere, labeled "size in a crystal; this ion does not exist on its own."
   - The atom-vs-ion comparison states which radius is shown: computed free-ion density for the cloud, Shannon radius for the number.
 - **Done when:** H–Xe atoms and the listed ions render from validated wavefunctions, validation tests pass, and every model choice above is labeled.
@@ -121,7 +123,8 @@ periodic-table/
   - 90% surfaces: s orbitals drawn as exact concentric spheres from precomputed radii; p orbitals by marching cubes, one grid per region between radial nodes; isovalues computed with the angular part integrated exactly (hydrogen 1s within 5×10⁻⁵ of the exact value).
   - Whole-atom view: the sphere holding 90% of the **outer (valence) electrons**, not of all electrons (the all-electron sphere is dominated by the core and puts Na below Li). The outer-electron radius follows the size trend for all of H–Ar (checked in `out/orbitals.md`).
   - Independent review: data, sampling (KS test), axis mapping and marching-cubes mapping all reproduced; its fixes (whole-atom sphere, node artifacts, wording) are applied.
-  - **Still to do (2b):** ion clouds (source needed, see Ions), K–Xe (d orbitals), radial plot, Measure mode, total-density toggle, true-scale nucleus, Clementi–Roetti ⟨r⟩ cross-check.
+  - **Ion clouds added** (see Ions): Li⁺, Na⁺, H⁻, F⁻, Cl⁻ side by side with their atoms.
+  - **Still to do (2b):** K–Xe (d orbitals; Bunge and Koga both cover them), K⁺/Br⁻ etc. with those atoms, radial plot, Measure mode, total-density toggle, true-scale nucleus.
 
 ## Stage 3 — Extend to all elements (Z = 55–118)
 - **Method:** PySCF with scalar-relativistic X2C, spherically averaged, for the clouds and radial plots. Desclaux 1973 is used **only** to check ⟨r⟩ and orbital energies, since it lists expectation values, not full wavefunctions, and can't produce clouds.

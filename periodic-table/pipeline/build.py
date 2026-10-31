@@ -140,6 +140,20 @@ SOURCES = {
         "license": "Published values, cited with attribution.",
         "retrieved": MANIFEST.get("bunge1993_rhf_tables.txt", {}).get("retrieved", ""),
     },
+    "koga1999": {
+        "short": "Koga et al. 1999",
+        "citation": "Koga, T.; Kanayama, K.; Watanabe, S.; Thakkar, A. J. Analytical Hartree–Fock wave functions "
+        "subject to cusp and asymptotic constraints: He to Xe, Li⁺ to Cs⁺, H⁻ to I⁻. Int. J. Quantum Chem. 1999, "
+        "71, 491–497.",
+        "doi": "10.1002/(SICI)1097-461X(1999)71:6<491::AID-QUA6>3.0.CO;2-T",
+        "url": "https://github.com/theochem/AtomDB/blob/9562659f51198860012f1e4edfc4792f4754d56b/atomdb/data/slater_atom.tar.xz",
+        "table": "Slater-type orbital files for the ions, as packaged by the theochem AtomDB project. Checked: the "
+        "kinetic energy recomputed from the orbitals matches the value printed in each file, and Koga's neutral "
+        "atoms agree with Bunge et al. 1993 (see pipeline/out/orbitals.md).",
+        "license": "Published values, cited with attribution. (AtomDB's GPL-3.0 files are used as a data source and "
+        "are not redistributed.)",
+        "retrieved": MANIFEST.get("atomdb_slater_atom.tar.xz", {}).get("retrieved", ""),
+    },
     "hydrogen_exact": {
         "short": "Exact hydrogen solution",
         "citation": "Exact solution of the nonrelativistic Schrödinger equation for hydrogen (infinite nuclear mass): "

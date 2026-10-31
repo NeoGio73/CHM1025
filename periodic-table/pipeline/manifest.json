@@ -52,5 +52,11 @@
     "sha256": "329f7a9c2bd255a094c592a9d962daef0752f48cddd12c03c9a8892c29449f6d",
     "bytes": 161632,
     "retrieved": "2026-10-30"
+  },
+  "atomdb_slater_atom.tar.xz": {
+    "url": "https://raw.githubusercontent.com/theochem/AtomDB/9562659f51198860012f1e4edfc4792f4754d56b/atomdb/data/slater_atom.tar.xz",
+    "sha256": "96edb8a1580a3768c13a29c01b115a2a7b85fe29632dd39d0ae51b6959e437d2",
+    "bytes": 140100,
+    "retrieved": "2026-10-30"
   }
 }

@@ -27,7 +27,13 @@ if (!EL || Z < 1 || Z > MAX_Z) {
   throw new Error('atom view not available for this element yet');
 }
 
-const ATOM = await fetch(`data/atoms/${Z}.json`).then(r => r.json());
+const [ATOM, INDEX] = await Promise.all([
+  fetch(`data/atoms/${Z}.json`).then(r => r.json()),
+  fetch('data/atoms/index.json').then(r => r.json()),
+]);
+const ION_KEY = INDEX.ions[String(Z)]?.[0] || null; // e.g. "11+"
+let ION = null, ION_ORBS = null;
+let compare = false;
 const A0 = ATOM.bohr_pm;          // pm per bohr
 const UNIT = 100;                  // pm per scene unit
 const toUnits = rBohr => (rBohr * A0) / UNIT;
@@ -82,9 +88,13 @@ const AXIS_INDEX = { x: 0, y: 1, z: 2 };
 
 // ------------------------------------------------------------------ orbitals
 // Sublevels in filling order (n + l, then n): 1s 2s 2p 3s 3p. The data file lists all s before p.
-const ORBS = ATOM.orbitals.map(o => ({ ...o, R: radialFn(o.basis), rMaxBohr: (o.r999_pm / A0) * 1.6 }))
-  .sort((a, b) => (a.n + a.l) - (b.n + b.l) || a.n - b.n);
-ORBS.forEach(o => { o.sample = radialSampler(o.R, o.rMaxBohr); });
+function prepOrbs(json) {
+  const orbs = json.orbitals.map(o => ({ ...o, R: radialFn(o.basis), rMaxBohr: (o.r999_pm / A0) * 1.6 }))
+    .sort((a, b) => (a.n + a.l) - (b.n + b.l) || a.n - b.n);
+  orbs.forEach(o => { o.sample = radialSampler(o.R, o.rMaxBohr); });
+  return orbs;
+}
+const ORBS = prepOrbs(ATOM);
 // Real orbitals shown as boxes: s -> one, p -> px, py, pz. Electrons placed by Hund's rule.
 const BOXES = [];
 for (const o of ORBS) {
@@ -132,18 +142,22 @@ for (const [name, dir] of [['x', [1, 0, 0]], ['y', [0, 1, 0]], ['z', [0, 0, 1]]]
 scene.add(axes);
 
 // 100 pm rings in the horizontal plane, with labels
-const rings = new THREE.Group();
-for (let k = 1; k * 100 <= ATOM.total.r999_pm * 1.05 || k === 1; k++) {
-  const pts = [];
-  for (let i = 0; i <= 128; i++) {
-    const a = (i / 128) * Math.PI * 2;
-    pts.push(new THREE.Vector3(Math.cos(a) * k, 0, Math.sin(a) * k));
+function makeRings(maxPm, labelH, labelDir = [0.79, -0.62]) {
+  const g = new THREE.Group();
+  for (let k = 1; k * 100 <= maxPm * 1.05 || k === 1; k++) {
+    const pts = [];
+    for (let i = 0; i <= 128; i++) {
+      const a = (i / 128) * Math.PI * 2;
+      pts.push(new THREE.Vector3(Math.cos(a) * k, 0, Math.sin(a) * k));
+    }
+    g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+      new THREE.LineBasicMaterial({ color: dark ? 0x888888 : 0x777777, transparent: true, opacity: 0.6 })));
+    // label on the side of the ring that faces the screen's right edge in the starting view
+    g.add(textSprite(`${k * 100} pm`, [k * labelDir[0], 0, k * labelDir[1]], labelH));
   }
-  rings.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
-    new THREE.LineBasicMaterial({ color: dark ? 0x888888 : 0x777777, transparent: true, opacity: 0.6 })));
-  // label on the side of the ring that faces the screen's right edge in the starting view
-  rings.add(textSprite(`${k * 100} pm`, [k * 0.79, 0, -k * 0.62], 0.085 * frameR));
+  return g;
 }
+const rings = makeRings(ATOM.total.r999_pm, 0.085 * frameR);
 scene.add(rings);
 
 function textSprite(text, pos, h) {
@@ -248,6 +262,17 @@ function buildSurface() {
 }
 
 function frameCamera() {
+  if (compare && compareGroup) {
+    // look from the front so the two clouds sit side by side
+    const { halfW, cx } = compareGroup.userData;
+    const fovH = 2 * Math.atan(Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * camera.aspect);
+    const d = Math.max(halfW / Math.tan(fovH / 2), (halfW * 0.6) / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2))) * 1.1;
+    camera.position.set(cx, d * 0.42, d * 0.91);
+    controls.target.set(cx, 0, 0);
+    camera.near = d / 500; camera.far = d * 20;
+    camera.updateProjectionMatrix();
+    return;
+  }
   const d = frameR / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * (camera.aspect < 1 ? 1.25 / camera.aspect : 1.15);
   camera.position.set(d * 0.55, d * 0.45, d * 0.7);
   controls.target.set(0, 0, 0);
@@ -264,8 +289,88 @@ function resize() {
 new ResizeObserver(resize).observe(stage);
 renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
 
-for (const [id, get] of [['t-dots', () => points], ['t-surface', () => surface], ['t-rings', () => rings]]) {
-  document.getElementById(id).addEventListener('change', ev => { const o = get(); if (o) o.visible = ev.target.checked; });
+for (const [id, kind, get] of [['t-dots', 'dots', () => points], ['t-surface', 'surface', () => surface],
+  ['t-rings', 'rings', () => rings]]) {
+  document.getElementById(id).addEventListener('change', ev => {
+    const o = get(); if (o) o.visible = ev.target.checked;
+    compareGroup?.traverse(c => { if (c.userData.kind === kind) c.visible = ev.target.checked; });
+  });
+}
+
+// ------------------------------------------------------------------ atom vs ion
+let compareGroup = null;
+const CHARGE_TXT = q => (Math.abs(q) === 1 ? '' : Math.abs(q)) + (q > 0 ? '+' : '−');
+const ionLabel = q => `${EL.sym}<sup>${CHARGE_TXT(q)}</sup>`;
+const ionPlain = q => `${EL.sym}${CHARGE_TXT(q)}`;
+const ANION_NAME = { 1: 'hydride', 7: 'nitride', 8: 'oxide', 9: 'fluoride', 15: 'phosphide', 16: 'sulfide', 17: 'chloride' };
+const ionName = q => (q < 0 ? `${ANION_NAME[Z]} ion` : `${EL.name.toLowerCase()} ion`);
+
+// a whole-atom (or whole-ion) dot cloud: sublevel chosen by electron count, direction averaged
+function wholeCloud(orbs, seed, N, x0) {
+  const rng = mulberry32(seed);
+  const pos = new Float32Array(N * 3), col = new Float32Array(N * 3);
+  const w = orbs.map(o => o.occ), ws = w.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < N; i++) {
+    let u = rng() * ws, j = 0;
+    while (u > w[j]) { u -= w[j]; j++; }
+    const o = orbs[j], d = randomDir(rng), r = toUnits(o.sample(rng()));
+    const [x, y, z] = toScene(d[0] * r, d[1] * r, d[2] * r);
+    pos.set([x + x0, y, z], i * 3);
+    const c = new THREE.Color(NCOLORS[(o.n - 1) % 4]);
+    col.set([c.r, c.g, c.b], i * 3);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  return new THREE.Points(g, new THREE.PointsMaterial({ size: isPhone ? 2 : 2.2, sizeAttenuation: false,
+    vertexColors: true, transparent: true, opacity: dark ? 0.75 : 0.6, depthWrite: false }));
+}
+
+function buildCompare() {
+  compareGroup = new THREE.Group();
+  const items = [[ATOM, ORBS, `${EL.name} atom`], [ION, ION_ORBS, `${ionPlain(ION.charge)} ion`]];
+  const ext = items.map(([j]) => j.total.r999_pm / UNIT);
+  const gap = 0.15 * Math.max(...ext);
+  const xs = [-(ext[0] + gap / 2), ext[1] + gap / 2];
+  const labelH = 0.07 * Math.max(...ext) * 2;
+  items.forEach(([j, orbs, label], i) => {
+    const x0 = xs[i];
+    const dots = wholeCloud(orbs, 2025 + Z * 31 + i, isPhone ? 9000 : 22000, x0);
+    dots.userData.kind = 'dots';
+    dots.visible = document.getElementById('t-dots').checked;
+    const sph = new THREE.Mesh(new THREE.SphereGeometry(j.valence.r90_pm / UNIT, 64, 40),
+      new THREE.MeshStandardMaterial({ color: 0x56B4E9, transparent: true, opacity: 0.26, roughness: 0.4,
+        side: THREE.DoubleSide, depthWrite: false }));
+    sph.position.x = x0;
+    sph.userData.kind = 'surface';
+    sph.visible = document.getElementById('t-surface').checked;
+    const rg = makeRings(j.total.r999_pm, labelH * 0.8, [0.0, 1.0]);
+    rg.position.x = x0;
+    rg.userData.kind = 'rings';
+    rg.visible = document.getElementById('t-rings').checked;
+    const nuc = new THREE.Mesh(new THREE.SphereGeometry(nucleus.geometry.parameters.radius, 20, 12), nucleus.material);
+    nuc.position.x = x0;
+    const tag = textSprite(label, [x0 - labelH * 1.6, ext[i] * 0.9, 0], labelH);
+    compareGroup.add(dots, sph, rg, nuc, tag);
+  });
+  compareGroup.userData = { halfW: (xs[1] + ext[1] - (xs[0] - ext[0])) / 2, cx: (xs[0] - ext[0] + xs[1] + ext[1]) / 2 };
+  scene.add(compareGroup);
+}
+
+async function setCompare(on) {
+  if (on && !ION) {
+    ION = await fetch(`data/atoms/${ION_KEY}.json`).then(r => r.json());
+    ION_ORBS = prepOrbs(ION);
+    buildCompare();
+  }
+  compare = on;
+  for (const o of [points, surface, rings, axes, nucleus]) if (o) o.visible = !on && (
+    o === points ? document.getElementById('t-dots').checked
+      : o === surface ? document.getElementById('t-surface').checked
+        : o === rings ? document.getElementById('t-rings').checked : true);
+  if (compareGroup) compareGroup.visible = on;
+  frameCamera();
+  render();
 }
 
 // ------------------------------------------------------------------ side panel
@@ -288,7 +393,71 @@ function describe() {
     (box.electrons === 0 ? ' This orbital is empty in this atom.' : '');
 }
 
+// Common ions for which no calculated cloud is shown, with the reason. Shannon crystal radii come from elements.json.
+const NO_CLOUD = {
+  4: [2, 'singly'], 12: [2, 'singly'], 13: [3, 'singly'],
+  7: [-3, 'unbound'], 8: [-2, 'unbound'], 15: [-3, 'unbound'], 16: [-2, 'unbound'],
+};
+function shannon(q) {
+  const ions = (EL.ions || []).filter(i => i.charge === q && i.spin !== 'LS');
+  return ions.find(i => i.cn === 'VI') || ions[0] || null;
+}
+const ROMAN = { II: 2, III: 3, IV: 4, V: 5, VI: 6, VII: 7, VIII: 8, IX: 9 };
+
+function ionSection() {
+  if (ION_KEY) {
+    const q = ION_KEY.endsWith('+') ? 1 : -1;
+    return `<h2>Atom and ion</h2>
+      <button type="button" class="btn allbtn" data-compare="1" aria-label="Compare the ${EL.name.toLowerCase()} atom with the ${ionName(q)}, ${ionPlain(q)}">Compare ${esc(EL.sym)} with ${ionLabel(q)}</button>
+      <p class="note">See the ${EL.name.toLowerCase()} atom and the ${ionName(q)} side by side, at the same scale.</p>`;
+  }
+  const nc = NO_CLOUD[Z];
+  if (!nc) return '';
+  const [q, why] = nc, sh = shannon(q);
+  const reason = why === 'unbound'
+    ? `${ionLabel(q)} is not stable on its own: a free ${EL.sym} atom does not hold ${Math.abs(q)} extra electrons. It exists only surrounded by other ions in a crystal or solution, so no free-ion cloud can be calculated.`
+    : `The calculated ion data used here cover only ions with a 1+ or 1− charge, so ${ionLabel(q)} has no cloud yet.`;
+  return `<h2>Atom and ion</h2><p class="note">${reason}${sh ? ` In crystals, ${ionLabel(q)} has an ionic radius of
+    ${sh.v} pm with ${ROMAN[sh.cn] ?? sh.cn} neighbors (Shannon 1976).` : ''}</p>`;
+}
+
+const configHTML = orbs => orbs.map(o => `${o.name}<sup>${o.occ}</sup>`).join(' ');
+
+function renderCompare() {
+  const q = ION.charge, A = ATOM.valence, I = ION.valence;
+  const sh = shannon(q), cov = EL.props.covalent_radius;
+  const why = q > 0
+    ? `${ionLabel(q)} has lost its level ${A.level} electron${A.electrons > 1 ? 's' : ''}. Its outer electrons are now in
+       level ${I.level}, much closer to the nucleus, so the ion is much smaller than the atom.`
+    : `${ionLabel(q)} has gained an electron in the same level (${I.level}). The nuclear charge stays the same while
+       there are more electrons repelling each other, so the cloud spreads out and the ion is larger than the atom.`;
+  side.innerHTML = `
+    <button type="button" class="btn allbtn" data-compare="0">← Back to the ${EL.name.toLowerCase()} atom</button>
+    <h2>Atom and ion</h2>
+    <table class="cmp"><thead><tr><th></th><th>${esc(EL.sym)} atom</th><th>${ionLabel(q)} ion</th></tr></thead><tbody>
+      <tr><th scope="row">Electrons</th><td>${Z}</td><td>${ION.electrons}</td></tr>
+      <tr><th scope="row">Configuration</th><td>${configHTML(ORBS)}</td><td>${configHTML(ION_ORBS)}</td></tr>
+      <tr><th scope="row">Outer electrons</th><td>${A.electrons} (level ${A.level})</td><td>${I.electrons} (level ${I.level})</td></tr>
+      <tr><th scope="row">90% of outer electrons within</th><td><b>${fmt(A.r90_pm)} pm</b></td><td><b>${fmt(I.r90_pm)} pm</b></td></tr>
+    </tbody></table>
+    <p class="note">${why}</p>
+    <p class="note">The shaded spheres hold 90% of each one's outer electrons. Rings are 100 pm apart around each nucleus.</p>
+    ${sh && cov ? `<p class="note">The table on the main page measures size differently, from atoms and ions in solids:
+      ${esc(EL.sym)} atom ${cov.v} pm (covalent radius), ${ionLabel(q)} ${sh.v} pm (ionic radius in a crystal). The numbers
+      differ from the free-atom values above, but the change goes the same way.</p>` : ''}
+    <h2>Where this comes from</h2>
+    <p class="note"><span class="badge computed">Calculated</span> Hartree–Fock model, free atom and free ion.
+      Sources: <button type="button" class="srcbtn" data-src="${ATOM.src}">${esc(SOURCES[ATOM.src].short)}</button> (atom),
+      <button type="button" class="srcbtn" data-src="${ION.src}">${esc(SOURCES[ION.src].short)}</button> (ion),
+      <button type="button" class="srcbtn" data-src="codata2022">${esc(SOURCES.codata2022.short)}</button>.</p>`;
+  const txt = `${EL.name} atom and ${ionPlain(q)} ion side by side: 90% of the outer electrons lie within ` +
+    `${fmt(A.r90_pm)} pm for the atom and ${fmt(I.r90_pm)} pm for the ion.`;
+  caption.textContent = `${txt} Rings: 100 pm apart.`;
+  canvas.setAttribute('aria-label', txt);
+}
+
 function render() {
+  if (compare) return renderCompare();
   const box = BOXES.find(b => b.key === selection);
   const rows = [];
   for (const o of ORBS) { // ORBS is in filling order; rows are reversed below so higher energy is on top
@@ -356,14 +525,23 @@ function render() {
     <p class="note"><span class="badge computed">${Z === 1 ? 'Exact' : 'Calculated'}</span>
       ${Z === 1 ? 'Exact solution for hydrogen.' : 'Hartree–Fock model: each electron moves in the average field of the others. A very good model of atomic size and shape, but not exact.'}
       Sources: <button type="button" class="srcbtn" data-src="${ATOM.src}">${esc(SOURCES[ATOM.src].short)}</button>,
-      <button type="button" class="srcbtn" data-src="codata2022">${esc(SOURCES.codata2022.short)}</button>.</p>
-    <p class="note">Coming next: electron clouds for ions (Na⁺, Cl⁻ and others) side by side with their atoms.</p>`;
+      <button type="button" class="srcbtn" data-src="codata2022">${esc(SOURCES.codata2022.short)}</button>.</p>`;
+  side.querySelector('.orbname').insertAdjacentHTML('beforebegin', ionSection());
 
   caption.textContent = `${describe()} Rings: 100 pm apart (linear scale).`;
   canvas.setAttribute('aria-label', describe());
 }
 
 side.addEventListener('click', ev => {
+  const cmp = ev.target.closest('[data-compare]');
+  if (cmp) {
+    const on = cmp.dataset.compare === '1';
+    const url = new URL(location.href);
+    if (on) url.searchParams.set('compare', '1'); else url.searchParams.delete('compare');
+    history.replaceState(null, '', url);
+    setCompare(on).then(() => side.querySelector('[data-compare]')?.focus());
+    return;
+  }
   const b = ev.target.closest('[data-key]');
   if (b) {
     selection = b.dataset.key;
@@ -392,4 +570,5 @@ buildPoints();
 buildSurface();
 render();
 resize();
+if (ION_KEY && new URLSearchParams(location.search).get('compare') === '1') await setCompare(true);
 document.getElementById('a-loading').remove();

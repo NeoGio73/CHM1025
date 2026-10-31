@@ -65,6 +65,36 @@
 | 18 | Argon | 2p | 2.5e-07 | 19.86 | 1.5e-06 | 0 | 32.8 | 1.7879e-01 |
 | 18 | Argon | 3p | -1.1e-06 | 88.00 | 8.1e-06 | 1 | 138.9 | 2.4157e-03 |
 
+## Ions (Koga et al. 1999): orbital rows
+
+| 1 | Hydrogen | 1s | 4.0e-08 | 132.50 | 0.0e+00 | 0 | 254.8 | 2.0705e-04 |
+| 3 | Lithium | 1s | 7.6e-08 | 30.29 | 0.0e+00 | 0 | 54.6 | 2.5567e-02 |
+| 9 | Fluorine | 1s | 2.8e-08 | 9.30 | 0.0e+00 | 0 | 16.6 | 9.2318e-01 |
+| 9 | Fluorine | 2s | -1.6e-08 | 54.80 | 0.0e+00 | 1 | 89.0 | 6.7316e-03 |
+| 9 | Fluorine | 2p | 7.1e-08 | 66.44 | 0.0e+00 | 0 | 120.5 | 2.7669e-03 |
+| 11 | Sodium | 1s | -3.6e-08 | 7.56 | 0.0e+00 | 0 | 13.5 | 1.7239e+00 |
+| 11 | Sodium | 2s | -1.1e-08 | 41.23 | 0.0e+00 | 1 | 65.7 | 1.8121e-02 |
+| 11 | Sodium | 2p | -9.1e-08 | 42.14 | 0.0e+00 | 0 | 72.2 | 1.5306e-02 |
+| 17 | Chlorine | 1s | 1.0e-07 | 4.83 | 0.0e+00 | 0 | 8.6 | 6.6606e+00 |
+| 17 | Chlorine | 2s | 1.7e-07 | 23.38 | 0.0e+00 | 1 | 36.4 | 1.1468e-01 |
+| 17 | Chlorine | 3s | 9.9e-09 | 84.77 | 0.0e+00 | 2 | 130.2 | 2.4383e-03 |
+| 17 | Chlorine | 2p | -3.3e-08 | 21.45 | 0.0e+00 | 0 | 35.5 | 1.4012e-01 |
+| 17 | Chlorine | 3p | 6.5e-08 | 107.39 | 0.0e+00 | 1 | 175.3 | 1.0719e-03 |
+
+## Ions: summary
+
+| Ion | Electrons | Kinetic energy, computed vs file | Outer electrons | 90% of outer electrons within (pm) | Atom (pm) |
+|---|---|---|---|---|---|
+| Hydrogen -1 | 2 | 3.0e-07 | 2 (level 1) | 255 | 141 |
+| Lithium +1 | 2 | 3.4e-08 | 2 (level 1) | 55 | 321 |
+| Fluorine -1 | 10 | 2.7e-08 | 8 (level 2) | 113 | 96 |
+| Sodium +1 | 10 | 1.6e-08 | 8 (level 2) | 70 | 344 |
+| Chlorine -1 | 18 | 8.7e-08 | 8 (level 3) | 165 | 146 |
+
+## Koga et al. 1999 neutral atoms vs Bunge et al. 1993
+
+Largest relative difference in orbital ⟨r⟩: 6.4e-06; largest total-energy difference: 5.1e-07 hartree (He–Ar).
+
 Hydrogen 1s 90% radius: 140.82 pm (exact 140.82 pm).
 Hydrogen 1s 90% surface density: 1.553730e-03 bohr⁻³ (exact 1.553803e-03).
 
