@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { buildMuseum } from './museum.js';
 
 // ------------------------------------------------------------------ data
 const [DATA, SRC] = await Promise.all([
@@ -87,7 +88,8 @@ const cssGradient = `linear-gradient(90deg, ${VIRIDIS.join(', ')})`;
 // ------------------------------------------------------------------ layout
 function gridPos(e) {
   if (e.group) return { col: e.group, row: e.period };
-  return { col: 3 + e.fcol, row: e.period + 3.4 }; // f rows sit below the main table, with a gap
+  return { col: 3 + e.fcol, row: e.period + 4.4 }; // f rows sit in front of the main table, with a gap wide enough
+  // that their tallest columns never hide period 7 from the starting views
 }
 const CELL = 1.0, MAX_H = 4;
 
@@ -97,28 +99,57 @@ const view = document.getElementById('view3d');
 const stage = document.getElementById('stage');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200);
-const TARGET = new THREE.Vector3(0, 0, 1.0);
-const VIEW_DIR = new THREE.Vector3(0, 0.9, 0.44).normalize(); // looking down at the table from the front
+const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 300);
+const TARGET_PLAIN = new THREE.Vector3(0, 0, 1.0);
+const TARGET_MUSEUM = new THREE.Vector3(0, 1.1, -0.2); // aims a little higher so the wall placard shows
+const TARGET = TARGET_PLAIN.clone();
+// looking down at the table from the front; a little lower in the museum so the room shows
+const VIEW_PLAIN = new THREE.Vector3(0, 0.9, 0.44).normalize();
+const VIEW_MUSEUM = new THREE.Vector3(0, 0.72, 0.69).normalize();
+let VIEW_DIR = VIEW_PLAIN;
 camera.position.copy(TARGET).addScaledVector(VIEW_DIR, 24);
 const controls = new OrbitControls(camera, canvas);
 controls.target.copy(TARGET);
 controls.enableDamping = true;
 controls.maxPolarAngle = Math.PI * 0.47;
 controls.minDistance = 6;
-controls.maxDistance = 45;
+controls.maxDistance = 70;
 
-scene.add(new THREE.HemisphereLight(0xffffff, 0x666677, 1.6));
+// Neutral white light on the table in both settings, so column colors stay true.
+scene.add(new THREE.HemisphereLight(0xffffff, 0x666666, 1.6));
 const sun = new THREE.DirectionalLight(0xffffff, 1.6);
 sun.position.set(-6, 14, 10);
 scene.add(sun);
 
+// Background setting: the museum gallery, or a plain backdrop ("Simple background", remembered per browser).
+const isPhoneLayout = matchMedia('(max-width: 700px)').matches;
+const museum = buildMuseum({ footprint: { minX: -8.5, maxX: 8.5, minZ: -4, maxZ: 6.4 }, isPhone: isPhoneLayout });
+const simpleBox = document.getElementById('simplebg');
+let museumOn = true;
+try { museumOn = localStorage.getItem('pt-simple-bg') !== '1'; } catch { /* storage unavailable */ }
+simpleBox.checked = !museumOn;
+
 function themeColors() {
+  if (museumOn) {
+    scene.background = museum.background;
+    scene.fog = museum.fog;
+    return;
+  }
   const cs = getComputedStyle(document.documentElement);
   scene.background = new THREE.Color(cs.getPropertyValue('--scene-bg').trim() || '#eceae4');
+  scene.fog = null;
 }
-themeColors();
+function applySetting() {
+  if (museumOn) scene.add(museum.group); else scene.remove(museum.group);
+  VIEW_DIR = museumOn ? VIEW_MUSEUM : VIEW_PLAIN;
+  TARGET.copy(museumOn ? TARGET_MUSEUM : TARGET_PLAIN);
+  controls.target.copy(TARGET);
+  themeColors();
+}
+applySetting();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { themeColors(); rebuild(); });
 
 const group = new THREE.Group();
@@ -164,7 +195,7 @@ function rebuild() {
   group.clear();
   tiles = [];
   const { max } = propRange(prop);
-  const dark = matchMedia('(prefers-color-scheme: dark)').matches;
+  const dark = museumOn || matchMedia('(prefers-color-scheme: dark)').matches;
   const gapBg = dark ? '#3a3b42' : '#d4d2cb';
 
   ELS.forEach((e, idx) => {
@@ -201,6 +232,7 @@ function rebuild() {
       mesh.position.set(x, 0.02, z);
     }
     mesh.userData.idx = idx;
+    mesh.castShadow = true; // columns cast shadows on the plinth but never receive them (keeps their colors true)
     group.add(mesh);
     tiles.push({ mesh, e, idx });
   });
@@ -238,11 +270,21 @@ function resize() {
     camera.position.copy(TARGET).addScaledVector(VIEW_DIR, dist);
     camera.lookAt(TARGET);
     camera.updateMatrixWorld();
-    if (pts.every(p => { const s = p.clone().project(camera); return Math.abs(s.x) < 0.96 && Math.abs(s.y) < 0.94; })) break;
+    // in the museum, leave a margin so some of the room shows around the table
+    const mx = museumOn ? 0.88 : 0.96, my = museumOn ? 0.8 : 0.94;
+    if (pts.every(p => { const s = p.clone().project(camera); return Math.abs(s.x) < mx && Math.abs(s.y) < my; })) break;
   }
   controls.update();
 }
 new ResizeObserver(resize).observe(stage);
+
+simpleBox.addEventListener('change', () => {
+  museumOn = !simpleBox.checked;
+  try { localStorage.setItem('pt-simple-bg', museumOn ? '0' : '1'); } catch { /* storage unavailable */ }
+  applySetting();
+  rebuild();
+  resize();
+});
 
 renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
 
