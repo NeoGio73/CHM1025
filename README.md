@@ -14,6 +14,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 | Key terms from Chapters 1–12 and 14 | [Robo-Lab](https://neogio73.github.io/CHM1025/robo-lab/) | Opens Periodic Panic at stage 1 (the old link still works) |
 | Key terms from Chapters 1–12 and 14 | [Mole Hole](https://neogio73.github.io/CHM1025/mole-hole/) | Opens Periodic Panic at stage 2 (the old link still works) |
 | Acids and bases (Ch. 14) | [Spring to Sea](https://neogio73.github.io/CHM1025/spring-to-sea/) | Game (3D, WebGL) — in progress |
+| Atomic size of atoms and ions, electron configurations, and the periodic table | [3D Periodic Table](https://neogio73.github.io/CHM1025/periodic-table/) | Reference (3D, every value sourced) — Stage 1 of 6 |
 
 ## Smaller Than Small
 
@@ -211,6 +212,17 @@ A 3D paddleboarding game for Chapter 14, Acids and Bases (Timberlake, *Basic Che
 
 The game is being built; this is an early test build. It needs a browser that supports WebGL 2, and the first load downloads about 35 MB.
 
+## 3D Periodic Table (Stage 1 of 6)
+
+A 3D periodic table where every number shows where it came from. Column height and color show atomic size (covalent radius) by default; **Explore more properties** adds ionization energy, electronegativity, melting and boiling points, density, and atomic mass.
+
+- **Click an element** for its electron configuration (written the way the textbook writes it), its atomic mass, and, for common ions, a side-by-side picture of the atom and its ion (Na vs. Na⁺, Cl vs. Cl⁻).
+- **Click any value's source** for the full citation, the table it came from, its license, and whether a second, independent source agrees.
+- **Measured, estimated, and predicted values look different:** estimates and predictions are drawn as glass columns with dashed edges, and missing values as striped tiles. Heights are never compressed.
+- **No mouse needed:** the arrow keys move between elements and <kbd>Enter</kbd> opens one; the **Table** button shows the same data as a sortable table.
+
+Later stages add real electron-density pictures of atoms and ions, spectra and flame tests, and the elements' real forms; see the [plan](periodic-table/PLAN.md).
+
 ## For instructors
 
 The repository is published with GitHub Pages from the `main` branch, so every file is served at `https://neogio73.github.io/CHM1025/` followed by its path.
@@ -238,6 +250,8 @@ Robo-Lab and Mole Hole began as separate games and are now stages 1 and 2 of Per
 
 Smaller Than Small is a finished build of a Unity project that is kept outside this repository. Its folder is replaced as a whole when the game changes, so edits made to its files here would be lost. To run a copy on your own computer, serve the folder with a web server, for example `python -m http.server 8000`, then open `http://localhost:8000/smaller-than-small/`.
 
+The 3D Periodic Table, in [`periodic-table/`](periodic-table/), is built in this repository. A Python pipeline downloads its data sources, cross-checks every value against a second source, and writes the page's data files; [`periodic-table/README.md`](periodic-table/README.md) explains how to rebuild it, and [`pipeline/REVIEW.md`](periodic-table/pipeline/REVIEW.md) records every disagreement between sources and how it was settled.
+
 Spring to Sea, in [`spring-to-sea/`](spring-to-sea/), is built the same way: a Unity WebGL build from a project kept outside this repository, replaced as a whole when the game changes. Its completion codes are checked with the instructor's private checker, like the others.
 
 ## Credits
@@ -247,6 +261,7 @@ Spring to Sea, in [`spring-to-sea/`](spring-to-sea/), is built the same way: a U
 - The hero is the [Sci Fi Space Soldier](https://assetstore.unity.com/packages/3d/characters/humanoids/sci-fi/sci-fi-space-soldier-polygonr-66384) model by PolygonR from the Unity Asset Store, recolored. Its animations are from [Mixamo](https://www.mixamo.com/).
 - In Spring to Sea, the paddleboard is "Colorfull sup board with fin" by Ernest Szarek ([BlendKit](https://blendkit.art/), royalty free); the paddler and the base paddling motion are from [Mixamo](https://www.mixamo.com/); the water, river, and grass rendering use [Stylized Water 3](https://assetstore.unity.com/packages/vfx/shaders/stylized-water-3-287769) and the [Stylized Grass Shader](https://assetstore.unity.com/packages/vfx/shaders/stylized-grass-shader-143830) by Staggart Creations from the Unity Asset Store. The wildlife and bank vegetation come from [Poly Pizza](https://poly.pizza/): ["Oak Tree"](https://poly.pizza/m/56cDueZB7TR) by Esdras Paravizo (CC-BY 3.0), ["Manatee"](https://poly.pizza/m/7nDfJjW0Csq) and ["Dolphin"](https://poly.pizza/m/1y2iPj1CFg7) by Poly by Google (CC-BY 3.0), and public-domain (CC0) trees, bushes, fish, and shark by Quaternius and Kenney. Alastair is a real dog.
 - Periodic Panic embeds two fonts in its page so it loads nothing from outside: [VT323](https://fonts.google.com/specimen/VT323) by Peter Hull and [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) by CodeMan38, both under the [SIL Open Font License 1.1](https://openfontlicense.org/), which permits embedding. Its art, music, and sound effects are made in code.
+- The 3D Periodic Table's data come from the NIST Atomic Spectra Database (NIST Standard Reference Data; copyright on the compilation is held by the U.S. Secretary of Commerce under 15 U.S.C. § 290e, and only the individual values used are reproduced), IUPAC CIAAW, Cordero et al. (2008), Shannon (1976), Alvarez (2013), Vogt & Alvarez (2014), Mann, Meek & Allen (2000), and PubChem, with machine-readable copies from [mendeleev](https://github.com/lmmentel/mendeleev) (MIT License). Full citations are in [`periodic-table/pipeline/SOURCES.md`](periodic-table/pipeline/SOURCES.md). It uses [three.js](https://threejs.org/) (MIT License).
 - Retro Reactions is an original game in the spirit of 1980s arcade genres; its characters, artwork, sound, and intro clips were made for it. The people whose likenesses appear in the Reaction Gang gave their permission, and those likenesses are not licensed for reuse outside the game. Lord Barkium is the author's dog, Alastair. It uses the fonts Oxanium, Silkscreen, and Atkinson Hyperlegible from Google Fonts (SIL Open Font License).
 
 ## License
@@ -255,3 +270,4 @@ Code and content in this repository are released under the [MIT License](LICENSE
 
 - The likenesses of real people and of Alastair the dog (the Reaction Gang and Lord Barkium in Retro Reactions; the author and Alastair in Escape from Lewis Manor) are not licensed for reuse outside these games.
 - Third-party assets listed under Credits keep their own licenses (Unity Asset Store packages, Mixamo, CC0 and CC-BY models, SIL Open Font License fonts); they are redistributed here only as part of the built games.
+- Data values in the 3D Periodic Table belong to their cited sources and keep their terms (see Credits); the MIT License covers the code and text written for it.
