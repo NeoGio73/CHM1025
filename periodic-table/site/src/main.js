@@ -40,6 +40,7 @@ const COMMON_ION = {
 };
 const ROMAN = { II: 2, III: 3, IV: 4, V: 5, VI: 6, VII: 7, VIII: 8, IX: 9, X: 10, XI: 11, XII: 12, XIV: 14 };
 
+const ATOM_VIEW_MAX_Z = 18; // Stage 2a: the atom view covers H–Ar
 let prop = DEFAULT_PROP;
 let selected = ELS.findIndex(e => e.sym === 'Na');
 
@@ -391,7 +392,10 @@ function openPanel(idx, focus = true) {
     <p class="zline">Atomic number ${e.Z} · ${e.sym} · ${loc}</p>
     <h3>Electron configuration</h3>
     <div class="config">${supDigits(e.config.v)}</div>
-    ${metaLine(reg('config', e.config), e.config)}`;
+    ${metaLine(reg('config', e.config), e.config)}
+    ${e.Z <= ATOM_VIEW_MAX_Z
+      ? `<a class="btn atomlink" href="atom.html?Z=${e.Z}">See the electron cloud →</a>`
+      : `<p class="note">Electron-cloud view: hydrogen to argon so far; more elements are coming.</p>`}`;
 
   // atom vs ion
   const q = COMMON_ION[e.sym];

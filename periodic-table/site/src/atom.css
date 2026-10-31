@@ -1,0 +1,39 @@
+.back { margin: 0 0 2px; font-size: 0.9rem; }
+.atom-main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); gap: 12px; padding: 0 12px; }
+.atom-stage { position: relative; min-height: 72vh; background: var(--scene-bg); border-radius: var(--radius); overflow: hidden; }
+#a-scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.caption { position: absolute; left: 10px; right: 10px; bottom: 10px; font-size: 0.85rem; color: var(--ink);
+  background: color-mix(in srgb, var(--surface) 88%, transparent); border: 1px solid var(--line);
+  border-radius: 8px; padding: 6px 10px; pointer-events: none; }
+.atom-side { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px;
+  overflow-y: auto; max-height: calc(100vh - 140px); }
+.atom-side h2 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 14px 0 6px; }
+.atom-side h2:first-child { margin-top: 0; }
+.atom-side h2.orbname { text-transform: none; letter-spacing: 0; font-size: 1rem; color: var(--ink); }
+.levels { display: flex; gap: 8px; flex-wrap: wrap; }
+.levels span { border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; font-size: 0.9rem; }
+
+/* orbital diagram (boxes and arrows) */
+.odiag { display: grid; gap: 6px; }
+.orow { display: flex; align-items: center; gap: 8px; }
+.orow .lab { width: 2.2em; font-weight: 600; text-align: right; }
+.boxes { display: flex; }
+.obox { width: 44px; height: 40px; border: 1.5px solid var(--ink); background: var(--surface); color: var(--ink);
+  font: 600 1.1rem/1 system-ui, sans-serif; cursor: pointer; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 0; margin-left: -1.5px; }
+.obox:first-child { margin-left: 0; }
+.obox small { font-size: 0.65rem; font-weight: 400; color: var(--muted); }
+.obox[aria-pressed="true"] { background: color-mix(in srgb, var(--accent) 22%, var(--surface)); outline: 2px solid var(--accent); z-index: 1; }
+.allbtn { margin: 4px 0 2px; }
+.allbtn[aria-pressed="true"] { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 0.92rem; margin: 6px 0; }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; font-weight: 600; }
+.legend-dots { list-style: none; padding: 0; margin: 4px 0; display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.85rem; }
+.legend-dots i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: middle; }
+
+@media (max-width: 800px) {
+  .atom-main { grid-template-columns: 1fr; padding: 0 8px; }
+  .atom-stage { min-height: 52vh; }
+  .atom-side { max-height: none; }
+}

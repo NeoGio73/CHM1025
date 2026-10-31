@@ -126,6 +126,38 @@ SOURCES = {
         "license": "U.S. Government work (NLM; DOE laboratories); see https://www.nlm.nih.gov/copyright.html.",
         "retrieved": retrieved("pubchem_periodictable.json"),
     },
+    "bunge1993": {
+        "short": "Bunge et al. 1993",
+        "citation": "Bunge, C. F.; Barrientos, J. A.; Bunge, A. V. Roothaan-Hartree-Fock ground-state atomic wave "
+        "functions: Slater-type orbital expansions and expectation values for Z = 2-54. At. Data Nucl. Data Tables "
+        "1993, 53, 113–162. Complementary: Bunge, C. F.; Barrientos, J. A.; Bunge, A. V.; Cogordan, J. A. "
+        "Phys. Rev. A 1992, 46, 3691–3696.",
+        "doi": "10.1006/adnd.1993.1003",
+        "url": "https://server.ccl.net/cca/data/atomic-RHF-wavefunctions/tables",
+        "table": "The authors' RHF.TABLES data file (Slater-type exponents and coefficients for every occupied "
+        "orbital), as distributed by the authors and mirrored by CCL. Orbitals evaluated from it reproduce the "
+        "expectation values printed in the same file (see pipeline/out/orbitals.md).",
+        "license": "Published values, cited with attribution.",
+        "retrieved": MANIFEST.get("bunge1993_rhf_tables.txt", {}).get("retrieved", ""),
+    },
+    "hydrogen_exact": {
+        "short": "Exact hydrogen solution",
+        "citation": "Exact solution of the nonrelativistic Schrödinger equation for hydrogen (infinite nuclear mass): "
+        "R₁₀(r) = 2 a₀^(−3/2) e^(−r/a₀). See e.g. Bethe, H. A.; Salpeter, E. E. Quantum Mechanics of One- and "
+        "Two-Electron Atoms; Springer, 1957.",
+        "table": "Hydrogen 1s radial function",
+        "license": "Standard result.",
+        "retrieved": "",
+    },
+    "codata2022": {
+        "short": "CODATA 2022 (NIST)",
+        "citation": "NIST Reference on Constants, Units, and Uncertainty: CODATA 2022 recommended value of the Bohr "
+        "radius, a₀ = 5.291 772 105 44(82) × 10⁻¹¹ m.",
+        "url": "https://physics.nist.gov/cgi-bin/cuu/Value?bohrrada0",
+        "table": "Bohr radius, used to convert atomic units to picometers",
+        "license": "U.S. Government work (NIST).",
+        "retrieved": "2026-10-30",
+    },
     "mendeleev": {
         "short": "mendeleev 1.3.0",
         "citation": "Mentel, Ł. mendeleev – A Python resource for properties of chemical elements, ions and isotopes, "

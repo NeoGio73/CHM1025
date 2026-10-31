@@ -46,5 +46,11 @@
     "sha256": "617a4b2d3eeef8a7c26809499a2736e738b50e99877c5e684ebaa759d28a13b9",
     "bytes": 15495,
     "retrieved": "2026-10-30"
+  },
+  "bunge1993_rhf_tables.txt": {
+    "url": "https://server.ccl.net/cca/data/atomic-RHF-wavefunctions/tables",
+    "sha256": "329f7a9c2bd255a094c592a9d962daef0752f48cddd12c03c9a8892c29449f6d",
+    "bytes": 161632,
+    "retrieved": "2026-10-30"
   }
 }

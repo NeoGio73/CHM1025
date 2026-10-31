@@ -80,6 +80,32 @@ National Center for Biotechnology Information. PubChem Periodic Table of Element
 - **license:** U.S. Government work (NLM; DOE laboratories); see https://www.nlm.nih.gov/copyright.html.
 - **retrieved:** 2026-10-30
 
+## Bunge et al. 1993 (`bunge1993`)
+
+Bunge, C. F.; Barrientos, J. A.; Bunge, A. V. Roothaan-Hartree-Fock ground-state atomic wave functions: Slater-type orbital expansions and expectation values for Z = 2-54. At. Data Nucl. Data Tables 1993, 53, 113–162. Complementary: Bunge, C. F.; Barrientos, J. A.; Bunge, A. V.; Cogordan, J. A. Phys. Rev. A 1992, 46, 3691–3696.
+
+- **doi:** 10.1006/adnd.1993.1003
+- **url:** https://server.ccl.net/cca/data/atomic-RHF-wavefunctions/tables
+- **table:** The authors' RHF.TABLES data file (Slater-type exponents and coefficients for every occupied orbital), as distributed by the authors and mirrored by CCL. Orbitals evaluated from it reproduce the expectation values printed in the same file (see pipeline/out/orbitals.md).
+- **license:** Published values, cited with attribution.
+- **retrieved:** 2026-10-30
+
+## Exact hydrogen solution (`hydrogen_exact`)
+
+Exact solution of the nonrelativistic Schrödinger equation for hydrogen (infinite nuclear mass): R₁₀(r) = 2 a₀^(−3/2) e^(−r/a₀). See e.g. Bethe, H. A.; Salpeter, E. E. Quantum Mechanics of One- and Two-Electron Atoms; Springer, 1957.
+
+- **table:** Hydrogen 1s radial function
+- **license:** Standard result.
+
+## CODATA 2022 (NIST) (`codata2022`)
+
+NIST Reference on Constants, Units, and Uncertainty: CODATA 2022 recommended value of the Bohr radius, a₀ = 5.291 772 105 44(82) × 10⁻¹¹ m.
+
+- **url:** https://physics.nist.gov/cgi-bin/cuu/Value?bohrrada0
+- **table:** Bohr radius, used to convert atomic units to picometers
+- **license:** U.S. Government work (NIST).
+- **retrieved:** 2026-10-30
+
 ## mendeleev 1.3.0 (`mendeleev`)
 
 Mentel, Ł. mendeleev – A Python resource for properties of chemical elements, ions and isotopes, version 1.3.0. Used as a machine-readable transcription of the original papers named in each source entry.

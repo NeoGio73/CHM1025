@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atom View</title>
+<meta name="description" content="Calculated electron cloud of an atom, from published Hartree–Fock wavefunctions.">
+<link rel="stylesheet" href="src/style.css">
+<link rel="stylesheet" href="src/atom.css">
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+} }
+</script>
+</head>
+<body>
+<header class="top">
+  <div class="title">
+    <p class="back"><a href="./">← Periodic table</a></p>
+    <h1 id="a-title">Atom</h1>
+    <p class="sub" id="a-sub">Calculated electron cloud</p>
+  </div>
+  <div class="controls" role="group" aria-label="Display options">
+    <label class="ctl check"><input type="checkbox" id="t-dots" checked> Dots</label>
+    <label class="ctl check"><input type="checkbox" id="t-surface" checked> 90% surface</label>
+    <label class="ctl check"><input type="checkbox" id="t-rings" checked> Scale rings</label>
+  </div>
+</header>
+
+<main class="atom-main">
+  <section class="atom-stage" aria-label="3D view of the electron cloud">
+    <canvas id="a-scene" role="img" tabindex="0" aria-label="Electron cloud"></canvas>
+    <p class="loading" id="a-loading">Loading…</p>
+    <div class="caption" id="a-caption" aria-live="polite"></div>
+  </section>
+
+  <aside class="atom-side" id="a-side"></aside>
+</main>
+
+<dialog id="srcdlg" aria-labelledby="s-title">
+  <div id="s-body"></div>
+  <form method="dialog"><button class="btn">Close</button></form>
+</dialog>
+
+<footer class="foot">
+  <p>Wavefunctions: Bunge, Barrientos &amp; Bunge, At. Data Nucl. Data Tables 53, 113 (1993); hydrogen: exact solution.
+  Lengths converted with the CODATA 2022 Bohr radius (NIST).</p>
+</footer>
+<script type="module" src="src/atom.js"></script>
+</body>
+</html>

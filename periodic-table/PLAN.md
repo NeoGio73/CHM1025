@@ -88,9 +88,13 @@ periodic-table/
 - **Done when:** every value has a source, status and license, the table renders for all 118 elements, and the table view passes keyboard and screen-reader checks.
 
 ## Stage 2 — Atom view, real orbitals, H–Xe (the heart of the project)
-- **Wavefunctions:** spherically averaged atomic Hartree–Fock orbitals computed with PySCF (`scf.atom_hf`) in a large, near-complete basis. Hydrogen and H-like ions use the exact analytic solutions.
-  - **Validation against the published tables:** total energies must match Bunge et al. 1993 (He–Xe) to within 10⁻⁴ hartree, and ⟨r⟩ per orbital must agree with Clementi–Roetti 1974 to within 1%. Store the comparison in the pipeline output.
-  - Range: **H–Xe (Z = 1–54)**, since the reference tables cover this whole range.
+- **Wavefunctions (decided after the feasibility check, 2026-10-30):** the Roothaan–Hartree–Fock orbitals of Bunge, Barrientos & Bunge, *At. Data Nucl. Data Tables* 53, 113–162 (1993), evaluated directly from the authors' own data file (RHF.TABLES, mirrored at https://server.ccl.net/cca/data/atomic-RHF-wavefunctions/tables). It gives Slater-type exponents and coefficients for every occupied orbital of the neutral ground-state atoms He–Xe. Hydrogen uses the exact analytic solution. No quantum-chemistry program is needed for neutral atoms H–Xe.
+  - **Why not PySCF:** PySCF has no Windows package on PyPI; conda-forge has one only for Python 3.11, which needs micromamba (not installed). Using the published functions directly is simpler and is the reference itself.
+  - **Feasibility result:** for all 53 atoms, orbitals recomputed from the coefficients reproduce the expectation values printed in the same file: normalization within 3×10⁻⁶, ⟨r⟩ within 1.5×10⁻⁵ (relative), ⟨1/r⟩ within 3×10⁻⁶, ⟨1/r²⟩ within 6×10⁻⁵, ⟨r²⟩ within 3×10⁻⁴ (rounding of the printed value), orthogonality within 2×10⁻⁶. The file's RHOat0 equals 2π × the density at the nucleus (agrees within 1%).
+  - **Known artifact:** because the coefficients are printed to 6 decimals, 160 orbitals change sign again far out in the tail. At most 3.3×10⁻⁶ of the orbital's probability lies beyond such a point, so it is invisible; the pipeline counts nodes only inside the radius holding 99.999% of the probability and cuts the tail there.
+  - **Open-shell atoms:** Bunge's functions are for the ground term (e.g., C ³P), with one radial function per sublevel; the angular part and the per-orbital occupation follow the display rule below.
+  - Range: **H–Xe (Z = 1–54)**.
+  - Still to cross-check: ⟨r⟩ against Clementi–Roetti 1974 (an independent calculation) within 1%.
 - **What ships:** each occupied orbital's radial function R(r) on a log grid (a few KB per element), plus occupations. The browser samples |ψ|² = R(r)²·|Y(θ,φ)|² with a fixed random seed, which keeps clouds identical for all students and lets phones use fewer points.
 - **Radial nodes:** must be visible (2s ≠ small 1s, 3p ≠ big 2p).
 - **Open-shell atoms (decided rule):** the calculation is spherically averaged, so a partly filled sublevel (e.g., C 2p²) has fractional occupation spread over its orbitals. The **total density** view shows that honestly. The **single-orbital** view shows each orbital's shape and says how many electrons the orbital diagram puts in it (e.g., "2p_x: 1 electron in the orbital diagram; the calculation spreads 2 electrons evenly over the three 2p orbitals"). This text is under "More detail"; the Basic view shows the orbital diagram next to the shapes.
@@ -108,9 +112,16 @@ periodic-table/
 - **Nucleus:** protons plus neutrons of the most abundant isotope, labeled "packing is a model."
 - **Ions:**
   - Computed electron clouds only for ions that are stable as free gas-phase ions: cations (Na⁺, Mg²⁺, Al³⁺, K⁺, Ca²⁺, …) and the singly charged anions H⁻, F⁻, Cl⁻, Br⁻, I⁻.
+  - **Source still needed:** Bunge 1993 covers neutral atoms only. Options: published ion tables (Clementi & Roetti 1974 include some ions; Koga et al. published cations and anions), or PySCF once an environment is approved (micromamba + conda-forge, or WSL). Decide before Stage 2a reaches ions.
   - **O²⁻, N³⁻, S²⁻ and other multiply charged anions are not bound as free ions**, so no wavefunction cloud is drawn for them. Their size appears as a Shannon crystal ionic radius sphere, labeled "size in a crystal; this ion does not exist on its own."
   - The atom-vs-ion comparison states which radius is shown: computed free-ion density for the cloud, Shannon radius for the number.
 - **Done when:** H–Xe atoms and the listed ions render from validated wavefunctions, validation tests pass, and every model choice above is labeled.
+- **Status (2026-10-30): Stage 2a built for H–Ar** (`site/atom.html`, data from `pipeline/orbitals/build_orbitals.py`):
+  - Point cloud (seeded, so every student sees the same picture), 90% surface, 100 pm rings, axes, nucleus marked as enlarged, Timberlake-style configuration, electrons per energy level, Hund's-rule orbital diagram whose boxes select orbitals.
+  - 90% surfaces: s orbitals drawn as exact concentric spheres from precomputed radii; p orbitals by marching cubes, one grid per region between radial nodes; isovalues computed with the angular part integrated exactly (hydrogen 1s within 5×10⁻⁵ of the exact value).
+  - Whole-atom view: the sphere holding 90% of the **outer (valence) electrons**, not of all electrons (the all-electron sphere is dominated by the core and puts Na below Li). The outer-electron radius follows the size trend for all of H–Ar (checked in `out/orbitals.md`).
+  - Independent review: data, sampling (KS test), axis mapping and marching-cubes mapping all reproduced; its fixes (whole-atom sphere, node artifacts, wording) are applied.
+  - **Still to do (2b):** ion clouds (source needed, see Ions), K–Xe (d orbitals), radial plot, Measure mode, total-density toggle, true-scale nucleus, Clementi–Roetti ⟨r⟩ cross-check.
 
 ## Stage 3 — Extend to all elements (Z = 55–118)
 - **Method:** PySCF with scalar-relativistic X2C, spherically averaged, for the clouds and radial plots. Desclaux 1973 is used **only** to check ⟨r⟩ and orbital energies, since it lists expectation values, not full wavefunctions, and can't produce clouds.
@@ -178,8 +189,8 @@ periodic-table/
 - Alkali metals in water, a neon sign, liquid O₂ held by a magnet, decay chains (IAEA nuclide data, real order, compressed times announced). Same ground rules apply: no physics-free motion.
 
 ## Validation (automated, in `pipeline/tests/`)
-- Every orbital is normalized: ∫r²R²dr = 1 to within 10⁻⁶.
-- PySCF total energies match Bunge et al. 1993 (He–Xe) to within 10⁻⁴ hartree.
+- Every orbital is normalized: ∫r²R²dr = 1 to within 10⁻⁵ (the file's coefficients are rounded to 6 decimals).
+- Orbitals evaluated from the Bunge 1993 coefficients reproduce the ⟨r⟩, ⟨1/r⟩ and ⟨1/r²⟩ printed in the same file to within 10⁻⁴ (relative); orthogonality within 10⁻⁵.
 - Orbital ⟨r⟩ matches Clementi–Roetti 1974 to within 1% (H–Xe) and Desclaux 1973 to within 2% (Cs–Rn).
 - Number of radial nodes = n − l − 1 for every orbital.
 - CIE pipeline: the Na D doublet lands at its known chromaticity (x ≈ 0.575, y ≈ 0.424, within 0.002); the blackbody routine matches the Planckian locus at 2000 K and 6500 K.

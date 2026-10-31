@@ -36,6 +36,8 @@ SOURCES = {
     "pymatgen_shannon_radii.csv": PMG + "Shannon_Radii.csv",
     "pymatgen_radii.csv": PMG + "radii.csv",
     "wikipedia_covalent_radius.txt": "https://en.wikipedia.org/w/index.php?title=Covalent_radius&action=raw",
+    # Bunge, Barrientos & Bunge 1993: the authors' RHF.TABLES file, mirrored by CCL
+    "bunge1993_rhf_tables.txt": "https://server.ccl.net/cca/data/atomic-RHF-wavefunctions/tables",
 }
 
 
