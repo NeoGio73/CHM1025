@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { buildCosmos } from './cosmos.js';
+import { makeAlastair } from './alastair.js';
 
 // ------------------------------------------------------------------ data
 const [DATA, SRC] = await Promise.all([
@@ -130,6 +131,12 @@ const isPhoneLayout = matchMedia('(max-width: 700px)').matches;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const cosmos = buildCosmos({ footprint: { minX: -8.5, maxX: 8.5, minZ: -4, maxZ: 6.4 }, isPhone: isPhoneLayout,
   reducedMotion });
+// Alastair (the author's dog) floats by in a space helmet now and then. All motion, so not shown with reduced motion.
+// Adding ?alastair to the address makes him show up right away; ?alastair=still holds him in view.
+const alastair = reducedMotion ? null : makeAlastair(camera);
+if (alastair && new URLSearchParams(location.search).has('alastair')) {
+  alastair.forceVisit(new URLSearchParams(location.search).get('alastair') === 'still');
+}
 const simpleBox = document.getElementById('simplebg');
 let fancyOn = true;
 try { fancyOn = localStorage.getItem('pt-simple-bg') !== '1'; } catch { /* storage unavailable */ }
@@ -145,6 +152,7 @@ function themeColors() {
 }
 function applySetting() {
   for (const g of [cosmos.world, cosmos.sky]) { if (fancyOn) scene.add(g); else scene.remove(g); }
+  if (alastair) { if (fancyOn) scene.add(alastair.object); else scene.remove(alastair.object); }
   VIEW_DIR = fancyOn ? VIEW_COSMOS : VIEW_PLAIN;
   TARGET.copy(fancyOn ? TARGET_COSMOS : TARGET_PLAIN);
   controls.target.copy(TARGET);
@@ -336,7 +344,7 @@ simpleBox.addEventListener('change', () => {
 renderer.setAnimationLoop(now => {
   stepFly(now);
   stepRise(now);
-  if (fancyOn) cosmos.update(now);
+  if (fancyOn) { cosmos.update(now); alastair?.update(now); }
   controls.update();
   renderer.render(scene, camera);
 });
