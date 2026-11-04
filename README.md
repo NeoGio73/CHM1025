@@ -9,6 +9,7 @@ Games and activities for a college-level introductory chemistry course. Everythi
 | Scale, metric prefixes, scientific notation, atoms, ions, isotopes, atomic mass, light, energy levels, and electron configurations | [Smaller Than Small](https://neogio73.github.io/CHM1025/smaller-than-small/) | Game (3D, WebGL) |
 | Balancing equations, stoichiometry, and Lewis structures | [Retro Reactions](https://neogio73.github.io/CHM1025/retro-reactions/) | Game (four retro arcade stages, extra credit) |
 | Bonding, shapes, polarity, and intermolecular forces (Ch. 10) | [Escape from Lewis Manor](https://neogio73.github.io/CHM1025/lewis-manor/) | Game (Halloween) |
+| Shapes of molecules (VSEPR) and polarity, up to four electron groups (Ch. 10) | [VSEPR Geometry Explorer](https://neogio73.github.io/CHM1025/vsepr-explorer/) | Reference table (3D) |
 | Course policies in the syllabus | [Beaker Catch](https://neogio73.github.io/CHM1025/beaker-catch/) | Game (first week, ungraded) |
 | Key terms from Chapters 1–12 and 14 | [Periodic Panic](https://neogio73.github.io/CHM1025/periodic-panic/) | Game (vocabulary review, ungraded; six arcade games in one) |
 | Key terms from Chapters 1–12 and 14 | [Robo-Lab](https://neogio73.github.io/CHM1025/robo-lab/) | Opens Periodic Panic at stage 1 (the old link still works) |
@@ -223,6 +224,16 @@ A 3D periodic table where every number shows where it came from. Column height a
 
 Later stages add real electron-density pictures of atoms and ions, spectra and flame tests, and the elements' real forms; see the [plan](periodic-table/PLAN.md).
 
+## VSEPR Geometry Explorer
+
+A reference table for the shapes of molecules with two, three, or four electron groups around the central atom: linear, trigonal planar, bent, tetrahedral, and trigonal pyramidal. Each row gives the AXE notation, the number of bonded atoms and lone pairs, the ideal and real bond angles, the polarity, and a note on why the shape looks the way it does. A short primer at the top covers predicting a shape, what counts as one electron group, why lone pairs shrink angles, and how to tell polarity from shape.
+
+- **Every row has a 3D model** to drag and rotate, with lone pairs drawn as purple lobes and the bond angle marked on the model.
+- **A menu above each model switches between example molecules,** 26 in all, such as H₂O, H₂S, OF₂, and SCl₂ for the bent shape. Each example lists its central atom, its electron groups, its measured bond angle, and whether it is polar.
+- **Switches at the top** turn the lone pairs, angle labels, and rotation on or off.
+
+Nothing on the page is graded or recorded. The models need a browser with WebGL.
+
 ## For instructors
 
 The repository is published with GitHub Pages from the `main` branch, so every file is served at `https://neogio73.github.io/CHM1025/` followed by its path.
@@ -252,6 +263,8 @@ Smaller Than Small is a finished build of a Unity project that is kept outside t
 
 The 3D Periodic Table, in [`periodic-table/`](periodic-table/), is built in this repository. A Python pipeline downloads its data sources, cross-checks every value against a second source, and writes the page's data files; [`periodic-table/README.md`](periodic-table/README.md) explains how to rebuild it, and [`pipeline/REVIEW.md`](periodic-table/pipeline/REVIEW.md) records every disagreement between sources and how it was settled.
 
+The VSEPR Geometry Explorer is a single file, [`vsepr-explorer/index.html`](vsepr-explorer/index.html). Its table and example molecules are in the `DATA` list near the top of its script. It loads three.js from a public CDN and its fonts from Google Fonts, and opens straight from the file with a double-click. A version that goes up to six electron groups is in the [CHM1045 repository](https://neogio73.github.io/CHM1045/vsepr-geometry-explorer.html). To show it in D2L, add `<iframe src="https://neogio73.github.io/CHM1025/vsepr-explorer/" width="100%" height="1400" style="border:0" title="VSEPR Geometry Explorer"></iframe>` in the HTML editor.
+
 Spring to Sea, in [`spring-to-sea/`](spring-to-sea/), is built the same way: a Unity WebGL build from a project kept outside this repository, replaced as a whole when the game changes. Its completion codes are checked with the instructor's private checker, like the others.
 
 ## Credits
@@ -261,6 +274,7 @@ Spring to Sea, in [`spring-to-sea/`](spring-to-sea/), is built the same way: a U
 - The hero is the [Sci Fi Space Soldier](https://assetstore.unity.com/packages/3d/characters/humanoids/sci-fi/sci-fi-space-soldier-polygonr-66384) model by PolygonR from the Unity Asset Store, recolored. Its animations are from [Mixamo](https://www.mixamo.com/).
 - In Spring to Sea, the paddleboard is "Colorfull sup board with fin" by Ernest Szarek ([BlendKit](https://blendkit.art/), royalty free); the paddler and the base paddling motion are from [Mixamo](https://www.mixamo.com/); the water, river, and grass rendering use [Stylized Water 3](https://assetstore.unity.com/packages/vfx/shaders/stylized-water-3-287769) and the [Stylized Grass Shader](https://assetstore.unity.com/packages/vfx/shaders/stylized-grass-shader-143830) by Staggart Creations from the Unity Asset Store. The wildlife and bank vegetation come from [Poly Pizza](https://poly.pizza/): ["Oak Tree"](https://poly.pizza/m/56cDueZB7TR) by Esdras Paravizo (CC-BY 3.0), ["Manatee"](https://poly.pizza/m/7nDfJjW0Csq) and ["Dolphin"](https://poly.pizza/m/1y2iPj1CFg7) by Poly by Google (CC-BY 3.0), and public-domain (CC0) trees, bushes, fish, and shark by Quaternius and Kenney. Alastair is a real dog.
 - Periodic Panic embeds two fonts in its page so it loads nothing from outside: [VT323](https://fonts.google.com/specimen/VT323) by Peter Hull and [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) by CodeMan38, both under the [SIL Open Font License 1.1](https://openfontlicense.org/), which permits embedding. Its art, music, and sound effects are made in code.
+- The VSEPR Geometry Explorer uses [three.js](https://threejs.org/) (MIT License).
 - The 3D Periodic Table's data come from the NIST Atomic Spectra Database (NIST Standard Reference Data; copyright on the compilation is held by the U.S. Secretary of Commerce under 15 U.S.C. § 290e, and only the individual values used are reproduced), IUPAC CIAAW, Cordero et al. (2008), Shannon (1976), Alvarez (2013), Vogt & Alvarez (2014), Mann, Meek & Allen (2000), and PubChem, with machine-readable copies from [mendeleev](https://github.com/lmmentel/mendeleev) (MIT License). Full citations are in [`periodic-table/pipeline/SOURCES.md`](periodic-table/pipeline/SOURCES.md). It uses [three.js](https://threejs.org/) (MIT License). Space Alastair, who floats past now and then in a glass helmet, uses walk-cycle frames from the author's Dog Desktop Pet project.
 - Retro Reactions is an original game in the spirit of 1980s arcade genres; its characters, artwork, sound, and intro clips were made for it. The people whose likenesses appear in the Reaction Gang gave their permission, and those likenesses are not licensed for reuse outside the game. Lord Barkium is the author's dog, Alastair. It uses the fonts Oxanium, Silkscreen, and Atkinson Hyperlegible from Google Fonts (SIL Open Font License).
 
