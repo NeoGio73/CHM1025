@@ -240,6 +240,8 @@ The repository is published with GitHub Pages from the `main` branch, so every f
 
 Completion codes are checked with a private checker page kept by the instructor; it is not part of this repository.
 
+Five of the games (Smaller Than Small, Retro Reactions, Escape from Lewis Manor, Beaker Catch, and Periodic Panic) are described in a preprint, *Escape Rooms, Arcades, and a Grain of Salt: Five Original Games for Introductory Chemistry, Built by One Instructor with Generative AI*, ChemRxiv 2026, [doi:10.26434/chemrxiv.15011208](https://doi.org/10.26434/chemrxiv.15011208). The release [`games-paper-preprint-v1`](https://github.com/NeoGio73/CHM1025/releases/tag/games-paper-preprint-v1) is the repository as the preprint describes it.
+
 To check a later part without replaying from the start, add `?zone=1`, `?zone=2`, or `?zone=3` to the address to start Level 1 in a later world, or `?level=2` or `?level=3` to start at Level 2 or 3. For example, [`smaller-than-small/?level=3`](https://neogio73.github.io/CHM1025/smaller-than-small/?level=3) opens the Isotope Vault.
 
 Escape from Lewis Manor is a single file, [`lewis-manor/index.html`](lewis-manor/index.html), with its art and sound made in code; it loads three fonts from Google Fonts and opens straight from the file with a double-click.
