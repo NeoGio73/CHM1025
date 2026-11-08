@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Spring to Sea</title>
+  <meta name="description" content="A paddleboarding game on acids and bases for CHM 1025 (Chapter 14): from a Florida spring to a coral reef.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%231c6fa8'/%3E%3Cpath d='M3 18c4-3 7-3 10 0s7 3 10 0 6-3 6-3v10H3z' fill='%23e8f4fb'/%3E%3C/svg%3E">
+  <style>
+    :root { --ink: #eef6fb; --muted: #b6cad6; --accent: #7fd3f7; --card: rgba(4, 22, 36, 0.72); --line: rgba(160, 200, 220, 0.25); }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      min-height: 100vh; color: var(--ink);
+      font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: linear-gradient(180deg, #0b3a52 0%, #0a4d6b 35%, #0c5f7c 60%, #0a2f45 100%);
+      background-color: #0a3a52;
+    }
+    main { max-width: 1312px; margin: 0 auto; padding: 18px 16px 36px; }
+    header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; margin-bottom: 14px; }
+    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.1; margin: 0; letter-spacing: 0.01em; }
+    .tag { color: var(--muted); margin: 4px 0 0; }
+    .links { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+    a { color: var(--accent); }
+    .prelab {
+      display: inline-block; padding: 10px 18px; border-radius: 8px; font-weight: 700; text-decoration: none;
+      background: #f2c94c; color: #18232a;
+    }
+    .prelab:hover, .prelab:focus-visible { background: #ffd866; }
+    .home { font-size: 0.95rem; }
+    .frame {
+      position: relative; width: 100%; aspect-ratio: 16 / 10; max-height: calc(100vh - 150px);
+      margin: 0 auto; background: #06202f; border: 1px solid var(--line); border-radius: 10px; overflow: hidden;
+    }
+    #unity-canvas { width: 100%; height: 100%; display: block; background: #06202f; }
+    #loading {
+      position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 14px; text-align: center; padding: 16px; background: #06202f;
+    }
+    #loading p { margin: 0; color: var(--muted); }
+    .bar { width: min(360px, 80%); height: 10px; border-radius: 6px; background: rgba(255, 255, 255, 0.15); overflow: hidden; }
+    .bar > div { height: 100%; width: 0; background: var(--accent); transition: width 0.2s; }
+    #warning { position: absolute; left: 12px; right: 12px; top: 12px; z-index: 2; }
+    #warning div { margin-bottom: 6px; padding: 10px 14px; border-radius: 6px; color: #18232a; background: #f2c94c; }
+    #warning div.error { color: #fff; background: #b3261e; }
+    .below { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 24px; margin-top: 12px; }
+    .notes { color: var(--muted); font-size: 0.95rem; margin: 0; max-width: 900px; }
+    button {
+      font: inherit; font-weight: 600; color: var(--ink); background: var(--card); border: 1px solid var(--line);
+      border-radius: 8px; padding: 8px 16px; cursor: pointer; height: fit-content;
+    }
+    button:hover, button:focus-visible { border-color: var(--accent); }
+    .mobile-note { display: none; margin: 0 0 12px; padding: 10px 14px; border-radius: 8px; background: var(--card); border: 1px solid var(--line); }
+  </style>
+</head>
+<body>
+<div style="background:#f2c94c;color:#18232a;padding:8px 16px;font:600 15px system-ui,sans-serif;text-align:center">Preview for review: this is not the version students see yet.</div>
+<main>
+  <header>
+    <div>
+      <h1>Spring to Sea</h1>
+      <p class="tag">CHM 1025 · Chapter 14: Acids and Bases. Paddle from a Florida spring to a coral reef, testing the water on the way.</p>
+    </div>
+    <div class="links">
+      <a class="prelab" href="prelab/">Read the prelab first →</a>
+      <a class="home" href="../">All CHM 1025 activities</a>
+    </div>
+  </header>
+
+  <p class="mobile-note" id="mobile-note">This game needs a keyboard and mouse. Please play it on a laptop or desktop computer.</p>
+
+  <div class="frame" id="frame">
+    <canvas id="unity-canvas" tabindex="-1" aria-label="Spring to Sea game"></canvas>
+    <div id="loading" role="status" aria-live="polite">
+      <p><strong>Loading Spring to Sea…</strong></p>
+      <div class="bar"><div id="progress"></div></div>
+      <p id="loading-note">The first time, this downloads about 45 MB. After that it loads faster.</p>
+    </div>
+    <div id="warning"></div>
+  </div>
+
+  <div class="below">
+    <p class="notes">Click the game, then use <strong>W A S D</strong> to paddle; the title screen has the rest of the keys.
+      Nothing you type is saved or sent anywhere. At the end of the trip you get a completion code for D2L.
+      Needs a browser with WebGL 2 (Chrome, Edge, Firefox or Safari).</p>
+    <button type="button" id="fullscreen">Full screen</button>
+  </div>
+</main>
+
+<script src="report.js"></script>
+<script>
+  (function () {
+    var canvas = document.querySelector("#unity-canvas");
+    var loading = document.querySelector("#loading");
+    var progress = document.querySelector("#progress");
+    var warning = document.querySelector("#warning");
+
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      document.querySelector("#mobile-note").style.display = "block";
+    }
+
+    function showBanner(message, type) {
+      var div = document.createElement("div");
+      div.textContent = message;
+      if (type === "error") div.className = "error";
+      warning.appendChild(div);
+      if (type !== "error") setTimeout(function () { if (div.parentNode) warning.removeChild(div); }, 5000);
+    }
+
+    function failed(message) {
+      loading.style.display = "flex";
+      loading.innerHTML = "";
+      var p = document.createElement("p");
+      p.textContent = "The game could not start: " + message + " Try reloading the page, or another browser (Chrome, Edge, Firefox or Safari).";
+      loading.appendChild(p);
+    }
+
+    var buildUrl = "Build";
+    var loaderUrl = buildUrl + "/WebGL.loader.js";
+    var config = {
+      arguments: [],
+      dataUrl: buildUrl + "/WebGL.data.unityweb",
+      frameworkUrl: buildUrl + "/WebGL.framework.js.unityweb",
+      codeUrl: buildUrl + "/WebGL.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "CHM 1025",
+      productName: "Spring to Sea",
+      productVersion: "0.1.0",
+      // Sharp enough on high-resolution screens without overloading modest laptops.
+      devicePixelRatio: Math.min(window.devicePixelRatio || 1, 1.5),
+      showBanner: showBanner
+    };
+
+    var script = document.createElement("script");
+    script.src = loaderUrl;
+    script.onload = function () {
+      createUnityInstance(canvas, config, function (p) {
+        progress.style.width = Math.round(100 * p) + "%";
+      }).then(function (instance) {
+        loading.style.display = "none";
+        canvas.focus();
+        document.querySelector("#fullscreen").onclick = function () { instance.SetFullscreen(1); };
+      }).catch(function (message) {
+        failed(String(message));
+      });
+    };
+    script.onerror = function () { failed("its files did not load."); };
+    document.body.appendChild(script);
+  })();
+</script>
+</body>
+</html>
