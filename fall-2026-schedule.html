@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CHM 1025 · The Rest of the Semester (Fall 2026)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+/* Colors from Daytona State College's brand palette:
+   DSC Blue #0079C1 (PMS 300C), DSC Dark Blue #002F87 (PMS 287C), DSC Silver #A5A8A9 */
+:root{
+  --dsc-blue:#0079C1; --dsc-dark:#002F87; --dsc-silver:#A5A8A9;
+  --desk:#E9EDF2; --desk-2:#DCE4EE; --ui:#14213D; --muted:#56627A; --line:#C9D2DD; --surface:#F6F8FB;
+  --accent:#0079C1; --paper:#FFFFFF; --ink:#14213D; --ink-soft:#4A5670; --divider:#E1E6EE;
+  --shadow:0 1px 0 rgba(0,0,0,.04),0 10px 30px -14px rgba(0,30,90,.35);
+  /* fill colors (calendar cells, card top edge) */
+  --k-class:#0079C1; --k-exam:#002F87; --k-review:#A5A8A9; --k-off:#8A929B; --k-final:#001A4F;
+  /* text colors on white cards */
+  --t-class:#0072B6; --t-exam:#002F87; --t-review:#5F676B; --t-off:#7B838C; --t-final:#001A4F;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --desk:#0C1322; --desk-2:#111B30; --ui:#E6EBF3; --muted:#9AA8C0; --line:#26324D; --surface:#15203A;
+    --accent:#5FB4E8; --shadow:0 1px 0 rgba(0,0,0,.3),0 16px 40px -14px rgba(0,0,0,.8);
+    --k-exam:#2452B8; --k-final:#13306E;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--desk);color:var(--ui);font:15px/1.5 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  background-image:radial-gradient(circle at 20% 0%,var(--desk-2),transparent 55%);min-height:100vh}
+
+/* header band in DSC Dark Blue, with a DSC Blue and Silver edge */
+.band{background:var(--dsc-dark);color:#fff;border-bottom:5px solid var(--dsc-blue);box-shadow:0 3px 0 var(--dsc-silver)}
+.bandin{max-width:820px;margin:0 auto;padding:22px 16px 18px}
+.eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#BFD3EE;font-weight:500}
+h1{font-family:Fraunces,Georgia,serif;font-weight:650;font-size:clamp(28px,5vw,40px);line-height:1.05;margin:4px 0 6px;letter-spacing:-.01em;color:#fff}
+h1 .cc{color:#7CC6F3;font-weight:500}
+.lede{margin:0;color:#D3DEEF;max-width:40em}
+
+.wrap{max-width:820px;margin:0 auto;padding:20px 16px 40px}
+
+/* summary tiles */
+.summary{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:10px;margin:0 0 18px}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;border-left:4px solid var(--dsc-silver)}
+.tile.next{border-left-color:var(--dsc-blue)}
+.tile .lab{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.tile .big{font-family:Fraunces,Georgia,serif;font-weight:650;font-size:22px;line-height:1.15;margin-top:4px}
+.tile .small{font-size:13px;color:var(--muted);margin-top:2px}
+.tile.next .big{color:var(--accent)}
+
+/* mini calendar */
+.calbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px 10px;margin:0 0 22px}
+.calhead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+.calhead .lab{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.legend i.fin{box-shadow:inset 0 0 0 1.5px var(--dsc-silver)}
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.grid .dh{font-size:11px;text-align:center;color:var(--muted);font-weight:600;letter-spacing:.06em;padding-bottom:2px}
+.cell{position:relative;min-height:44px;border-radius:9px;padding:4px 6px;font-size:13px;color:var(--muted);
+  background:transparent;border:1px solid transparent;text-align:left;font-family:inherit;line-height:1.2}
+.cell .mo{font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;display:block}
+.cell.has{cursor:pointer;color:#fff;font-weight:600;border:0}
+.cell.has .what{display:block;font-size:10.5px;font-weight:500;opacity:.95;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell.k-class,.cell.k-practice{background:var(--k-class)} .cell.k-exam{background:var(--k-exam)}
+.cell.k-review{background:var(--k-review);color:#14213D}
+.cell.k-final{background:var(--k-final);box-shadow:inset 0 0 0 2px var(--dsc-silver)}
+.cell.k-off{background:transparent;color:var(--k-off);border:1.5px dashed var(--k-off)}
+.cell.past{opacity:.45}
+.cell.today{box-shadow:0 0 0 2.5px var(--desk),0 0 0 5px var(--ui)}
+.cell.k-final.today{box-shadow:inset 0 0 0 2px var(--dsc-silver),0 0 0 2.5px var(--desk),0 0 0 5px var(--ui)}
+.cell.has:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* day list */
+.week{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:20px 0 8px;display:flex;align-items:center;gap:10px}
+.week::after{content:"";flex:1;height:1px;background:var(--line)}
+.week .now{letter-spacing:.06em;text-transform:none;font-weight:600;color:var(--accent)}
+ol.days{list-style:none;margin:0;padding:0}
+.day{display:flex;gap:14px;align-items:stretch;background:var(--paper);color:var(--ink);border-radius:16px;box-shadow:var(--shadow);
+  margin:0 0 12px;padding:14px 18px 14px 14px;border-top:4px solid var(--kc);scroll-margin-top:16px;transition:opacity .3s,box-shadow .3s}
+.day.k-class,.day.k-practice{--kc:var(--k-class);--kt:var(--t-class)} .day.k-exam{--kc:var(--k-exam);--kt:var(--t-exam)}
+.day.k-review{--kc:var(--k-review);--kt:var(--t-review)} .day.k-off{--kc:var(--k-off);--kt:var(--t-off)}
+.day.k-final{--kc:var(--k-final);--kt:var(--t-final)}
+.date{flex:0 0 66px;text-align:center;border-right:1px solid var(--divider);padding-right:12px;display:flex;flex-direction:column;justify-content:center}
+.date .dow{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+.date .dnum{font-family:Fraunces,Georgia,serif;font-weight:650;font-size:34px;line-height:1;color:var(--kt)}
+.date .mon{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft)}
+.info{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px}
+.tag{font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid var(--kt);color:var(--kt)}
+.day.k-exam .tag,.day.k-final .tag{background:var(--kt);color:#fff}
+.status{font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px}
+.status.today{background:#14213D;color:#fff}
+.status.next{background:#0079C1;color:#fff}
+.status.done{color:#4A5670;border:1px solid #C9D2DD}
+.info h2{font-family:"Source Serif 4",Georgia,serif;font-weight:600;font-size:clamp(18px,2.6vw,21px);line-height:1.3;margin:0;color:#14213D}
+.info .sub{font-family:"Source Serif 4",Georgia,serif;color:#4A5670;font-size:16px}
+.info p{margin:4px 0 0;font-size:14px;color:#4A5670}
+.info .links{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.info .links a{font-size:13px;color:#00609A;text-decoration:none;border:1px solid #C6DCEE;background:#EEF6FC;border-radius:99px;padding:3px 10px}
+.info .links a:hover{background:#DDEEFA}
+.day.past{opacity:.5}
+.day.is-today{box-shadow:var(--shadow),0 0 0 3px #002F87}
+.day.is-next{box-shadow:var(--shadow),0 0 0 3px #0079C1}
+.day.k-off .info h2{color:#6B7385}
+.day.flash{animation:flash 1.2s ease}
+@keyframes flash{0%,100%{transform:none}30%{transform:scale(1.015)}}
+.over{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--dsc-blue);border-radius:14px;padding:14px 16px;margin:0 0 18px;font-family:"Source Serif 4",Georgia,serif;font-size:17px}
+.over[hidden]{display:none}
+footer{margin-top:22px;font-size:13px;color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (max-width:620px){
+  .summary{grid-template-columns:1fr 1fr}
+  .summary .next{grid-column:1/-1}
+  .cell{min-height:38px;padding:3px 4px;font-size:12px}
+  .cell.has .what{display:none}
+  .date{flex-basis:54px;padding-right:10px}
+  .date .dnum{font-size:28px}
+  .day{gap:12px;padding:12px 14px 12px 12px}
+}
+@media print{
+  body{background:#fff}
+  .band,.cell.has,.tag,.status{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .day,.tile,.calbox{box-shadow:none;break-inside:avoid}
+  .day.past{opacity:1}
+  .day.is-today,.day.is-next{box-shadow:none}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.day.flash{animation:none}}
+</style>
+</head>
+<body>
+<header class="band">
+  <div class="bandin">
+    <div class="eyebrow">CHM 1025 · Introduction to Chemistry · Fall 2026</div>
+    <h1>The rest of the <span class="cc">semester</span></h1>
+    <p class="lede">What we do each time we meet, from now through the final exam.</p>
+  </div>
+</header>
+<div class="wrap">
+
+  <div class="over" id="over" hidden>The semester is over. Have a great break!</div>
+
+  <section class="summary" aria-label="At a glance">
+    <div class="tile next"><div class="lab" id="nextLab">Next class</div><div class="big" id="nextBig"></div><div class="small" id="nextSmall"></div></div>
+    <div class="tile"><div class="lab">Class meetings left</div><div class="big" id="leftBig"></div><div class="small">counting the final exam</div></div>
+    <div class="tile"><div class="lab">Final exam</div><div class="big" id="finalBig"></div><div class="small" id="finalSmall"></div></div>
+  </section>
+
+  <section class="calbox" aria-label="Calendar">
+    <div class="calhead">
+      <div class="lab">Mondays and Wednesdays</div>
+      <div class="legend">
+        <span><i style="background:var(--k-class)"></i>Class</span>
+        <span><i style="background:var(--k-review)"></i>Review</span>
+        <span><i style="background:var(--k-exam)"></i>Exam</span>
+        <span><i class="fin" style="background:var(--k-final)"></i>Final exam</span>
+        <span><i style="border:1.5px dashed var(--k-off)"></i>No class</span>
+      </div>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <main id="list"></main>
+
+  <footer>If anything changes, you'll see it first in an announcement in Falcon Online.</footer>
+</div>
+
+<script>
+/* ------------------------------------------------------------------
+   THE PLAN. To change it, edit this list and save.
+   date:  "YYYY-MM-DD"
+   kind:  "class" | "practice" | "review" | "exam" | "final" | "off"
+   title: the main line;  sub: a second line (optional)
+   note:  a sentence under it (optional)
+   links: [["Link text", "https://..."], ...] (optional)
+   ------------------------------------------------------------------ */
+const SCHEDULE = [
+  { date:"2026-11-23", kind:"class",    title:"Chapter 11", sub:"Gases" },
+  { date:"2026-11-25", kind:"practice", title:"Practice problems on gases", sub:"Chapter 11" },
+  { date:"2026-11-30", kind:"class",    title:"Chapter 12", sub:"Solutions" },
+  { date:"2026-12-02", kind:"class",    title:"Chapter 12", sub:"Solutions, continued" },
+  { date:"2026-12-07", kind:"class",    title:"Chapter 14", sub:"Acids and Bases" },
+  { date:"2026-12-09", kind:"exam",     title:"Exam 4" },
+  { date:"2026-12-14", kind:"review",   title:"Review",
+    links:[["Periodic Panic: key terms from Chapters 1–12 and 14","https://neogio73.github.io/CHM1025/periodic-panic/"]] },
+  { date:"2026-12-16", kind:"final",    title:"Final Exam" }
+];
+
+const KIND_LABEL = { class:"Class", practice:"Practice", review:"Review", exam:"Exam", final:"Final exam", off:"No class" };
+const DOW = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function iso(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function parts(s){ const [y,m,d]=s.split("-").map(Number); return {y,m,d}; }
+function dayNum(s){ const p=parts(s); return Math.round(Date.UTC(p.y,p.m-1,p.d)/864e5); }
+function fromNum(n){ const d=new Date(n*864e5); return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0"); }
+function dow(s){ const p=parts(s); return new Date(Date.UTC(p.y,p.m-1,p.d)).getUTCDay(); }
+function nice(s){ const p=parts(s); return DOW[dow(s)]+", "+MON[p.m-1]+" "+p.d; }
+function esc(t){ return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+// Today, from the student's own clock (add ?today=2026-12-03 to the address to preview another day)
+const q = new URLSearchParams(location.search).get("today");
+const TODAY = /^\d{4}-\d{2}-\d{2}$/.test(q||"") ? q : iso(new Date());
+const T = dayNum(TODAY);
+
+const items = SCHEDULE.slice().sort((a,b)=>dayNum(a.date)-dayNum(b.date));
+const nextItem = items.find(it => dayNum(it.date) > T && it.kind !== "off");
+const todayItem = items.find(it => dayNum(it.date) === T);
+const finalItem = items.find(it => it.kind === "final");
+
+function statusOf(it){
+  const n = dayNum(it.date);
+  if (n === T) return "today";
+  if (n < T) return "past";
+  if (it === nextItem) return "next";
+  return "future";
+}
+
+/* summary tiles */
+(function summary(){
+  const lab = document.getElementById("nextLab"), big = document.getElementById("nextBig"), small = document.getElementById("nextSmall");
+  const focus = (todayItem && todayItem.kind !== "off") ? todayItem : nextItem;
+  if (focus){
+    lab.textContent = focus === todayItem ? "Today" : "Next class";
+    big.textContent = focus.title + (focus.sub && focus.kind==="class" ? ": " + focus.sub : "");
+    const days = dayNum(focus.date) - T;
+    small.textContent = nice(focus.date) + (days===0 ? " (today)" : days===1 ? " (tomorrow)" : " (in " + days + " days)");
+  } else {
+    lab.textContent = "Next class"; big.textContent = "None left"; small.textContent = "";
+  }
+  const left = items.filter(it => it.kind !== "off" && dayNum(it.date) >= T).length;
+  document.getElementById("leftBig").textContent = left + (left===1 ? " meeting" : " meetings");
+  if (finalItem){
+    const d = dayNum(finalItem.date) - T;
+    document.getElementById("finalBig").textContent = d>1 ? "In " + d + " days" : d===1 ? "Tomorrow" : d===0 ? "Today" : "Done";
+    document.getElementById("finalSmall").textContent = nice(finalItem.date);
+  }
+  if (items.length && T > dayNum(items[items.length-1].date)){
+    document.getElementById("over").hidden = false;
+    document.querySelector(".summary").style.display = "none";
+  }
+})();
+
+/* mini calendar: whole weeks, Sunday to Saturday */
+(function calendar(){
+  const grid = document.getElementById("grid");
+  const byDate = {}; items.forEach(it => byDate[it.date] = it);
+  const first = dayNum(items[0].date), last = dayNum(items[items.length-1].date);
+  const start = first - dow(items[0].date), end = last + (6 - dow(items[items.length-1].date));
+  let html = ["S","M","T","W","T","F","S"].map((d,i)=>'<div class="dh" aria-hidden="true">'+d+'</div>').join("");
+  for (let n = start; n <= end; n++){
+    const s = fromNum(n), p = parts(s), it = byDate[s];
+    const mo = (n === start || p.d === 1) ? '<span class="mo">'+MON[p.m-1]+'</span>' : "";
+    const cls = ["cell"]; if (n === T) cls.push("today"); if (n < T) cls.push("past");
+    if (it){
+      cls.push("has","k-"+it.kind);
+      html += '<button type="button" class="'+cls.join(" ")+'" data-go="'+s+'" aria-label="'+esc(nice(s)+": "+it.title)+'">'
+            + mo + p.d + '<span class="what">'+esc(it.title)+'</span></button>';
+    } else {
+      html += '<div class="'+cls.join(" ")+'" aria-hidden="true">'+mo+p.d+'</div>';
+    }
+  }
+  grid.innerHTML = html;
+  grid.addEventListener("click", e => {
+    const b = e.target.closest("[data-go]"); if (!b) return;
+    const el = document.getElementById("d-"+b.dataset.go); if (!el) return;
+    el.scrollIntoView({block:"center"});
+    el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+  });
+})();
+
+/* day cards, grouped by week */
+(function list(){
+  const out = []; let wk = null, open = false;
+  const thisWeek = T - ((new Date(T*864e5)).getUTCDay());
+  items.forEach(it => {
+    const n = dayNum(it.date), w = n - dow(it.date);
+    if (w !== wk){
+      if (open) out.push("</ol>");
+      const monday = fromNum(w+1), p = parts(monday);
+      const tag = w === thisWeek ? ' <span class="now">· this week</span>' : (w === thisWeek+7 ? ' <span class="now">· next week</span>' : "");
+      out.push('<h3 class="week">Week of '+MON[p.m-1]+' '+p.d+tag+'</h3><ol class="days">');
+      wk = w; open = true;
+    }
+    const st = statusOf(it), p = parts(it.date);
+    const badge = st==="today" ? '<span class="status today">Today</span>'
+                : st==="next"  ? '<span class="status next">Next class</span>'
+                : st==="past" && it.kind !== "off" ? '<span class="status done">Done</span>' : "";
+    const links = (it.links||[]).length && st !== "past"
+      ? '<div class="links">'+it.links.map(l=>'<a href="'+esc(l[1])+'" target="_blank" rel="noopener">'+esc(l[0])+'</a>').join("")+'</div>' : "";
+    out.push(
+      '<li class="day k-'+it.kind+(st==="past"?" past":"")+(st==="today"?" is-today":"")+(st==="next"?" is-next":"")+'" id="d-'+it.date+'">'
+      + '<div class="date"><span class="dow">'+DOW[dow(it.date)]+'</span><span class="dnum">'+p.d+'</span><span class="mon">'+MON[p.m-1]+'</span></div>'
+      + '<div class="info"><div class="meta"><span class="tag">'+KIND_LABEL[it.kind]+'</span>'+badge+'</div>'
+      + '<h2>'+esc(it.title)+'</h2>'
+      + (it.sub ? '<div class="sub">'+esc(it.sub)+'</div>' : "")
+      + (it.note ? '<p>'+esc(it.note)+'</p>' : "")
+      + links + '</div></li>'
+    );
+  });
+  if (open) out.push("</ol>");
+  document.getElementById("list").innerHTML = out.join("");
+})();
+</script>
+</body>
+</html>
