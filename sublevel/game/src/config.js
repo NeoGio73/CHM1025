@@ -1,0 +1,38 @@
+// Everything Prof. Picione still has to decide (handoff section 11) lives in this one file, as in Daughter.
+// Values marked PLACEHOLDER are stand-ins so step 3 is playable. Values marked CONFIRMED were approved.
+
+export const CONFIG = {
+
+	// Section 11, item 7: building identity. PLACEHOLDER (a neutral stand-in, approved as such on 2026-11-26)
+	names: {
+		company: 'Building Maintenance',
+		building: 'the building'
+	},
+
+	// Section 11, item 4: scoring (CONFIRMED 2026-11-26)
+	// 1 point per work order completed; wrong answers make the dark come faster, they never cost points.
+	pointsPerWorkOrder: 1,
+	workOrderCount: 6,
+
+	// The dark (handoff section 6). Game values, to tune by playing.
+	dark: {
+		interval: 7, // seconds between rooms (or hallway stretches) going dark behind the player
+		wrongSpeedup: 0.35, // each wrong answer in the current work order makes the dark this much faster
+		linger: 35, // seconds in one place, once everything behind is dark, before the dark reaches the player
+		lingerSpeedup: 2, // the dark runs this many times faster while the player lingers
+		inDark: 3 // seconds the player can stand in a dark room before the lights fail around them
+	},
+
+	// a hint (the chicken's job, until the chicken model exists) after this many wrong answers, or this long looking for a room
+	hintAfterWrong: 2,
+	hintAfterSeconds: 120,
+
+	// Completion code (handoff section 9): same scheme as Daughter, Lewis Manor and Retro Reactions.
+	// CONFIRMED prefix 'SL' (2026-11-26). Secret generated 2026-11-26 (24 random letters and digits).
+	// Like the other games, the secret ships in the public page; it must be registered in the instructor's private checker.
+	codePrefix: 'SL',
+	codeSecret: 'oPolP9H37I9z0ZLFvJLWjcZy',
+	// true: registered in the instructor's private checker (game SL) on 2026-11-26 and verified, so no warning
+	codeRegistered: true
+
+};

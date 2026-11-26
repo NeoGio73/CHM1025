@@ -246,6 +246,7 @@ Nothing on the page is graded or recorded. The models need a browser with WebGL.
 | 3D Periodic Table | Stage 1 of 6 |
 | VSEPR Geometry Explorer | Available |
 | Daughter (Ch. 16, nuclear chemistry) | In development. It is not linked for students yet. A test build is in [`daughter/play/`](daughter/play/), and its source is in [`daughter/`](daughter/). |
+| Sublevel (Ch. 5, electron configurations) | In development. It is not linked for students yet, and there is no test build. Its source is in [`sublevel/`](sublevel/); [`sublevel/game/README.md`](sublevel/game/README.md) says how to run it, and [`sublevel/CREDITS.md`](sublevel/CREDITS.md) lists its CC0 assets. |
 
 ## For instructors
 

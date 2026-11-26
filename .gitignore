@@ -38,10 +38,13 @@ daughter/REVIEW_debrief_and_radio.md
 # Sublevel (Chapter 5). Rules are scoped to sublevel/ so nothing changes for the other games.
 # Reference photos and notes: private, never committed
 sublevel/reference/
+# Pearson instructor slides: copyrighted, must never be published
+sublevel/**/*.pptx
 # Planning notes and work logs: kept on disk, not published
 sublevel/SUBLEVEL_HANDOFF.md
 sublevel/WORKLOG*.md
 sublevel/**/WORKLOG*.md
+sublevel/REVIEW_*.md
 # Dependencies, build caches and logs
 sublevel/**/node_modules/
 sublevel/**/dist/
