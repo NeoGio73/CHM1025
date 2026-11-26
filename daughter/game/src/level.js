@@ -314,7 +314,7 @@ export function buildLevel( scene ) {
 	passage( 'ns', 0, - 28, 1.4 );
 	L.spawns[ 2 ] = { pos: new THREE.Vector3( 0, 1.65, - 29.2 ), yaw: 0 };
 	lamp( 'lampVault', 0, 3.2, - 33, 7 );
-	sign( '16.2  RECORDS VAULT', new THREE.Vector3( 0, 2.6, - 28.12 ), '-z', { w: 1.8, h: 0.38 } );
+	sign( '16.2  RECORDS VAULT', new THREE.Vector3( 0, 2.6, - 28.22 ), '-z', { w: 1.8, h: 0.38 } ); // just north of the hall's wall (it was buried inside it)
 	// three side vaults (closets)
 	const closets = [ { id: 'vaultA', side: 'w', at: - 31, x: - 5 }, { id: 'vaultB', side: 'w', at: - 35.5, x: - 5 }, { id: 'vaultC', side: 'e', at: - 33, x: 5 } ];
 	for ( const c of closets ) {
@@ -354,8 +354,9 @@ export function buildLevel( scene ) {
 	L.props.equipMeshes = [ gm, dm ];
 	L.props.calib = terminal( 'calib', new THREE.Vector3( 3.2, 0, - 48 ), '-x', 'CALIBRATION' );
 	// badge board: every film badge has gone black (set dressing from the handoff)
-	sign( 'FILM BADGES', new THREE.Vector3( 0.0, 2.25, - 51.88 ), '+z', { w: 1.6, h: 0.3 } );
-	for ( let i = 0; i < 12; i ++ ) box( [ - 0.75 + ( i % 6 ) * 0.25, 1.55 - Math.floor( i / 6 ) * 0.3, - 51.82 ], [ - 0.6 + ( i % 6 ) * 0.25, 1.75 - Math.floor( i / 6 ) * 0.3, - 51.79 ], 'lead', { cast: false } );
+	// (left of the exit door; it used to hang over the doorway)
+	sign( 'FILM BADGES', new THREE.Vector3( - 2.4, 2.25, - 51.88 ), '+z', { w: 1.6, h: 0.3 } );
+	for ( let i = 0; i < 12; i ++ ) box( [ - 3.15 + ( i % 6 ) * 0.25, 1.55 - Math.floor( i / 6 ) * 0.3, - 51.82 ], [ - 3.0 + ( i % 6 ) * 0.25, 1.75 - Math.floor( i / 6 ) * 0.3, - 51.79 ], 'lead', { cast: false } );
 	door( 'monExit', 'ns', 0, - 52, { label: 'HOT CORRIDOR', face: '+z' } );
 
 	// --- corridor and anteroom, station 4: 16.4

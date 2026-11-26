@@ -31,3 +31,5 @@ daughter/**/.env.*
 # Planning notes: kept on disk, not published
 daughter/DAUGHTER_HANDOFF.md
 daughter/OVERNIGHT_NOTES.md
+# Blender working folder: source .blend and preview renders stay local
+daughter/art/

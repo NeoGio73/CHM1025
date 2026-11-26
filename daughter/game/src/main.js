@@ -8,6 +8,7 @@
 
 import * as THREE from 'three/webgpu';
 import { buildLevel, GLOW_BLUE } from './level.js';
+import { loadRoomArt } from './art.js';
 import { initRenderer, createPipeline, TIERS, ORDER } from './engine.js';
 import { transmission } from './dose.js';
 import { AudioRig } from './audio.js';
@@ -79,7 +80,31 @@ updateFov();
 $( 'status' ).textContent = 'Building the facility…';
 await new Promise( r => setTimeout( r, 30 ) );
 const L = buildLevel( scene );
+// art pass: rooms modelled in Blender replace the graybox where they exist (the graybox stays if a file fails to load)
+// the published copy (daughter/play/) loads the models from the game's own folder, so they are stored in the repo once
+const MODELS = import.meta.env.DEV ? './models/' : '../game/public/models/';
+const ART = [
+	{ name: 'entry hall', url: MODELS + 'hall.glb', room: 'HALL', region: { x0: - 2.3, x1: 2.3, z0: - 28.05, z1: 0.3 } },
+	{ name: 'records vault', url: MODELS + 'vault.glb', room: 'VAULT', region: { x0: - 7.5, x1: 7.5, z0: - 38.15, z1: - 27.75 } },
+	{ name: 'monitoring station', url: MODELS + 'monitor.glb', room: 'MON', region: { x0: - 4.4, x1: 4.4, z0: - 52.15, z1: - 38.15 } },
+	{ name: 'hot corridor', url: MODELS + 'hot.glb', room: 'HOT', region: { x0: - 3.3, x1: 3.7, z0: - 76.15, z1: - 52.15 } },
+	{ name: 'infirmary', url: MODELS + 'infirmary.glb', room: 'INF', region: { x0: - 5.3, x1: 5.3, z0: - 86.15, z1: - 76.15 } },
+	{ name: 'control room', url: MODELS + 'control.glb', room: 'CTL', region: { x0: - 6.3, x1: 6.3, z0: - 108.3, z1: - 86.15 } }
+];
+$( 'status' ).textContent = 'Loading the rooms…';
+await Promise.all( ART.map( a => loadRoomArt( L, scene, a.url, a ).catch( e => console.warn( `The ${ a.name } art did not load; using the graybox.`, e ) ) ) );
+
 const flash = L.lights.flash;
+const FLASH_BASE = flash.intensity;
+const flashRay = new THREE.Raycaster(); flashRay.far = 2.5;
+let flashTick = 0, flashK = 1, flashGoal = 1, flashList = null;
+// what the beam can hit: every visible static mesh (rebuilt when visibility may have changed)
+function flashTargets() {
+
+	if ( ! flashList || flashTick % 90 === 1 ) flashList = L.statics.filter( m => m.isMesh && m.visible && m.parent && m.parent.visible );
+	return flashList;
+
+}
 scene.add( flash, flash.target, L.cone );
 
 const { pipeline, U, build } = createPipeline( renderer, scene, camera, L );
@@ -782,6 +807,17 @@ function frame() {
 	fwd.set( 0, 0, - 1 ).applyQuaternion( handQ );
 	flash.target.position.copy( camera.position ).addScaledVector( fwd, 6 );
 	flash.target.updateMatrixWorld();
+	// close-range softening: dim the beam as the surface it hits gets near (inverse-square would blow it out to white)
+	if ( flashOn && ( flashTick ++ % 3 ) === 0 ) {
+
+		flashRay.set( handPos, fwd );
+		const hit = flashRay.intersectObjects( flashTargets(), false )[ 0 ];
+		flashGoal = THREE.MathUtils.clamp( ( ( hit ? hit.distance : 9 ) / 2.2 ) ** 2, 0.12, 1 );
+
+	}
+
+	flashK += ( flashGoal - flashK ) * ( 1 - Math.exp( - dt * 8 ) );
+	flash.intensity = FLASH_BASE * flashK;
 	L.cone.position.copy( handPos ); L.cone.quaternion.copy( handQ );
 	L.volume.position.set( Math.round( camera.position.x ), 1.75, Math.round( camera.position.z ) );
 

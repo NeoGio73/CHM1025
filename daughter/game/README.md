@@ -1,4 +1,4 @@
-# Daughter: the game (build step 2, graybox)
+# Daughter: the game (build steps 2 to 4)
 
 All six stations as plain rooms, with working terminals, dose, checkpoints, an ending, the debrief and the completion code. It is playable from start to finish. The look (lighting, fog, glow, post effects and quality tiers) is carried over from the approved look test in `../look-test/`.
 
@@ -47,14 +47,19 @@ Each station is 1 point. Wrong answers cost 2 mSv once the dosimeter is live (st
 | `src/questions.js` | All chemistry, with the slide each fact comes from |
 | `src/radio.js` | All radio lines (draft), shown as captions |
 | `src/stations.js` | Terminal puzzles and checks |
-| `src/level.js` | Graybox rooms, doors, terminals, lights, dose sources |
+| `src/level.js` | Graybox rooms, doors, terminals, lights, dose sources (the gameplay layout) |
+| `src/art.js` | Loads the Blender rooms over the graybox |
 | `src/engine.js` | Renderer, tiers, post-processing (from the look test) |
 | `src/code.js` | Completion code, copied unchanged from Lewis Manor |
 | `src/main.js` | Player, interaction, dose, checkpoints, saving, title and ending |
 
-## What is not in the graybox yet
+## Art (build step 4)
 
-The three glimpses, the chair, the shape, recorded radio audio and the art pass (steps 4 and 5). Low uses real-time lights until the Blender bake.
+All six areas are modelled in Blender (`../art/facility.blend`, kept out of git) and exported to `public/models/*.glb` (10 MB). `src/art.js` loads each room and hides the graybox under it; walkable areas, collision, dose shielding and terminals still come from `src/level.js`. If a model fails to load, that room falls back to the graybox. The published copy in `../play/` loads the models from `../game/public/models/`, so they are stored once.
+
+## Not built yet
+
+The three glimpses, the chair, the shape and recorded radio audio (step 5). The Low tier uses real-time lights; a baked ambient-occlusion pass for Medium and Low is still to do.
 
 ## Pinned versions
 
