@@ -137,6 +137,26 @@ export class AudioRig {
 	}
 
 	// positional hum/buzz attached to a world position (tungsten lamp ballast)
+	// a wooden creak at a point in the room: stick-slip pulses (a slow sawtooth) through a resonant band that sags in pitch
+	creak( pos, level = 0.5, pitch = 1 ) {
+
+		if ( ! this.ctx ) return;
+		const ctx = this.ctx, t0 = ctx.currentTime + 0.01, dur = 0.45 + Math.random() * 0.25;
+		const o = ctx.createOscillator(); o.type = 'sawtooth';
+		o.frequency.setValueAtTime( 34 * pitch, t0 ); o.frequency.linearRampToValueAtTime( 22 * pitch, t0 + dur );
+		const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 7;
+		bp.frequency.setValueAtTime( 950 * pitch, t0 ); bp.frequency.exponentialRampToValueAtTime( 560 * pitch, t0 + dur );
+		const bp2 = ctx.createBiquadFilter(); bp2.type = 'bandpass'; bp2.Q.value = 5; bp2.frequency.value = 1900 * pitch;
+		const g = ctx.createGain(); g.gain.setValueAtTime( 0, t0 );
+		g.gain.linearRampToValueAtTime( level, t0 + 0.05 ); g.gain.setValueAtTime( level * 0.8, t0 + dur * 0.7 ); g.gain.linearRampToValueAtTime( 0, t0 + dur );
+		const p = ctx.createPanner();
+		Object.assign( p, { panningModel: 'HRTF', distanceModel: 'inverse', refDistance: 1.5, rolloffFactor: 1.1 } );
+		p.positionX.value = pos.x; p.positionY.value = pos.y; p.positionZ.value = pos.z;
+		o.connect( bp ).connect( g ); o.connect( bp2 ).connect( g ); g.connect( p ).connect( this.master );
+		o.start( t0 ); o.stop( t0 + dur + 0.05 );
+
+	}
+
 	addBuzzer( pos, level = 0.05 ) {
 
 		if ( ! this.ctx ) return null;

@@ -33,3 +33,31 @@ daughter/DAUGHTER_HANDOFF.md
 daughter/OVERNIGHT_NOTES.md
 # Blender working folder: source .blend and preview renders stay local
 daughter/art/
+daughter/REVIEW_debrief_and_radio.md
+
+# Sublevel (Chapter 5). Rules are scoped to sublevel/ so nothing changes for the other games.
+# Reference photos and notes: private, never committed
+sublevel/reference/
+# Planning notes and work logs: kept on disk, not published
+sublevel/SUBLEVEL_HANDOFF.md
+sublevel/WORKLOG*.md
+sublevel/**/WORKLOG*.md
+# Dependencies, build caches and logs
+sublevel/**/node_modules/
+sublevel/**/dist/
+sublevel/**/.vite/
+sublevel/**/*.log
+# Large source files and raw downloads: Blender scenes, uncompressed textures, audio, video
+sublevel/**/*.blend
+sublevel/**/*.blend1
+sublevel/**/*.exr
+sublevel/**/*.hdr
+sublevel/**/*.psd
+sublevel/**/*.tif
+sublevel/**/*.tiff
+sublevel/**/*.wav
+sublevel/**/*.mp4
+sublevel/**/*.mov
+sublevel/art/
+sublevel/**/.env
+sublevel/**/.env.*

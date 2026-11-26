@@ -16,7 +16,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 const loader = new GLTFLoader();
 
 // three variants per material, matching level.js: full (all maps), med (no normal map), low (Lambert)
-function registerMaterial( L, src ) {
+export function registerMaterial( L, src ) {
 
 	const key = 'glb:' + src.name;
 	if ( L.mats[ key ] ) return key;

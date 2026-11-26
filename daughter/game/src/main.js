@@ -9,6 +9,7 @@
 import * as THREE from 'three/webgpu';
 import { buildLevel, GLOW_BLUE } from './level.js';
 import { loadRoomArt } from './art.js';
+import { createGlimpses } from './glimpses.js';
 import { initRenderer, createPipeline, TIERS, ORDER } from './engine.js';
 import { transmission } from './dose.js';
 import { AudioRig } from './audio.js';
@@ -819,6 +820,7 @@ function frame() {
 	flashK += ( flashGoal - flashK ) * ( 1 - Math.exp( - dt * 8 ) );
 	flash.intensity = FLASH_BASE * flashK;
 	L.cone.position.copy( handPos ); L.cone.quaternion.copy( handQ );
+	glimpses?.update( dt, { flashOn, handPos, beamDir: fwd } );
 	L.volume.position.set( Math.round( camera.position.x ), 1.75, Math.round( camera.position.z ) );
 
 	// --- doors slide up
@@ -892,6 +894,9 @@ function frame() {
 const startKey = TIERS[ params.get( 'tier' ) ] ? params.get( 'tier' ) : ( isWebGPU ? 'high' : 'medium' );
 if ( params.get( 'tier' ) ) auto = false;
 newRun(); syncWorld();
+// step 5: the glimpses (the game runs without them if the chair fails to load)
+let glimpses = null;
+try { glimpses = await createGlimpses( { scene, L, G, audio, options, url: MODELS + 'chair.glb', save: persist } ); } catch ( e ) { console.warn( 'The chair did not load; no glimpses.', e ); }
 await setTier( startKey );
 renderer.setAnimationLoop( frame );
 

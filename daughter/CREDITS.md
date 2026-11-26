@@ -17,7 +17,7 @@ The look test (`look-test/`) contains no model, texture, image or sound files. T
 |---|---|---|---|
 | Models | Rooms, doors, terminals, lockers, lamps, the source and the control rods | Built from three.js boxes, cylinders and planes in `game/src/level.js` | Original to this project |
 | Textures | Concrete, paint, doors, signs, flashlight cookie, fog noise | Drawn in code in `src/textures.js` | Original to this project |
-| Sounds | Geiger clicks, room tone, lamp buzz, footsteps, switch, terminal chime, evacuation rumble | Synthesized with the Web Audio API in `src/audio.js` | Original to this project |
+| Sounds | Geiger clicks, room tone, lamp buzz, footsteps, switch, terminal chime, evacuation rumble, chair creak | Synthesized with the Web Audio API in `src/audio.js` | Original to this project |
 | Fonts | Georgia, Times New Roman, the browser's serif | The player's own system fonts; none is downloaded or shipped | Not redistributed |
 | Symbol | Radiation trefoil | Drawn in code | Public safety symbol |
 
@@ -36,6 +36,7 @@ Rooms are modelled in Blender, all in one source file, `art/facility.blend`, whi
 | Model | Painted Wooden Bench (vestibule) | Kirill Sannikov | https://polyhaven.com/a/painted_wooden_bench | CC0 |
 | Model | Power Box 01 (vestibule breaker box, door posed open) | Rico Cilliers, Yann Kervran | https://polyhaven.com/a/power_box_01 | CC0 |
 | Model | Fire Alarm (hall wall) | Slinc | https://polyhaven.com/a/fire_alarm | CC0 |
+| Model | Rockingchair 01 (the rocking chair, `game/public/models/chair.glb`) | Jorge Camacho | https://polyhaven.com/a/Rockingchair_01 | CC0 |
 | Models | Entry hall: walls, trim, door frames, barrier doors, lockers, lead casks, ID chart console, lamps, pipes, cable tray, sealed entrance. Records vault: filing cabinets, side-vault wheel doors, record shelving and boxes, equation-lock consoles, reading table and chair, papers. Monitoring station: equipment bench, survey meter (Geiger counter), pocket dosimeter and film badge, calibration rack and lead source pig, film-badge board, hand-and-foot monitor, desk, shelving. Hot corridor: source-log and clock consoles, corridor clock, interlock door, red beacon, step-off pad, shoe-cover bin, lead-brick source alcove with shield lip, open source container and fallen lid. Infirmary: beds, privacy curtains and rails, patient-chart stands, radiopharmacy cabinet with lead pots and vials, key cabinet, sink, IV stand, stool. Control room: four control desks, instrument walls with dials and chart recorders, rod-position board, shield wall and sealed lead core door, cable trays, chairs, wall clock, core room | Modelled for this project in Blender | `art/facility.blend` | Original to this project |
 | Images | Hazard stripes, trefoil plates, ID chart poster, meter dial, dose-chart poster, lead bricks, radiation-boundary stripes, clock face | Drawn for this project with Python in Blender | `art/facility.blend` | Original to this project |
 
