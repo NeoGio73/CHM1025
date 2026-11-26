@@ -1,0 +1,19 @@
+{
+  "name": "daughter-look-test",
+  "version": "1.0.0",
+  "description": "Daughter: step 1 look test (one corridor, four quality tiers)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "license": "UNLICENSED",
+  "type": "module",
+  "dependencies": {
+    "three": "0.187.0"
+  },
+  "devDependencies": {
+    "vite": "8.3.8"
+  },
+  "private": true
+}

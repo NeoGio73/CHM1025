@@ -1,0 +1,5 @@
+# Pearson instructor slides: copyrighted, must never be published (the public repo is on GitHub Pages)
+*.pptx
+reference/slides_text/
+# reference clips: third-party video, large files
+reference/*.mp4

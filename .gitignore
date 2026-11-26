@@ -1,0 +1,33 @@
+# Private instructor tool: the completion-code checker holds every game's secret. Never commit it, anywhere.
+checker*.html
+
+# Daughter (Chapter 16). Rules are scoped to daughter/ so nothing changes for the other games.
+# Reference clips and notes: other people's work, never committed
+daughter/reference/
+# Pearson instructor slides: copyrighted, must never be published
+daughter/**/*.pptx
+# Dependencies, build output and caches (the playable copy is built into daughter/play/ on purpose)
+daughter/**/node_modules/
+daughter/**/dist/
+daughter/**/.vite/
+daughter/**/*.log
+# Large source files: Blender scenes, uncompressed textures and audio, video
+daughter/**/*.blend
+daughter/**/*.blend1
+daughter/**/*.exr
+daughter/**/*.hdr
+daughter/**/*.psd
+daughter/**/*.tif
+daughter/**/*.tiff
+daughter/**/*.wav
+daughter/**/*.aif
+daughter/**/*.aiff
+daughter/**/*.flac
+daughter/**/*.mp4
+daughter/**/*.mov
+# Keys and local settings
+daughter/**/.env
+daughter/**/.env.*
+# Planning notes: kept on disk, not published
+daughter/DAUGHTER_HANDOFF.md
+daughter/OVERNIGHT_NOTES.md

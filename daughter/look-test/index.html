@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daughter: look test</title>
+<style>
+	:root { --ink: #d9dccf; --dim: #8b8f84; --blue: #6f9dff; --warn: #e0b25a; }
+	html, body { margin: 0; height: 100%; background: #000; color: var(--ink); overflow: hidden;
+		font: 13px/1.4 ui-monospace, "Cascadia Mono", Consolas, "SF Mono", Menlo, monospace; }
+	canvas { display: block; width: 100vw; height: 100vh; }
+	.hud { position: fixed; pointer-events: none; text-shadow: 0 0 4px #000, 0 0 2px #000; }
+	#hudTL { top: 18px; left: 22px; }
+	#hudTR { top: 18px; right: 22px; text-align: right; }
+	#hudBL { bottom: 20px; left: 22px; width: 300px; }
+	#hudBR { bottom: 20px; right: 22px; text-align: right; color: var(--dim); }
+	.lbl { color: var(--dim); }
+	#meter { position: relative; height: 10px; margin: 4px 0 2px; border: 1px solid #5d6157; background: rgba(0,0,0,.35); }
+	#meterFill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: linear-gradient(90deg, #6d8f6a, #d8c46a 60%, #e0745a); }
+	#meterTicks { display: flex; justify-content: space-between; color: var(--dim); font-size: 10px; }
+	#led { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #3a2a20; margin-right: 6px; vertical-align: 1px; }
+	#led.on { background: #ffb347; box-shadow: 0 0 6px #ffb347; }
+	#tierBar { position: fixed; top: 64px; right: 22px; display: flex; gap: 4px; }
+	#tierBar button { font: inherit; color: var(--ink); background: rgba(10,12,12,.7); border: 1px solid #4b4f47; padding: 3px 9px; cursor: pointer; }
+	#tierBar button.active { border-color: var(--blue); color: #fff; background: rgba(40,60,110,.55); }
+	#tierBar button:focus-visible { outline: 2px solid var(--blue); }
+	#overlay { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.78); }
+	#overlay .card { max-width: 520px; padding: 28px 32px; border: 1px solid #3c4039; background: rgba(8,9,9,.92); }
+	#overlay h1 { margin: 0 0 2px; font: 600 34px/1.1 Georgia, "Times New Roman", serif; letter-spacing: .04em; }
+	#overlay h2 { margin: 0 0 18px; font-weight: 400; font-size: 13px; color: var(--dim); }
+	#overlay p { margin: 8px 0; }
+	#overlay kbd { border: 1px solid #555; padding: 0 4px; border-radius: 3px; }
+	#enter { margin-top: 16px; font: inherit; font-size: 15px; padding: 9px 20px; color: #fff; background: #1f2d4d; border: 1px solid var(--blue); cursor: pointer; }
+	#enter:disabled { opacity: .5; cursor: wait; }
+	#status { margin-top: 10px; color: var(--dim); min-height: 1.4em; }
+	#fatal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; text-align: center; background: #000; }
+	@media (max-width: 900px) { #hudBR { display: none; } #perfInfo { max-width: 46vw; } }
+	@media (max-width: 640px) { #hudBL { width: auto; right: 22px; } #tierBar { top: auto; bottom: 120px; left: 22px; right: auto; flex-wrap: wrap; } #hudTL { display: none; } }
+</style>
+</head>
+<body>
+<div id="hudTL" class="hud">
+	<div>DAUGHTER · LOOK TEST</div>
+	<div class="lbl">corridor C-2 · step 1 of build order</div>
+</div>
+<div id="hudTR" class="hud">
+	<div id="tierInfo">tier —</div>
+	<div id="perfInfo" class="lbl">— fps</div>
+</div>
+<div id="tierBar" role="group" aria-label="Quality tier">
+	<button data-tier="ultra" title="Key 1">1 Ultra</button>
+	<button data-tier="high" title="Key 2">2 High</button>
+	<button data-tier="medium" title="Key 3">3 Medium</button>
+	<button data-tier="low" title="Key 4">4 Low</button>
+	<button data-tier="auto" title="Key 0">0 Auto</button>
+</div>
+<div id="hudBL" class="hud">
+	<div><span id="led"></span><span class="lbl">GEIGER</span> <span id="rate">0.00</span> <span class="lbl">µSv/h (game value)</span></div>
+	<div id="meter"><div id="meterFill"></div></div>
+	<div id="meterTicks"><span>0.1</span><span>1</span><span>10</span><span>100</span><span>1000</span></div>
+	<div style="margin-top:6px"><span class="lbl">DOSIMETER</span> <span id="dose">inactive until station 3</span></div>
+	<div><span class="lbl">FLASHLIGHT</span> <span id="flashState">ON</span></div>
+</div>
+<div id="hudBR" class="hud">
+	<div>WASD move · mouse look · F flashlight</div>
+	<div>1–4 tier · 0 auto · [ ] FOV · L lens · M reduced motion</div>
+	<div>Esc releases the mouse · H hides this</div>
+</div>
+
+<div id="overlay">
+	<div class="card">
+		<h1>Daughter</h1>
+		<h2>Chapter 16: Nuclear Chemistry · look test (one corridor)</h2>
+		<p>Content note: dark, tense, no gore.</p>
+		<p>This is only the lighting and sound test. There are no stations yet. Walk to the end of the corridor and look around the corner.</p>
+		<p class="lbl">Use headphones if you can. <kbd>F</kbd> toggles the flashlight, <kbd>1</kbd>–<kbd>4</kbd> switch quality tiers.</p>
+		<button id="enter" disabled>Checking graphics…</button>
+		<div id="status"></div>
+	</div>
+</div>
+<div id="fatal"></div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

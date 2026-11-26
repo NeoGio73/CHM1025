@@ -234,6 +234,19 @@ A reference table for the shapes of molecules with two, three, or four electron 
 
 Nothing on the page is graded or recorded. The models need a browser with WebGL.
 
+## Games in the paper and games added since
+
+**Described in the paper.** Five games are described in the preprint (see [For instructors](#for-instructors)): Smaller Than Small, Retro Reactions, Escape from Lewis Manor, Beaker Catch, and Periodic Panic. The release `games-paper-preprint-v1` keeps them exactly as the paper describes them.
+
+**Not part of the paper.** These activities are not described in the paper:
+
+| Activity | Status |
+|---|---|
+| Spring to Sea | In progress |
+| 3D Periodic Table | Stage 1 of 6 |
+| VSEPR Geometry Explorer | Available |
+| Daughter (Ch. 16, nuclear chemistry) | In development. It is not linked for students yet. A test build is in [`daughter/play/`](daughter/play/), and its source is in [`daughter/`](daughter/). |
+
 ## For instructors
 
 The repository is published with GitHub Pages from the `main` branch, so every file is served at `https://neogio73.github.io/CHM1025/` followed by its path.
