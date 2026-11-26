@@ -23,7 +23,8 @@ function registerMaterial( L, src ) {
 	const full = src;
 	full.shadowSide = THREE.DoubleSide;
 	const med = src.clone(); med.normalMap = null;
-	const low = new THREE.MeshLambertMaterial( { map: src.map || null, color: src.color.clone(), emissive: src.emissive?.clone(), emissiveMap: src.emissiveMap || null, side: src.side } );
+	// Lambert has no metalness: metal would come out flat and bright, so darken it by how metallic it is
+	const low = new THREE.MeshLambertMaterial( { map: src.map || null, color: src.color.clone().multiplyScalar( 1 - 0.6 * ( src.metalness || 0 ) ), emissive: src.emissive?.clone(), emissiveMap: src.emissiveMap || null, side: src.side } );
 	L.mats[ key ] = { full, med, low, tile: [ 1, 1 ] };
 	return key;
 
