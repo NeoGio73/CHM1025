@@ -18,6 +18,7 @@ The look test (`look-test/`) contains no model, texture, image or sound files. T
 | Models | Rooms, doors, terminals, lockers, lamps, the source and the control rods | Built from three.js boxes, cylinders and planes in `game/src/level.js` | Original to this project |
 | Textures | Concrete, paint, doors, signs, flashlight cookie, fog noise | Drawn in code in `src/textures.js` | Original to this project |
 | Sounds | Geiger clicks, room tone, lamp buzz, footsteps, switch, terminal chime, evacuation rumble, chair creak | Synthesized with the Web Audio API in `src/audio.js` | Original to this project |
+| Voice | Dr. Miriam Kessler's radio recordings (`game/public/audio/radio/*.mp3`, the 7 lines in `src/radio.js`) | AI-generated speech: Fish Audio text-to-speech API, model `s2.1-pro` (paid), voice "Luminous Expressive Female" by Cheryl Gardner Coppe, a Fish Audio licensed voice (id 57bdc0132f1d4e658a3e0f418d4d939d); generated 2026-11-27 on Prof. Picione's account. The old-tape sound is added in the game (`src/voice.js`) | Used under Fish Audio's terms for paid use (https://fish.audio/terms/) |
 | Fonts | Georgia, Times New Roman, the browser's serif | The player's own system fonts; none is downloaded or shipped | Not redistributed |
 | Symbol | Radiation trefoil | Drawn in code | Public safety symbol |
 

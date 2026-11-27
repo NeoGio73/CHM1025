@@ -1,6 +1,7 @@
 // Radio script: old recordings left by the health physicist (never a live conversation).
 // DRAFT lines for Prof. Picione to edit. Every spoken line lives in this file so recordings can be matched to it.
-// Audio is not recorded yet (handoff section 9, item 6), so the game shows these as captions only.
+// Each line is voiced from public/audio/radio/<key>.mp3 (<key>-2.mp3 for a second line), generated with Fish Audio in a
+// woman's voice (decided 2026-11-27). If you change a line, regenerate its clip or delete it (it then shows as a caption only).
 // {HP}, {FACILITY} and {NUCLIDE} are filled in from src/config.js.
 
 export const RADIO = {
