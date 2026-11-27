@@ -39,6 +39,25 @@ const SETS = {
 	paint: { size: 2, avg: 0xb9b6ae, rough: 1, flat: true }
 };
 
+// The building's identity (confirmed 2026-11-27): Calder & Finch Maintenance, an older look. Signs are brass plates
+// with dark brown serif letters; painted lettering is the same brown.
+const BRASS = { text: '#2b1f12', paint: '#3b2c1e', font: 'Georgia, "Times New Roman", serif' };
+function brassPlate( g, W, H ) {
+
+	const gr = g.createLinearGradient( 0, 0, W, H );
+	gr.addColorStop( 0, '#d6b978' ); gr.addColorStop( 0.45, '#b8955a' ); gr.addColorStop( 0.55, '#c7a66a' ); gr.addColorStop( 1, '#9c7b45' );
+	g.fillStyle = gr; g.fillRect( 0, 0, W, H );
+	const b = Math.max( 4, Math.round( Math.min( W, H ) * 0.035 ) );
+	g.strokeStyle = '#6b5130'; g.lineWidth = b; g.strokeRect( b / 2, b / 2, W - b, H - b );
+	g.strokeStyle = 'rgba(255,236,190,0.55)'; g.lineWidth = Math.max( 1, b / 3 ); g.strokeRect( b * 1.6, b * 1.6, W - b * 3.2, H - b * 3.2 );
+	for ( const [ x, y ] of [ [ b * 3, b * 3 ], [ W - b * 3, b * 3 ], [ b * 3, H - b * 3 ], [ W - b * 3, H - b * 3 ] ] ) {
+
+		g.fillStyle = '#7d6239'; g.beginPath(); g.arc( x, y, b * 0.8, 0, Math.PI * 2 ); g.fill();
+
+	}
+
+}
+
 export function buildBuilding( scene, { exitRoom = null } = {} ) {
 
 	const loader = new THREE.TextureLoader();
@@ -558,11 +577,12 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 		put( new THREE.BoxGeometry( 0.26, 0.13, 0.09 ), M( 0x3b3530 ), cx - 0.35, y + 1.005, z0 + 0.45 );
 		put( new THREE.BoxGeometry( 0.45, 0.55, 0.07 ), M( 0x8a8e86 ), bx + 0.6, y + 1.55, z1 - 0.035 );
 		// the sign above the window
-		const c = document.createElement( 'canvas' ); c.width = 512; c.height = 96;
+		const c = document.createElement( 'canvas' ); c.width = 512; c.height = 112;
 		const g = c.getContext( '2d' );
-		g.fillStyle = '#2f3a44'; g.fillRect( 0, 0, 512, 96 ); g.fillStyle = '#e8e6df'; g.font = '700 56px Arial, sans-serif'; g.textAlign = 'center'; g.fillText( 'ATTENDANT', 256, 68 );
+		brassPlate( g, 512, 112 );
+		g.fillStyle = BRASS.text; g.font = `600 58px ${ BRASS.font }`; g.textAlign = 'center'; g.fillText( 'ATTENDANT', 256, 75 );
 		const t = new THREE.CanvasTexture( c ); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
-		const sign = new THREE.Mesh( new THREE.PlaneGeometry( 0.9, 0.17 ), zoneMaterial( new THREE.MeshStandardMaterial( { map: t, roughness: 0.6 } ) ) );
+		const sign = new THREE.Mesh( new THREE.PlaneGeometry( 0.9, 0.197 ), zoneMaterial( new THREE.MeshStandardMaterial( { map: t, roughness: 0.4, metalness: 0.25 } ) ) );
 		sign.position.set( cx, y + wdw.h + 0.22, z0 - 0.006 ); sign.rotation.y = Math.PI;
 		group.add( sign );
 
@@ -709,22 +729,21 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 		const W = 320, H = 256;
 		const c = document.createElement( 'canvas' ); c.width = W; c.height = H;
 		const g = c.getContext( '2d' );
-		g.fillStyle = '#f3f1ea'; g.fillRect( 0, 0, W, H );
-		g.strokeStyle = '#30343a'; g.lineWidth = 10; g.strokeRect( 5, 5, W - 10, H - 10 );
-		g.fillStyle = '#30343a'; g.font = '600 46px Georgia, serif'; g.textAlign = 'left'; g.fillText( String( pl.e.z ), 24, 60 );
+		brassPlate( g, W, H );
+		g.fillStyle = BRASS.text; g.font = `600 46px ${ BRASS.font }`; g.textAlign = 'left'; g.fillText( String( pl.e.z ), 30, 66 );
 		const conf = pl.kind === 'pool';
-		g.font = `600 ${ conf ? 104 : 128 }px Georgia, serif`; g.textAlign = 'center'; g.fillText( pl.e.sym, W / 2, conf ? 160 : 196 );
+		g.font = `600 ${ conf ? 104 : 128 }px ${ BRASS.font }`; g.textAlign = 'center'; g.fillText( pl.e.sym, W / 2, conf ? 160 : 196 );
 		if ( conf ) {
 
 			const txt = shortConfig( pl.e.z );
-			let fs = 38; g.font = `600 ${ fs }px Georgia, serif`;
-			while ( g.measureText( txt ).width > W - 30 && fs > 18 ) { fs -= 2; g.font = `600 ${ fs }px Georgia, serif`; }
+			let fs = 38; g.font = `600 ${ fs }px ${ BRASS.font }`;
+			while ( g.measureText( txt ).width > W - 40 && fs > 18 ) { fs -= 2; g.font = `600 ${ fs }px ${ BRASS.font }`; }
 			g.fillText( txt, W / 2, 220 );
 
 		}
 
 		const t = new THREE.CanvasTexture( c ); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
-		const m = new THREE.Mesh( new THREE.PlaneGeometry( 0.45, 0.36 ), zoneMaterial( new THREE.MeshStandardMaterial( { map: t, roughness: 0.5 } ) ) );
+		const m = new THREE.Mesh( new THREE.PlaneGeometry( 0.45, 0.36 ), zoneMaterial( new THREE.MeshStandardMaterial( { map: t, roughness: 0.4, metalness: 0.25 } ) ) );
 		m.position.set( pl.x, pl.y, pl.z + 0.005 );
 		group.add( m );
 
@@ -781,14 +800,27 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 
 	}
 
-	// ---- floor numbers stencilled on the stairwell walls at each floor's landing (both stairwells, both lanes)
+	// ---- floor numbers painted on the stairwell walls at each floor's landing (both stairwells, both lanes),
+	// with the company's brass plaque under each
+	const plaque = ( () => {
+
+		const c = document.createElement( 'canvas' ); c.width = 512; c.height = 128;
+		const g = c.getContext( '2d' );
+		brassPlate( g, 512, 128 );
+		g.fillStyle = BRASS.text; g.textAlign = 'center';
+		g.font = `600 44px ${ BRASS.font }`; g.fillText( 'CALDER & FINCH', 256, 62 );
+		g.font = `italic 28px ${ BRASS.font }`; g.fillText( 'Maintenance', 256, 100 );
+		const t = new THREE.CanvasTexture( c ); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+		return zoneMaterial( new THREE.MeshStandardMaterial( { map: t, roughness: 0.4, metalness: 0.25 } ) );
+
+	} )();
 	for ( let p = 1; p <= 4; p ++ ) {
 
 		const c = document.createElement( 'canvas' ); c.width = 256; c.height = 320;
 		const g = c.getContext( '2d' );
-		g.fillStyle = '#3a3d3b'; g.textAlign = 'center';
-		g.font = '700 46px Arial, sans-serif'; g.fillText( 'FLOOR', 128, 52 );
-		g.font = '700 240px Arial, sans-serif'; g.fillText( String( p ), 128, 290 );
+		g.fillStyle = BRASS.paint; g.textAlign = 'center';
+		g.font = `600 48px ${ BRASS.font }`; g.fillText( 'FLOOR', 128, 52 );
+		g.font = `600 250px ${ BRASS.font }`; g.fillText( String( p ), 128, 292 );
 		const t = new THREE.CanvasTexture( c ); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
 		const m = zoneMaterial( new THREE.MeshStandardMaterial( { map: t, transparent: true, roughness: 0.9, depthWrite: false } ) );
 		for ( const [ x, z, ry ] of [ [ - 1, SZ0 + 0.006, 0 ], [ - 1, SZ1 - 0.006, Math.PI ], [ EX0 + 1, SZ0 + 0.006, 0 ], [ EX0 + 1, SZ1 - 0.006, Math.PI ] ] ) {
@@ -796,6 +828,9 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 			const o = new THREE.Mesh( new THREE.PlaneGeometry( 0.56, 0.7 ), m );
 			o.position.set( x, floorY( p ) + 1.55, z ); o.rotation.y = ry;
 			group.add( o );
+			const q = new THREE.Mesh( new THREE.PlaneGeometry( 0.44, 0.11 ), plaque );
+			q.position.set( x, floorY( p ) + 1.07, z + ( ry ? - 0.002 : 0.002 ) ); q.rotation.y = ry;
+			group.add( q );
 
 		}
 

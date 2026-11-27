@@ -42,10 +42,10 @@ Step 4, the question pools, was checked against the Chapter 5 slides (Basic Chem
 - The parking level: each room is one painted bay with the 3d electron count in it (still no number for Cr and Cu), a yellow wheel stop, a yellow band on each pillar, two pipes on hangers along the ceiling, and a few oil stains.
 - The flooded corridor (handoff section 3): on the period 4 hallway between the zinc and gallium doors, where the parking level gives way to the pool rooms, so work order 5 (Fe to As) wades through it. The carpet stops and the floor drops 8 cm to wet concrete under murky water. Drips ring the surface now and then; a ring rises a few metres in as the player comes near, before they step in; wading leaves a wake and is slower (70 %).
 - The parking attendant's booth (for the second glimpse in step 6): a small room behind the period 4 hallway's front wall, in front of nickel, with a frosted window, a counter, a stool, a desk lamp glowing behind the glass, a radio, a key cabinet and an ATTENDANT sign. The glass writes depth so ambient occlusion on High and Ultra does not trace the room behind it.
+- Building identity (handoff item 7, picked by Prof. Picione on 2026-11-27): **Calder & Finch Maintenance**, an older look. The phone calls use the name (`src/config.js`); door plates and the ATTENDANT sign are brass plates with dark brown serif letters; the stairwell floor numbers are painted in the same brown serif, with a brass company plaque under each.
 - Dark pool rooms: the water's ripple and the caustics now go fully dark too, so no shimmer is left on High or Ultra. Screen-space reflections skip fully matte surfaces.
 
 **Placeholders still to confirm or replace:**
-- The company name (`src/config.js`).
 - The goat is a block (waiting for reference photos); so are the chicken's hints (text only). The hum and ring are made in code.
 
 ## Run it

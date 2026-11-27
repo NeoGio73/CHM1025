@@ -3,9 +3,10 @@
 
 export const CONFIG = {
 
-	// Section 11, item 7: building identity. PLACEHOLDER (a neutral stand-in, approved as such on 2026-11-26)
+	// Section 11, item 7: building identity. CONFIRMED 2026-11-27: Calder & Finch Maintenance, an older look
+	// (serif letters on brass plates; brown, brass and cream). The signs are drawn in building.js (BRASS).
 	names: {
-		company: 'Building Maintenance',
+		company: 'Calder & Finch Maintenance',
 		building: 'the building'
 	},
 
