@@ -820,7 +820,7 @@ function frame() {
 	flashK += ( flashGoal - flashK ) * ( 1 - Math.exp( - dt * 8 ) );
 	flash.intensity = FLASH_BASE * flashK;
 	L.cone.position.copy( handPos ); L.cone.quaternion.copy( handQ );
-	glimpses?.update( dt, { flashOn, handPos, beamDir: fwd } );
+	glimpses?.update( dt, { flashOn, handPos, beamDir: fwd, camPos: camera.position } );
 	L.volume.position.set( Math.round( camera.position.x ), 1.75, Math.round( camera.position.z ) );
 
 	// --- doors slide up
@@ -932,5 +932,5 @@ else { $( 'btnStart' ).disabled = false; $( 'btnStart' ).textContent = 'Start'; 
 refreshTierButtons();
 
 // debugging and automated testing
-Object.assign( debug, { G, L, H, player, walkable, roomAt, checkRoom, doseRateAt, spawnAt, setTier, TIERS, renderer, camera, scene, U, points, step: ( n = 1 ) => { for ( let i = 0; i < n; i ++ ) frame(); }, use: id => { const it = L.interact.find( i => i.id === id ); target = it; useTarget(); } } );
+Object.assign( debug, { G, L, H, glimpses, player, walkable, roomAt, checkRoom, doseRateAt, spawnAt, setTier, TIERS, renderer, camera, scene, U, points, step: ( n = 1 ) => { for ( let i = 0; i < n; i ++ ) frame(); }, use: id => { const it = L.interact.find( i => i.id === id ); target = it; useTarget(); } } );
 if ( import.meta.env.DEV ) window.__game = debug;
