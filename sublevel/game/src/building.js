@@ -3,7 +3,10 @@
 // Every floor has one hallway along the front of its rooms (z from 0 to HALL_W); rooms are behind it (z < 0).
 // Two switchback stairwells join the floors: one at the west end (x < 0) and one at the east end (x > XE),
 // so no walk between floors has to cross the whole building twice.
-// Surfaces reuse the approved look test materials; the parking level uses flat placeholder concrete until the art pass.
+// Surfaces reuse the approved look test materials, plus two CC0 concretes (ambientCG) added in the art pass: light
+// concrete for the stairs, landings, pillars and parking ceilings, darker stained concrete for the parking floor.
+// The stairwells have railings, step nosings, stringers, soffits and floor numbers; the exit room's back wall has the
+// exit doorway.
 
 import * as THREE from 'three/webgpu';
 import { positionWorld, normalWorld, texture, vec2, float, floor, clamp, select, mix, materialColor, materialAO } from 'three/tsl';
@@ -29,11 +32,14 @@ const SETS = {
 	ceiling: { size: 2.4, avg: 0xf2f2f0, rough: 1 },
 	tile: { size: 1.2, avg: 0xeeeeec, rough: 0.6 },
 	pooltile: { size: 0.9, avg: 0x3bb5d3, rough: 0.6 },
-	concrete: { size: 2, avg: 0x8d8c88, rough: 1, flat: true },
+	concrete: { size: 2.5, avg: 0xb3b3b1, rough: 1 }, // ambientCG Concrete 034: stairs, landings, pillars, parking ceilings
+	garage: { size: 3, avg: 0x969187, rough: 1 }, // ambientCG Concrete 036: the parking level's floor
+	nosing: { size: 1, avg: 0x2e2f2e, rough: 1, flat: true },
+	curb: { size: 1, avg: 0xb39232, rough: 1, flat: true }, // safety yellow: wheel stops, bands on the parking pillars
 	paint: { size: 2, avg: 0xb9b6ae, rough: 1, flat: true }
 };
 
-export function buildBuilding( scene ) {
+export function buildBuilding( scene, { exitRoom = null } = {} ) {
 
 	const loader = new THREE.TextureLoader();
 	const texCache = {}, matCache = {};
@@ -121,6 +127,7 @@ export function buildBuilding( scene ) {
 	scene.add( group );
 	const surfaces = [];
 	const boxes = {}; // boxes (stairs, pillars, dividers), instanced per set
+	const bars = []; // round bars (railings): [ from, to, radius ]
 
 	// one geometry per set: every quad is merged into it, so the whole building is a handful of draw calls
 	const batches = {};
@@ -217,7 +224,7 @@ export function buildBuilding( scene ) {
 			rooms.push( { e, kind, ...R, cx, cz: - side / 2 } );
 			doors.push( { c: cx, w: DOOR.w, h: DOOR.h } );
 
-			const floorSet = kind === 'office' ? 'carpet' : kind === 'pool' ? 'tile' : 'concrete';
+			const floorSet = kind === 'office' ? 'carpet' : kind === 'pool' ? 'tile' : 'garage';
 			const wallSet = kind === 'office' ? 'wall' : kind === 'pool' ? 'tile' : 'paint';
 			// floor (the pool rooms leave a hole for the basin)
 			if ( kind === 'pool' ) {
@@ -249,7 +256,17 @@ export function buildBuilding( scene ) {
 			}
 
 			ceilQ( kind === 'parking' ? 'concrete' : 'ceiling', R.x0, R.x1, R.z0, R.z1, y + h );
-			wall( wallSet, 'x', R.x0, R.x1, R.z0, y, y + h, 1 );
+			// the exit room's back wall has the exit doorway; behind it, a small bright space the door opens onto
+			const exitHere = e.sym === exitRoom;
+			wall( wallSet, 'x', R.x0, R.x1, R.z0, y, y + h, 1, exitHere ? [ { c: cx, w: 1.2, h: 2.15 } ] : [] );
+			if ( exitHere ) {
+
+				const v = new THREE.Mesh( new THREE.BoxGeometry( 1.5, 2.4, 1.5 ), new THREE.MeshBasicMaterial( { color: 0xfff4e2, side: THREE.BackSide } ) );
+				v.position.set( cx, y + 1.15, R.z0 - 0.75 );
+				group.add( v );
+
+			}
+
 			wall( wallSet, 'z', R.z0, R.z1, R.x0, y, y + h, 1 );
 			wall( wallSet, 'z', R.z0, R.z1, R.x1, y, y + h, - 1 );
 			wall( wallSet, 'x', R.x0, R.x1, R.z1, y, y + h, - 1, [ { c: cx, w: DOOR.w, h: DOOR.h } ] );
@@ -268,7 +285,18 @@ export function buildBuilding( scene ) {
 
 			plates.push( { e, kind, x: cx + DOOR.w / 2 + 0.45, y: y + 1.5, z: 0.01 } );
 			// parking bays: the number painted on the floor is the 3d electron count (no number for Cr and Cu: out of scope)
-			if ( kind === 'parking' && dCount( e.z ) !== null ) bays.push( { n: dCount( e.z ), x: cx, y, z: - side * 0.5, w: side * 0.45 } );
+			if ( kind === 'parking' ) bays.push( { n: dCount( e.z ), x: cx, y, side, seed: e.z } );
+			// a wheel stop at the back of the bay (the bay itself is painted further down)
+			if ( kind === 'parking' ) box( 1.7, 0.12, 0.16, cx, y + 0.06, - side * 0.5 - Math.min( 5.2, side * 0.7 ) / 2 + 0.45, 'curb' );
+			// pipes along the parking ceiling, on hangers
+			if ( kind === 'parking' ) for ( const [ dz, r, dy ] of [ [ 0, 0.06, 0.22 ], [ - 0.24, 0.04, 0.17 ] ] ) {
+
+				const pz = - side * 0.12 + dz, py = y + h - dy;
+				bar( new THREE.Vector3( R.x0, py, pz ), new THREE.Vector3( R.x1, py, pz ), r );
+				for ( let x = R.x0 + 1; x < R.x1 - 0.5; x += 2 ) bar( new THREE.Vector3( x, py, pz ), new THREE.Vector3( x, y + h, pz ), 0.008 );
+
+			}
+
 
 		}
 
@@ -306,16 +334,19 @@ export function buildBuilding( scene ) {
 		if ( p === 4 ) continue;
 		const mid = y - FLOOR_DY / 2, run = ( SX1 - LAND ) - ( SX0 + LAND );
 		// flight A: from this floor's landing westward in the south lane (z > 0), down to the half landing
-		stairs( SX1 - LAND, SX0 + LAND, LANE, SZ1, y, mid );
+		stairs( SX1 - LAND, SX0 + LAND, LANE, SZ1, y, mid, LANE );
 		area( SX0 + LAND, SX1 - LAND, LANE + 0.25, SZ1 - 0.3, y, { ya: y, yb: mid, a0: SX1 - LAND, a1: SX0 + LAND } );
 		// half landing at the west end
 		floorQ( 'concrete', SX0, SX0 + LAND, SZ0, SZ1, mid );
 		area( SX0 + 0.3, SX0 + LAND, SZ0 + 0.3, SZ1 - 0.3, mid );
 		// flight B: back eastward in the north lane (z < 0), down to the next floor's landing
-		stairs( SX0 + LAND, SX1 - LAND, SZ0, - LANE, mid, floorY( p + 1 ) );
+		const fb = stairs( SX0 + LAND, SX1 - LAND, SZ0, - LANE, mid, floorY( p + 1 ), - LANE );
 		area( SX0 + LAND, SX1 - LAND, SZ0 + 0.3, - LANE - 0.25, mid, { ya: mid, yb: floorY( p + 1 ), a0: SX0 + LAND, a1: SX1 - LAND } );
-		// a low divider between the lanes
-		box( run, 1.0, LANE * 2, ( SX0 + SX1 ) / 2, mid - 0.2, 0, 'paint' );
+		turnRail( SX0 + LAND, fb.L( SX0 + LAND ), LANE + 0.04, - LANE - 0.04 ); // across the half landing
+		ceilQ( 'paint', SX0, SX0 + LAND, SZ0, SZ1, mid - 0.42 ); // under the half landing
+		ceilQ( 'paint', - LAND, SX1, SZ0, SZ1, floorY( p + 1 ) - 0.42 ); // under the next floor's landing
+		// the shaft's hallway side between the next floor's hallway ceiling and this floor
+		wall( 'paint', 'z', SZ0, SZ1, SX1, floorY( p + 1 ) + HALL_H, y, - 1 );
 		void run;
 
 	}
@@ -338,26 +369,108 @@ export function buildBuilding( scene ) {
 		if ( p === 4 ) continue;
 		const mid = y - FLOOR_DY / 2;
 		// flight A: eastward in the south lane, down to the half landing at the east end
-		stairs( EX0 + LAND, EX1 - LAND, LANE, SZ1, y, mid );
+		stairs( EX0 + LAND, EX1 - LAND, LANE, SZ1, y, mid, LANE );
 		area( EX0 + LAND, EX1 - LAND, LANE + 0.25, SZ1 - 0.3, y, { ya: y, yb: mid, a0: EX0 + LAND, a1: EX1 - LAND } );
 		floorQ( 'concrete', EX1 - LAND, EX1, SZ0, SZ1, mid );
 		area( EX1 - LAND, EX1 - 0.3, SZ0 + 0.3, SZ1 - 0.3, mid );
 		// flight B: back westward in the north lane, down to the next floor's landing
-		stairs( EX1 - LAND, EX0 + LAND, SZ0, - LANE, mid, floorY( p + 1 ) );
+		const fb = stairs( EX1 - LAND, EX0 + LAND, SZ0, - LANE, mid, floorY( p + 1 ), - LANE );
 		area( EX0 + LAND, EX1 - LAND, SZ0 + 0.3, - LANE - 0.25, mid, { ya: mid, yb: floorY( p + 1 ), a0: EX1 - LAND, a1: EX0 + LAND } );
-		box( EX1 - EX0 - 2 * LAND, 1.0, LANE * 2, ( EX0 + EX1 ) / 2, mid - 0.2, 0, 'paint' );
+		turnRail( EX1 - LAND, fb.L( EX1 - LAND ), LANE + 0.04, - LANE - 0.04 );
+		ceilQ( 'paint', EX1 - LAND, EX1, SZ0, SZ1, mid - 0.42 );
+		ceilQ( 'paint', EX0, EX0 + LAND, SZ0, SZ1, floorY( p + 1 ) - 0.42 );
+		wall( 'paint', 'z', SZ0, SZ1, EX0, floorY( p + 1 ) + HALL_H, y, 1 );
 
 	}
 
-	function stairs( xa, xb, z0, z1, ya, yb ) {
+	// a flight of steps from (xa, ya) down to (xb, yb), in the lane z0..z1. zIn is the lane's open side (toward the other
+	// flight), the other side is the shaft wall. Art pass: a dark nosing on each step, a stringer on the open side,
+	// a soffit underneath, a railing with balusters on the open side and a handrail on the wall.
+	function stairs( xa, xb, z0, z1, ya, yb, zIn ) {
 
 		const n = Math.round( Math.abs( ya - yb ) / 0.18 ), dx = ( xb - xa ) / n, rise = ( ya - yb ) / n;
-		for ( let i = 0; i < n; i ++ ) box( Math.abs( dx ), 0.05 + rise, z1 - z0, xa + dx * ( i + 0.5 ), ya - rise * ( i + 1 ) + ( 0.05 + rise ) / 2 - 0.05, ( z0 + z1 ) / 2, 'concrete', true );
+		const zOut = zIn === z0 ? z1 : z0, s = Math.sign( zOut - zIn ), w = z1 - z0;
+		for ( let i = 0; i < n; i ++ ) {
+
+			// the tread, and the riser at its back edge up to the step above, as flat pieces so the concrete keeps its size
+			const top = ya - rise * ( i + 1 ), xn = xa + dx * i;
+			floorQ( 'concrete', Math.min( xn, xn + dx ), Math.max( xn, xn + dx ), z0, z1, top );
+			wall( 'concrete', 'z', z0, z1, xn, top, top + rise, Math.sign( dx ) );
+			// the nosing: a dark strip along the tread's front edge (where it drops to the next step)
+			box( 0.05, 0.012, w - 0.04, xn + dx - Math.sign( dx ) * 0.025, top + 0.006, ( z0 + z1 ) / 2, 'nosing' );
+
+		}
+
+		// the nosing line (through the treads' front edges, from the landing above to the one below), the stringer's
+		// top just above it, and the soffit under the flight
+		const L = x => ya - ( x - xa ) / dx * rise;
+		const T = x => L( x ) + 0.04, M = x => L( x ) - 2 * rise - 0.06;
+		const V = ( x, y, z ) => new THREE.Vector3( x, y, z );
+		// the stringer on the open side, facing the other lane (and its back, facing this lane's underside)
+		const sa = V( xa, M( xa ), zIn ), sb = V( xb, M( xb ), zIn ), ta = V( xa, T( xa ), zIn ), tb = V( xb, T( xb ), zIn );
+		if ( ( xb - xa ) * s < 0 ) { para( 'paint', sa, sb, tb, ta ); para( 'paint', sb, sa, ta, tb ); } else { para( 'paint', sb, sa, ta, tb ); para( 'paint', sa, sb, tb, ta ); }
+		// soffit, facing down
+		const ua = V( xa, M( xa ), z0 ), ub = V( xb, M( xb ), z0 ), uc = V( xb, M( xb ), z1 ), ud = V( xa, M( xa ), z1 );
+		if ( xb > xa ) para( 'paint', ua, ub, uc, ud ); else para( 'paint', ub, ua, ud, uc );
+
+		// railing on the open side: handrail 0.9 m above the nosings, a bottom rail, balusters and posts
+		const zr = zIn + s * 0.04, len = Math.abs( xb - xa );
+		bar( V( xa, L( xa ) + 0.9, zr ), V( xb, L( xb ) + 0.9, zr ), 0.024 );
+		bar( V( xa, L( xa ) + 0.26, zr ), V( xb, L( xb ) + 0.26, zr ), 0.014 );
+		const nb = Math.round( len / 0.14 );
+		for ( let i = 0; i <= nb; i ++ ) {
+
+			const x = xa + ( xb - xa ) * i / nb, post = i === 0 || i === nb || i % 9 === 0;
+			bar( V( x, L( x ) - ( post ? rise : - 0.26 ), zr ), V( x, L( x ) + 0.9, zr ), post ? 0.022 : 0.009 );
+
+		}
+
+		// handrail on the wall, on brackets
+		const zw = zOut - s * 0.07;
+		bar( V( xa, L( xa ) + 0.9, zw ), V( xb, L( xb ) + 0.9, zw ), 0.02 );
+		const nk = Math.max( 2, Math.round( len / 1.6 ) );
+		for ( let i = 0; i <= nk; i ++ ) { const x = xa + ( xb - xa ) * ( 0.04 + 0.92 * i / nk ); bar( V( x, L( x ) + 0.84, zw ), V( x, L( x ) + 0.84, zOut ), 0.008 ); }
+		return { L, zr };
 
 	}
 
+	// the railing across the half landing, joining the two flights' open-side railings
+	function turnRail( x, y, za, zb ) {
+
+		const V = ( a, b, c ) => new THREE.Vector3( a, b, c );
+		bar( V( x, y + 0.9, za ), V( x, y + 0.9, zb ), 0.024 );
+		bar( V( x, y + 0.26, za ), V( x, y + 0.26, zb ), 0.014 );
+		const n = Math.round( Math.abs( zb - za ) / 0.14 );
+		for ( let i = 1; i < n; i ++ ) { const z = za + ( zb - za ) * i / n; bar( V( x, y + 0.26, z ), V( x, y + 0.9, z ), 0.009 ); }
+
+	}
+
+	// a flat four-cornered piece (corners counter-clockwise seen from the side it faces), into the batch for its set
+	function para( set, a, b, c, d ) {
+
+		const g = new THREE.BufferGeometry();
+		const nrm = new THREE.Vector3().subVectors( b, a ).cross( new THREE.Vector3().subVectors( d, a ) ).normalize();
+		const S = SETS[ set ].size, ab = a.distanceTo( b ) / S, ad = a.distanceTo( d ) / S;
+		g.setAttribute( 'position', new THREE.Float32BufferAttribute( [ ...a.toArray(), ...b.toArray(), ...c.toArray(), ...d.toArray() ], 3 ) );
+		g.setAttribute( 'normal', new THREE.Float32BufferAttribute( [ ...nrm.toArray(), ...nrm.toArray(), ...nrm.toArray(), ...nrm.toArray() ], 3 ) );
+		g.setAttribute( 'uv', new THREE.Float32BufferAttribute( [ 0, 0, ab, 0, ab, ad, 0, ad ], 2 ) );
+		g.setIndex( [ 0, 1, 2, 0, 2, 3 ] );
+		( batches[ set ] ||= [] ).push( g );
+
+	}
+
+	function bar( a, b, r ) { bars.push( [ a, b, r ] ); }
+
 	function box( w, h, d, x, y, z, set ) { ( boxes[ set ] ||= [] ).push( [ w, h, d, x, y, z ] ); }
-	function pillar( x, z, y, h ) { box( 0.5, h, 0.5, x, y + h / 2, z, 'concrete' ); }
+	// a parking pillar: four faces in the concrete batch (so the texture keeps its size), and a painted band
+	function pillar( x, z, y, h ) {
+
+		const r = 0.25;
+		wall( 'concrete', 'x', x - r, x + r, z + r, y, y + h, 1 ); wall( 'concrete', 'x', x - r, x + r, z - r, y, y + h, - 1 );
+		wall( 'concrete', 'z', z - r, z + r, x + r, y, y + h, 1 ); wall( 'concrete', 'z', z - r, z + r, x - r, y, y + h, - 1 );
+		box( 0.52, 0.25, 0.52, x, y + 1.02, z, 'curb' );
+
+	}
 
 	// ---- bake the batches into meshes
 	for ( const set in batches ) {
@@ -388,6 +501,24 @@ export function buildBuilding( scene ) {
 		return im;
 
 	};
+
+	// railings: one instanced mesh of round bars, painted metal, dark with the stairwell
+	if ( bars.length ) {
+
+		const railMat = zoneMaterial( new THREE.MeshStandardMaterial( { color: 0x4d5852, roughness: 0.5, metalness: 0.2 } ) );
+		const im = new THREE.InstancedMesh( new THREE.CylinderGeometry( 1, 1, 1, 8 ), railMat, bars.length );
+		const up = new THREE.Vector3( 0, 1, 0 ), d = new THREE.Vector3(), mid = new THREE.Vector3(), sc = new THREE.Vector3();
+		bars.forEach( ( [ a, b, r ], i ) => {
+
+			d.subVectors( b, a ); const l = d.length();
+			tmpQ.setFromUnitVectors( up, d.normalize() );
+			im.setMatrixAt( i, tmpM.compose( mid.addVectors( a, b ).multiplyScalar( 0.5 ), tmpQ, sc.set( r, l, r ) ) );
+
+		} );
+		im.castShadow = im.receiveShadow = true;
+		group.add( im );
+
+	}
 
 	inst( housingGeo, housingMat, housings );
 	const onMesh = inst( tubeGeo, tubeOn, tubesOn );
@@ -503,16 +634,74 @@ export function buildBuilding( scene ) {
 
 	}
 
-	// ---- parking bay numbers, painted on the floor (placeholder paint until the art pass)
+	// ---- the parking level: each room is one painted bay with the 3d electron count in it (no number for Cr and Cu:
+	// out of scope) and a few oil stains on the floor; the wheel stop and the pillars are added with the room
+	const stainTex = ( () => {
+
+		const c = document.createElement( 'canvas' ); c.width = c.height = 128;
+		const g = c.getContext( '2d' );
+		for ( const [ x, y, r, a ] of [ [ 64, 64, 60, 0.5 ], [ 50, 72, 30, 0.35 ], [ 80, 52, 24, 0.3 ] ] ) {
+
+			const gr = g.createRadialGradient( x, y, 0, x, y, r );
+			gr.addColorStop( 0, `rgba(24,21,17,${ a })` ); gr.addColorStop( 0.6, `rgba(24,21,17,${ a * 0.6 })` ); gr.addColorStop( 1, 'rgba(24,21,17,0)' );
+			g.fillStyle = gr; g.fillRect( 0, 0, 128, 128 );
+
+		}
+
+		const t = new THREE.CanvasTexture( c ); t.colorSpace = THREE.SRGBColorSpace;
+		return t;
+
+	} )();
+	const stainMat = zoneMaterial( new THREE.MeshStandardMaterial( { map: stainTex, transparent: true, depthWrite: false, roughness: 0.3 } ) );
+	const decal = ( w, d, m, x, y, z, rot = 0 ) => { const o = new THREE.Mesh( new THREE.PlaneGeometry( w, d ), m ); o.rotation.set( - Math.PI / 2, 0, rot ); o.position.set( x, y, z ); group.add( o ); return o; };
 	for ( const b of bays ) {
 
-		const c = document.createElement( 'canvas' ); c.width = 256; c.height = 256;
+		const BW = 2.8, BD = Math.min( 5.2, b.side * 0.7 ), bz = - b.side * 0.5;
+		const W = 512, H = Math.round( W * BD / ( BW + 0.2 ) ), px = W / ( BW + 0.2 );
+		const c = document.createElement( 'canvas' ); c.width = W; c.height = H;
 		const g = c.getContext( '2d' );
-		g.fillStyle = '#e8d36a'; g.font = '700 200px Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText( String( b.n ), 128, 136 );
+		// the outline: two sides and the back (the canvas top is the back of the bay, toward the room's back wall)
+		g.fillStyle = '#dedad0';
+		const lw = 0.12 * px;
+		g.fillRect( 0.1 * px - lw / 2, 0, lw, H ); g.fillRect( W - 0.1 * px - lw / 2, 0, lw, H ); g.fillRect( 0.1 * px - lw / 2, 0, W - 0.2 * px + lw, lw );
+		if ( b.n !== null ) {
+
+			g.fillStyle = '#e3c950'; g.font = `700 ${ Math.round( 1.3 * px ) }px Arial, sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+			g.fillText( String( b.n ), W / 2, H * 0.55 );
+
+		}
+
 		const t = new THREE.CanvasTexture( c ); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
-		const m = new THREE.Mesh( new THREE.PlaneGeometry( b.w, b.w ), zoneMaterial( new THREE.MeshStandardMaterial( { map: t, transparent: true, roughness: 0.9, depthWrite: false } ) ) );
-		m.rotation.x = - Math.PI / 2; m.position.set( b.x, b.y + 0.01, b.z );
-		group.add( m );
+		decal( BW + 0.2, BD, zoneMaterial( new THREE.MeshStandardMaterial( { map: t, transparent: true, roughness: 0.8, depthWrite: false } ) ), b.x, b.y + 0.008, bz );
+		// oil stains where cars stood (placed from the element's number, so every run looks the same)
+		let r = b.seed * 9301 + 49297;
+		const rnd = () => ( r = ( r * 9301 + 49297 ) % 233280 ) / 233280;
+		for ( let i = 0; i < 3; i ++ ) {
+
+			const sz = 0.5 + rnd() * 0.8;
+			decal( sz, sz * ( 0.7 + rnd() * 0.5 ), stainMat, b.x + ( rnd() - 0.5 ) * 1.4, b.y + 0.005 + i * 0.001, bz + ( rnd() - 0.4 ) * BD * 0.6, rnd() * Math.PI );
+
+		}
+
+	}
+
+	// ---- floor numbers stencilled on the stairwell walls at each floor's landing (both stairwells, both lanes)
+	for ( let p = 1; p <= 4; p ++ ) {
+
+		const c = document.createElement( 'canvas' ); c.width = 256; c.height = 320;
+		const g = c.getContext( '2d' );
+		g.fillStyle = '#3a3d3b'; g.textAlign = 'center';
+		g.font = '700 46px Arial, sans-serif'; g.fillText( 'FLOOR', 128, 52 );
+		g.font = '700 240px Arial, sans-serif'; g.fillText( String( p ), 128, 290 );
+		const t = new THREE.CanvasTexture( c ); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+		const m = zoneMaterial( new THREE.MeshStandardMaterial( { map: t, transparent: true, roughness: 0.9, depthWrite: false } ) );
+		for ( const [ x, z, ry ] of [ [ - 1, SZ0 + 0.006, 0 ], [ - 1, SZ1 - 0.006, Math.PI ], [ EX0 + 1, SZ0 + 0.006, 0 ], [ EX0 + 1, SZ1 - 0.006, Math.PI ] ] ) {
+
+			const o = new THREE.Mesh( new THREE.PlaneGeometry( 0.56, 0.7 ), m );
+			o.position.set( x, floorY( p ) + 1.55, z ); o.rotation.y = ry;
+			group.add( o );
+
+		}
 
 	}
 

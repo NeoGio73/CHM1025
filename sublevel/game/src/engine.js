@@ -108,7 +108,8 @@ export function createPipeline( renderer, scene, camera ) {
 			s.quality.value = T.ssr.quality; s.maxDistance.value = 6; s.thickness.value = 0.03;
 			if ( s.resolutionScale !== undefined ) s.resolutionScale = T.ssr.res;
 			disposables.push( s );
-			hdr = vec4( hdr.rgb.add( s.rgb ), 1 );
+			// fully matte surfaces reflect nothing: this is how a dark room's water stops reflecting (its roughness goes to 1)
+			hdr = vec4( hdr.rgb.add( s.rgb.mul( float( 1 ).sub( smoothstep( 0.92, 0.99, rough ) ) ) ), 1 );
 
 		}
 

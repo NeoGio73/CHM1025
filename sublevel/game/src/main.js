@@ -80,11 +80,11 @@ function updateFov() {
 updateFov();
 
 $( 'status' ).textContent = 'Building the rooms…';
-const W = LOOK ? buildWorld( scene ) : buildBuilding( scene );
+const EXIT_ROOM = 'K';
+const W = LOOK ? buildWorld( scene ) : buildBuilding( scene, { exitRoom: EXIT_ROOM } );
 const pmrem = new THREE.PMREMGenerator( renderer );
 const envMap = pmrem.fromScene( new RoomEnvironment(), 0.04 ).texture;
 const WOS = WORK_ORDERS;
-const EXIT_ROOM = 'K';
 const P = LOOK ? null : buildProps( scene, W, {
 	phoneRooms: WOS.map( w => w.phone ),
 	safeRooms: [ WOS[ 0 ].phone, ...WOS.map( w => w.find.target ) ],
@@ -877,6 +877,7 @@ function frame() {
 
 		ringT += dt;
 		P.setRinging( cur().phone, G.phase === 'ring', ringT );
+		P.update( dt );
 
 		// ambient light, fog and hum follow how many lights are on around the player
 		const zs = dark.cur ? W.nearZones( dark.cur ) : [];

@@ -307,6 +307,8 @@ export function buildWater( B, light = null ) {
 		for ( const m of [ glossy, flat ] ) m.outputNode = vec4( output.rgb.mul( light ), output.a );
 		// screen-space reflections (High, Ultra) read the gloss, not the color: a dark room's water turns matte
 		glossy.roughnessNode = mix( float( 1 ), float( 0.04 ), light );
+		// and they read the ripple from the normals, so in the dark the ripple goes flat too
+		glossy.normalNode = normalMap( ripple, vec2( 0.06 ).mul( light ) );
 
 	}
 
@@ -320,7 +322,7 @@ export function buildWater( B, light = null ) {
 		const b = sin( p.y.mul( 1.1 ).add( sin( p.x.mul( 1.7 ).sub( t ) ) ).sub( t.mul( 0.7 ) ) );
 		const c = pow( float( 1 ).sub( abs( a.add( b ).mul( 0.5 ) ) ), float( 6 ) );
 		const col = vec3( 0.55, 0.8, 0.85 ).mul( c ).mul( 0.35 );
-		return light ? col.mul( light ) : col;
+		return light ? col.mul( light.sub( 0.02 ).div( 0.98 ).clamp( 0, 1 ) ) : col; // none at all once the room is dark
 
 	} )();
 	const caust = new THREE.Mesh( new THREE.PlaneGeometry( w - 0.02, l - 0.02 ), caustMat );

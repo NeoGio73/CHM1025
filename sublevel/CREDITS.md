@@ -13,6 +13,10 @@ Downloaded on 2026-11-26 as 2K JPG sets from ambientCG. ambientCG states that al
 | Ceilings | Office Ceiling 001 | https://ambientcg.com/a/OfficeCeiling001 | Lennart Demes (ambientCG) | CC0 1.0 | `game/public/textures/*/ceiling_*.jpg` |
 | Pool room walls and deck | Tiles 107 | https://ambientcg.com/a/Tiles107 | Lennart Demes (ambientCG) | CC0 1.0 | `game/public/textures/*/tile_*.jpg` |
 | Inside of the pool | Tiles 132 A | https://ambientcg.com/a/Tiles132A | Lennart Demes (ambientCG) | CC0 1.0 | `game/public/textures/*/pooltile_*.jpg` |
+| Stairs, landings, parking pillars and ceilings | Concrete 034 | https://ambientcg.com/a/Concrete034 | Lennart Demes (ambientCG) | CC0 1.0 | `game/public/textures/*/concrete_*.jpg` |
+| Parking floor | Concrete 036 | https://ambientcg.com/a/Concrete036 | Lennart Demes (ambientCG) | CC0 1.0 | `game/public/textures/*/garage_*.jpg` |
+
+Concrete 034 and 036 were downloaded on 2026-11-27, approved by Prof. Picione the same day. These two sets have no ambient occlusion map, so the red channel of `*_orm.jpg` is made from their displacement map (lower spots slightly darker).
 
 ## Models
 
@@ -22,6 +26,8 @@ Downloaded on 2026-11-26 as 2K JPG sets from ambientCG. ambientCG states that al
 
 Donkey: imported into Blender 5.2 on 2026-11-26, scaled to 1.9 m long, given matte materials, and exported as glTF. Only the Idle, Idle_Headlow, Walk and Eating animations were kept; the attack and death animations were removed (handoff section 2: no harm to any animal).
 
-## Made in code (no license needed)
+## Made for this game (no license needed)
 
-Room geometry, desks and chairs, tube light fixtures, the water surface and ripples, and the pool caustics are generated in `game/src/`. So are the placeholder wall phones, goat and exit door (`props.js`), the door plates and bay numbers, and the hum and phone ring (`audio.js`, synthesized; no sound files).
+Modelled in Blender 5.2 for Sublevel on 2026-11-27 (source `art/props.blend`, kept out of git), with no outside assets: the wall phone (`game/public/models/phone.glb`), the steel desk and office chair (`desk.glb`) and the exit door (`door.glb`).
+
+Generated in `game/src/`: room geometry, the stairwell railings, step nosings and floor numbers, the parking bay markings, wheel stops, pillar bands, ceiling pipes and oil stains, tube light fixtures, the water surface and ripples, the pool caustics, the placeholder goat (`props.js`), the door plates and bay numbers, and the hum and phone ring (`audio.js`, synthesized; no sound files).

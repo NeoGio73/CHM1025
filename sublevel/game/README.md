@@ -1,4 +1,4 @@
-# Sublevel (build steps 1 to 4 done; art pass next)
+# Sublevel (build steps 1 to 4 done; art pass under way)
 
 Step 1, the look test, was approved on 2026-11-26 and is still at `/?look`. Step 2, the layout, is a first pass: all 36 rooms, four floors, and a stairwell at each end of the building (the east one was added on 2026-11-26 to shorten work order 4).
 
@@ -35,9 +35,16 @@ Step 4, the question pools, was checked against the Chapter 5 slides (Basic Chem
 
   Walking without Shift takes about 8 minutes. With reading the calls and answering 18 questions, a full run should take roughly 12 to 17 minutes.
 
+**Step 5, the art pass (started 2026-11-27):**
+- The wall phone, the steel desk with its office chair, and the exit door are models made in Blender for this game (`public/models/phone.glb`, `desk.glb`, `door.glb`; source `../art/props.blend`). Each place shows a plain block until its model has loaded. At the end the exit door swings open onto a bright doorway in the back wall of the potassium room.
+- Both stairwells: railings with balusters on the open side, a handrail on the wall, dark nosings on the steps, stringers and soffits under the flights and landings, and the floor number painted at each landing.
+- Concrete: two CC0 sets from ambientCG, approved 2026-11-27. Concrete 034 (light) on the stairs, landings, parking pillars and ceilings; Concrete 036 (dark, stained) on the parking floor. Stair treads, risers and pillars are built from flat pieces so the texture keeps its scale. The dark step nosings sit on each tread's front edge, and the railings are 0.9 m above the nosings.
+- The parking level: each room is one painted bay with the 3d electron count in it (still no number for Cr and Cu), a yellow wheel stop, a yellow band on each pillar, two pipes on hangers along the ceiling, and a few oil stains.
+- Dark pool rooms: the water's ripple and the caustics now go fully dark too, so no shimmer is left on High or Ultra. Screen-space reflections skip fully matte surfaces.
+
 **Placeholders still to confirm or replace:**
 - The company name (`src/config.js`).
-- The phone, desk and goat are blocks. The hum and ring are made in code.
+- The goat is a block (waiting for reference photos); so are the chicken's hints (text only). The hum and ring are made in code.
 
 ## Run it
 
@@ -77,7 +84,7 @@ Keys: WASD move · Shift faster · mouse look (or drag) · E use · Esc pause ·
 | `src/elements.js` | The 36 elements: period, group, radius used for room size |
 | `src/chem.js` | Electron configurations as written on the slides, orbital diagrams, 3d counts (no Cr/Cu exceptions) |
 | `src/building.js` | Generates the building; the zones the dark switches off |
-| `src/props.js` | Placeholder phones, desks, goat and exit door |
+| `src/props.js` | The phones, desks and chairs, exit door (models) and the placeholder goat |
 | `src/questions.js` | The six work orders (question pools checked against the Chapter 5 slides) and the debrief |
 | `src/config.js` | Everything still to be decided: names, scoring, timing of the dark, code prefix and secret |
 | `src/main.js` | The run: walking, the phone, the dark, pause, save, ending and code (Daughter's structure, adapted) |
@@ -87,8 +94,9 @@ Keys: WASD move · Shift faster · mouse look (or drag) · E use · Esc pause ·
 | `src/code.js` | Completion code, copied unchanged from Daughter |
 | `public/textures/` | CC0 texture sets (see `../CREDITS.md`) |
 | `public/models/donkey.glb` | CC0 donkey (see `../CREDITS.md`) |
+| `public/models/phone.glb`, `desk.glb`, `door.glb` | Made in Blender for this game (see `../CREDITS.md`) |
 
-Blender source: `../art/animals.blend` (kept out of git).
+Blender sources: `../art/animals.blend` and `../art/props.blend` (kept out of git).
 
 ## Pinned versions
 
