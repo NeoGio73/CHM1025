@@ -97,7 +97,12 @@ await Promise.all( ART.map( a => loadRoomArt( L, scene, a.url, a ).catch( e => c
 
 const flash = L.lights.flash;
 const FLASH_BASE = flash.intensity;
-const flashRay = new THREE.Raycaster(); flashRay.far = 2.5;
+// The most light the beam may put on a surface (intensity / m², before the cookie). Inverse-square would blow
+// near walls out to white, so the beam dims until nothing it touches is brighter than a surface about 6 m away.
+const FLASH_CAP = 5;
+const FLASH_EDGE = Math.tan( 0.25 ); // the edge rays: 0.25 rad off the beam's axis, where the spot is ~65% as bright
+const flashRay = new THREE.Raycaster(); flashRay.far = 7;
+const flashEdge = [ 9, 9, 9, 9 ], flashDir = new THREE.Vector3();
 let flashTick = 0, flashK = 1, flashGoal = 1, flashList = null;
 // what the beam can hit: every visible static mesh (rebuilt when visibility may have changed)
 function flashTargets() {
@@ -830,16 +835,25 @@ function frame() {
 	fwd.set( 0, 0, - 1 ).applyQuaternion( handQ );
 	flash.target.position.copy( camera.position ).addScaledVector( fwd, 6 );
 	flash.target.updateMatrixWorld();
-	// close-range softening: dim the beam as the surface it hits gets near (inverse-square would blow it out to white)
+	// close-range softening (see FLASH_CAP): one ray down the beam, and one near its edge that takes the four sides
+	// in turn, so a wall beside the beam (looking down a corridor) dims it too
 	if ( flashOn && ( flashTick ++ % 3 ) === 0 ) {
 
+		const targets = flashTargets();
 		flashRay.set( handPos, fwd );
-		const hit = flashRay.intersectObjects( flashTargets(), false )[ 0 ];
-		flashGoal = THREE.MathUtils.clamp( ( ( hit ? hit.distance : 9 ) / 2.2 ) ** 2, 0.12, 1 );
+		const hit = flashRay.intersectObjects( targets, false )[ 0 ];
+		const side = ( flashTick / 3 | 0 ) % 4, a = side * Math.PI / 2;
+		flashDir.copy( fwd ).addScaledVector( right, Math.cos( a ) * FLASH_EDGE ).addScaledVector( up, Math.sin( a ) * FLASH_EDGE ).normalize();
+		flashRay.set( handPos, flashDir );
+		const edge = flashRay.intersectObjects( targets, false )[ 0 ];
+		flashEdge[ side ] = edge ? edge.distance : 9;
+		const d = Math.min( hit ? hit.distance : 9, Math.min( ...flashEdge ) / 0.8 ); // the edge gets ~0.8² as much light
+		flashGoal = THREE.MathUtils.clamp( FLASH_CAP * d * d / FLASH_BASE, 0.01, 1 );
 
 	}
 
-	flashK += ( flashGoal - flashK ) * ( 1 - Math.exp( - dt * 8 ) );
+	// dim quickly (never a glare), brighten more slowly (no pumping as the beam sweeps past near edges)
+	flashK += ( flashGoal - flashK ) * ( 1 - Math.exp( - dt * ( flashGoal < flashK ? 10 : 4 ) ) );
 	flash.intensity = FLASH_BASE * flashK;
 	L.cone.position.copy( handPos ); L.cone.quaternion.copy( handQ );
 	glimpses?.update( dt, { flashOn, handPos, beamDir: fwd, camera } );
