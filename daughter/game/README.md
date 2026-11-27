@@ -59,16 +59,18 @@ All six areas are modelled in Blender (`../art/facility.blend`, kept out of git)
 
 ## Glimpses (build step 5)
 
-`src/glimpses.js` loads `public/models/chair.glb` (the rocking chair, with the shape sitting in it) and runs the glimpses. Lights-on mode hides all of them.
+`src/glimpses.js` loads `public/models/chair.glb` (the rocking chair, the shape sitting in it, and the shape standing) and runs the glimpses. Lights-on mode hides all of them.
 
 - Glimpse 1, entry hall: when the gamma barrier opens, the empty chair rocks and creaks at the end of the hall, and stops the moment the flashlight reaches it.
 - Glimpse 2, hot corridor: during the corridor clock's time skip the chair moves to the middle of the hot corridor, facing the player, with the shape in it against a faint blue glow. After half a second in view (with a clear line of sight) the shape is gone and the empty chair rocks and creaks.
+- Glimpse 3, control room: when the infirmary's exit opens, the chair is beside the core door and the shape stands in front of the decay console. It is a dose occluder (it lets through 12% of the core's radiation), so the counter is almost silent on the line from the doorway to the console. It turns to face the player only while they are not looking. When the player uses the console after lowering the rods, it steps aside (1.5 s), the counter climbs, and the equations open.
+- The ending: the view turns to the chair, which rocks once more and stops, empty.
 
-Each happens once per run (`state.glimpse1`, `state.glimpse2`). The shape is unlit and near-black; on Ultra and High its edge bends what is behind it, like heat haze.
+Each glimpse happens once per run (`state.glimpse1`, `state.glimpse2`, `state.glimpse3`). The shape is unlit and near-black; on Ultra and High its edge bends what is behind it, like heat haze.
 
 ## Not built yet
 
-Glimpse 3 (the shape standing between the player and the core), the chair in the ending, and recorded radio audio (step 5). The Low tier uses real-time lights; a baked ambient-occlusion pass for Medium and Low is still to do.
+Recorded radio audio (step 5). The Low tier uses real-time lights; a baked ambient-occlusion pass for Medium and Low is still to do.
 
 ## Pinned versions
 
