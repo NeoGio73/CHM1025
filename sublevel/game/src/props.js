@@ -112,7 +112,8 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 	group.add( goat );
 	const goatAt = sym => { const d = desks[ sym ]; if ( d ) { goat.position.copy( d ); goat.rotation.y = 0; goat.visible = true; } };
 	// it stands, now and then changes its weight or lowers its head (the deer's Idle, Idle_2 and Idle_Headlow)
-	let goatMixer = null, goatIdles = [], goatNow = null, goatT = 6;
+	let goatMixer = null, goatIdles = [], goatNow = null, goatT = 6, goatScripted = false;
+	const goatAct = {};
 	loader.loadAsync( './models/goat.glb' ).then( gltf => {
 
 		const m = gltf.scene;
@@ -120,7 +121,8 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 		goat.add( m );
 		goat.remove( goatStand );
 		goatMixer = new THREE.AnimationMixer( m );
-		goatIdles = [ 'Idle', 'Idle_2', 'Idle_Headlow' ].map( n => gltf.animations.find( a => a.name === n ) ).filter( Boolean ).map( c => goatMixer.clipAction( c ) );
+		for ( const c of gltf.animations ) goatAct[ c.name ] = goatMixer.clipAction( c );
+		goatIdles = [ 'Idle', 'Idle_2', 'Idle_Headlow' ].map( n => goatAct[ n ] ).filter( Boolean );
 		goatNow = goatIdles[ 0 ];
 		goatNow?.play();
 
@@ -130,6 +132,7 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 
 		if ( ! goatMixer || ! goat.visible ) return;
 		goatMixer.update( dt );
+		if ( goatScripted ) return;
 		goatT -= dt;
 		if ( goatT < 0 && goatIdles.length > 1 ) {
 
@@ -151,7 +154,7 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 	doorHolder.position.set( ecx, er.y, ez );
 	group.add( doorHolder );
 	const doorSpot = { holder: doorHolder, stand: add( new THREE.BoxGeometry( 1.2, 2.15, 0.05 ), mat( 0x3f4943 ), 0, 1.075, 0, doorHolder ) };
-	let leaf = null, openT = 0, opening = false;
+	let leaf = null, openT = 0, opening = false, closing = 0;
 	placeModel( './models/door.glb', [ doorSpot ] ).then( () => { leaf = doorSpot.model?.getObjectByName( 'DoorLeaf' ) || null; } );
 
 	const c = document.createElement( 'canvas' ); c.width = 256; c.height = 96;
@@ -162,14 +165,29 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 	const exit = {
 		at: new THREE.Vector3( ecx, er.y, er.z0 + 1.0 ),
 		face: new THREE.Vector3( ecx, er.y + 1.2, ez ),
-		open() { opening = true; }
+		open() { opening = true; },
+		close( seconds = 1.8 ) { opening = false; closing = seconds; } // the ending: it swings shut behind the player
 	};
+
+	// the ending moves the goat itself: stop its idling, and play a clip (at a speed)
+	function goatScript( on ) { goatScripted = on; }
+	function goatPlay( name, fade = 0.3, speed = 1 ) {
+
+		const a = goatAct[ name ];
+		if ( ! a || a === goatNow ) return;
+		a.timeScale = speed;
+		a.reset().play();
+		goatNow?.crossFadeTo( a, fade, false );
+		goatNow = a;
+
+	}
 
 	function update( dt ) {
 
 		updateGoat( dt );
-		if ( ! opening || openT >= 1 ) return;
-		openT = Math.min( 1, openT + dt / 1.8 );
+		if ( closing > 0 ) { openT = Math.max( 0, openT - dt / closing ); if ( openT === 0 ) closing = 0; }
+		else if ( ! opening || openT >= 1 ) return;
+		else openT = Math.min( 1, openT + dt / 1.8 );
 		const k = openT * openT * ( 3 - 2 * openT );
 		if ( leaf ) leaf.rotation.y = 1.65 * k; // swings out, into the bright space
 		else if ( doorSpot.stand ) doorSpot.stand.visible = openT < 0.5;
@@ -283,6 +301,6 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 	placeModel( './models/cooler.glb', coolerSpots, dressed );
 	placeModel( './models/wetsign.glb', signSpots, dressed );
 
-	return { phones, setRinging, desks, blockers, goat, goatAt, exit, update };
+	return { phones, setRinging, desks, blockers, goat, goatAt, goatScript, goatPlay, exit, update };
 
 }

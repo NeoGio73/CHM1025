@@ -17,6 +17,8 @@ import { buildWorld, LAYOUT } from './world.js';
 import { buildBuilding, floorY } from './building.js';
 import { buildProps } from './props.js';
 import { createRooster } from './rooster.js';
+import { createGlimpses } from './glimpses.js';
+import { createEnding } from './ending.js';
 import { CONFIG } from './config.js';
 import { WORK_ORDERS, DEBRIEF } from './questions.js';
 import { orbitalDiagram } from './chem.js';
@@ -94,7 +96,7 @@ const P = LOOK ? null : buildProps( scene, W, {
 
 // the donkey (Quaternius, CC0): plants itself in front of a wrong door
 const animals = [];
-let donkey = null;
+let donkey = null, donkeyRig = null;
 $( 'status' ).textContent = 'Loading the donkey…';
 try {
 
@@ -105,9 +107,13 @@ try {
 	scene.add( donkey );
 	const mixer = new THREE.AnimationMixer( donkey );
 	const clip = n => gltf.animations.find( a => a.name === n );
-	const idle = mixer.clipAction( clip( 'Idle' ) ), head = mixer.clipAction( clip( 'Idle_Headlow' ) );
+	const idle = mixer.clipAction( clip( 'Idle' ) ), head = mixer.clipAction( clip( 'Idle_Headlow' ) ), walk = mixer.clipAction( clip( 'Walk' ) );
 	idle.play();
-	animals.push( { mixer, idle, head, t: 6 } );
+	const a = { mixer, idle, head, t: 6, hold: false };
+	animals.push( a );
+	// for the ending: it walks out with the player
+	const to = b => { for ( const c of [ idle, head, walk ] ) if ( c !== b && c.isRunning() ) c.crossFadeTo( b, 0.4, false ); b.reset().play(); };
+	donkeyRig = { obj: donkey, walk() { a.hold = true; to( walk ); }, idle() { a.hold = true; to( idle ); } };
 
 } catch ( e ) { console.warn( 'The donkey did not load.', e ); }
 
@@ -115,6 +121,9 @@ try {
 const rooster = LOOK ? null : createRooster( scene, W );
 
 const audio = createAudio();
+// the shape's three glimpses and the goose (glimpses.js), and the ending (ending.js)
+const glimpses = LOOK ? null : createGlimpses( scene, W, audio );
+const ending = LOOK ? null : createEnding( { room: W.room( EXIT_ROOM ), P, rooster, goose: glimpses.goose, donkey: donkeyRig, figure: glimpses.figure, audio } );
 const { pipeline, U, build } = createPipeline( renderer, scene, camera );
 U.lensK.value = 0.05; // straighter walls than Daughter: offices read as wrong when lines bend
 
@@ -322,18 +331,18 @@ addEventListener( 'keyup', e => { keys[ e.code ] = false; } );
 
 // ---------------------------------------------------------------- the run
 
-const G = { wo: 1, phase: 'ring', qi: 0, qs: [], wrong: 0, completed: [], d2l: '', ended: false, finishedAt: 0, findT: 0, hinted: false };
+const G = { wo: 1, phase: 'ring', qi: 0, qs: [], wrong: 0, completed: [], d2l: '', ended: false, finishedAt: 0, findT: 0, hinted: false, glimpsed: [ false, false, false ] };
 const points = () => G.completed.filter( Boolean ).length * CONFIG.pointsPerWorkOrder;
 const cur = () => WOS[ G.wo - 1 ];
 
 function persist() {
 
-	store.set( { options, wo: G.wo, phase: G.phase === 'call' ? 'ring' : G.phase, wrong: G.wrong, completed: G.completed, d2l: G.d2l, ended: G.ended, finishedAt: G.finishedAt } );
+	store.set( { options, wo: G.wo, phase: G.phase === 'call' ? 'ring' : G.phase, wrong: G.wrong, completed: G.completed, d2l: G.d2l, ended: G.ended, finishedAt: G.finishedAt, glimpsed: G.glimpsed } );
 
 }
 
-function newRun() { Object.assign( G, { wo: 1, phase: 'ring', qi: 0, qs: [], wrong: 0, completed: [], ended: false, finishedAt: 0, findT: 0, hinted: false } ); }
-function loadRun( s ) { Object.assign( G, { wo: s.wo || 1, phase: s.phase || 'ring', qi: 0, qs: [], wrong: s.wrong || 0, completed: s.completed || [], d2l: s.d2l || '', ended: !! s.ended, finishedAt: s.finishedAt || 0, findT: 0, hinted: false } ); }
+function newRun() { Object.assign( G, { wo: 1, phase: 'ring', qi: 0, qs: [], wrong: 0, completed: [], ended: false, finishedAt: 0, findT: 0, hinted: false, glimpsed: [ false, false, false ] } ); }
+function loadRun( s ) { Object.assign( G, { wo: s.wo || 1, phase: s.phase || 'ring', qi: 0, qs: [], wrong: s.wrong || 0, completed: s.completed || [], d2l: s.d2l || '', ended: !! s.ended, finishedAt: s.finishedAt || 0, findT: 0, hinted: false, glimpsed: s.glimpsed || [ false, false, false ] } ); }
 
 // where the player stands after starting, continuing or losing the lights: at the phone of the current work order
 function checkpointRoom() { return G.phase === 'exit' ? EXIT_ROOM : cur().phone; }
@@ -358,13 +367,23 @@ function syncWorld() {
 		const d = W.room( cur().find.donkey );
 		donkey.position.set( d.cx, d.y, 0.62 );
 		donkey.rotation.y = Math.PI / 2; // side-on across the doorway
-		Object.assign( donkeyBlock, { x: d.cx, z: 0.62, y: d.y, on: G.phase !== 'exit' } );
-		donkey.visible = G.phase !== 'exit';
+		Object.assign( donkeyBlock, { x: d.cx, z: 0.62, y: d.y, on: true } );
+		donkey.visible = true;
 
 	}
 
 	if ( rooster && ! ( G.phase === 'find' && G.hinted ) ) rooster.hide();
-	if ( G.phase === 'exit' ) P.exit.open();
+	glimpses.sync( G );
+	if ( G.phase === 'exit' ) {
+
+		P.exit.open();
+		// the animals wait by the open exit door for the ending (ending.js); the donkey blocks walking there instead
+		ending.stage();
+		const s = ending.spot.donkey;
+		Object.assign( donkeyBlock, { x: s.x, z: s.z, y: s.y } );
+
+	}
+
 	audio.ring( G.phase === 'ring' );
 	updateObjective();
 
@@ -672,7 +691,11 @@ async function startEnding() {
 	G.ended = true; G.finishedAt = Date.now(); persist();
 	inputBlocked = true;
 	for ( const k in keys ) keys[ k ] = false;
-	// placeholder ending: daylight fills the screen (the animals walking out and the last glimpse are build step 6)
+	for ( const id of [ 'hudTL', 'hudTR', 'cross' ] ) $( id ).hidden = true;
+	$( 'prompt' ).style.display = 'none';
+	// the animals walk out, the player follows them into the light, and the door shuts on the shape (ending.js)
+	glimpses.takeOver();
+	await ending.play( { player, options } );
 	$( 'fade' ).classList.add( 'white' ); $( 'fade' ).style.opacity = 1;
 	audio.setHum( 0 );
 	await sleep( 2400 );
@@ -853,6 +876,7 @@ function frame() {
 	for ( const a of animals ) {
 
 		a.mixer.update( dt );
+		if ( a.hold ) continue; // the ending moves it
 		a.t -= dt;
 		if ( a.t < 0 ) { // now and then the donkey lowers its head, then goes back to standing
 			const from = a.idle.isRunning() ? a.idle : a.head, to = from === a.idle ? a.head : a.idle;
@@ -893,6 +917,8 @@ function frame() {
 		P.setRinging( cur().phone, G.phase === 'ring', ringT );
 		P.update( dt );
 		rooster?.update( dt );
+		glimpses.update( dt, { G, find: G.phase === 'find' ? cur().find : null, player, camera, options, active } );
+		ending.update( dt );
 
 		// ambient light, fog and hum follow how many lights are on around the player
 		const zs = dark.cur ? W.nearZones( dark.cur ) : [];
@@ -947,5 +973,5 @@ refreshTierButtons();
 if ( auto ) runBenchmark( true );
 else { $( 'btnStart' ).disabled = false; $( 'btnStart' ).textContent = startLabel(); $( 'status' ).textContent = `Backend: ${ backendName } · ${ TIERS[ tierKey ].label } (chosen in the URL)`; }
 
-if ( import.meta.env.DEV ) window.__look = { groundAt, renderer, scene, camera, player, setTier, TIERS, W, P, G, dark, syncWorld, spawnAt, answerPhone, startFind, checkArrival, rooster, get tier() { return tierKey; }, get fps() { return fpsShow; } };
+if ( import.meta.env.DEV ) window.__look = { groundAt, renderer, scene, camera, player, setTier, TIERS, W, P, G, dark, syncWorld, spawnAt, answerPhone, startFind, checkArrival, rooster, glimpses, ending, get tier() { return tierKey; }, get fps() { return fpsShow; } };
 

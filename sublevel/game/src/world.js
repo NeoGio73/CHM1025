@@ -3,7 +3,7 @@
 // Units are metres. The hallway runs along +x; the office is at the west end, the pool room at the east end.
 
 import * as THREE from 'three/webgpu';
-import { texture, uv, time, vec2, vec3, vec4, float, sin, abs, pow, mix, normalMap, positionWorld, output, Fn, uniform, length, exp, max, step } from 'three/tsl';
+import { texture, uv, time, vec2, vec3, vec4, float, sin, abs, pow, mix, normalMap, positionWorld, output, Fn, uniform, length, exp, max, step, normalize, reflect, cameraPosition, smoothstep } from 'three/tsl';
 
 // texture sets: real-world size of one texture repeat (m) and the average color used on the Low tier
 const SETS = {
@@ -275,6 +275,9 @@ export function buildWorld( scene ) {
 
 }
 
+// the shape's reflection in the pools: ( x, feet y, z, amount 0..1 ); set by the glimpses (glimpses.js)
+export const ghost = uniform( new THREE.Vector4( 0, - 1000, 0, 0 ) );
+
 // Water: a flat plane. Full: glossy with moving normals (picked up by SSR) and caustics on the basin.
 // Env: glossy with moving normals, reflections from the environment map. Flat: tinted, no animation.
 // light (optional): a node from 0 (dark) to 1 (lit). The building passes its zone lighting, so the water,
@@ -283,6 +286,7 @@ export function buildWorld( scene ) {
 // opts.caustics scale its reflections and caustics.
 // opts.rings: that many expanding rings (a drip, something moving in the water), started with ring( i, x, z )
 // and aged by update( dt ).
+// opts.ghost: this water can show the shape's reflection (see ghost below; only with light).
 export function buildWater( B, light = null, opts = {} ) {
 
 	const w = B.x1 - B.x0, l = B.z1 - B.z0;
@@ -315,15 +319,36 @@ export function buildWater( B, light = null, opts = {} ) {
 
 	} )();
 
+	// the shape's reflection (the first glimpse): the reflected view ray is traced against a standing figure (a body
+	// and a head) at ghost.xyz; where it hits, the water goes dark, rippling with the surface. Nothing stands there.
+	const ghostMask = opts.ghost && light ? Fn( () => {
+
+		const p = positionWorld;
+		const n = normalize( vec3( ripple.x.sub( 0.5 ).mul( 0.07 ), 1, ripple.y.sub( 0.5 ).mul( - 0.07 ) ) );
+		const r = reflect( normalize( p.sub( cameraPosition ) ), n );
+		const g = ghost.xyz, rh = r.xz;
+		const t = g.xz.sub( p.xz ).dot( rh ).div( max( rh.dot( rh ), float( 1e-4 ) ) );
+		const q = p.add( r.mul( t ) );
+		const d = length( q.xz.sub( g.xz ) ), h = q.y.sub( g.y );
+		// legs, then a body widening to the shoulders, a neck, a head
+		const rb = mix( float( 0.12 ), mix( float( 0.16 ), float( 0.25 ), smoothstep( 1.0, 1.32, h ) ), step( 0.85, h ) );
+		const body = float( 1 ).sub( smoothstep( rb.sub( 0.015 ), rb.add( 0.02 ), d ) ).mul( step( 0, h ) ).mul( step( h, 1.42 ) );
+		const neck = float( 1 ).sub( smoothstep( 0.05, 0.07, d ) ).mul( step( 1.42, h ) ).mul( step( h, 1.53 ) );
+		const head = float( 1 ).sub( smoothstep( 0.11, 0.13, length( vec2( d, h.sub( 1.64 ) ) ) ) );
+		return max( max( body, neck ), head ).mul( step( 0, t ) ).mul( ghost.w );
+
+	} )() : null;
+
 	const glossy = new THREE.MeshStandardNodeMaterial( { color: opts.color ?? 0x9fd3dd, roughness: 0.04, metalness: 0, transparent: true, opacity: opts.opacity ?? 0.55 } );
 	glossy.normalNode = normalMap( ripple, vec2( 0.06 ) );
 	glossy.depthWrite = false;
 	const flat = new THREE.MeshLambertNodeMaterial( { color: opts.flatColor ?? 0x7cc6d6, transparent: true, opacity: ( opts.opacity ?? 0.55 ) + 0.05, depthWrite: false } );
 	if ( light ) {
 
-		for ( const m of [ glossy, flat ] ) m.outputNode = vec4( output.rgb.mul( light ), output.a );
+		for ( const m of [ glossy, flat ] ) m.outputNode = ghostMask ? vec4( mix( output.rgb.mul( light ), vec3( 0.005 ), ghostMask.mul( 0.95 ) ), max( output.a, ghostMask.mul( 0.97 ) ) ) : vec4( output.rgb.mul( light ), output.a );
 		// screen-space reflections (High, Ultra) read the gloss, not the color: a dark room's water turns matte
-		glossy.roughnessNode = mix( float( 1 ), float( 0.04 ), light );
+		// (and so does the water where the shape's reflection is, so the room's reflection does not cover it)
+		glossy.roughnessNode = ghostMask ? mix( mix( float( 1 ), float( 0.04 ), light ), float( 1 ), ghostMask ) : mix( float( 1 ), float( 0.04 ), light );
 		// and they read the ripple from the normals, so in the dark the ripple goes flat too
 		glossy.normalNode = normalMap( ripple, vec2( 0.06 ).mul( light ) );
 

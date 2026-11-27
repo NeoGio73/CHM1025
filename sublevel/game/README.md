@@ -1,4 +1,4 @@
-# Sublevel (build steps 1 to 4 done; art pass under way)
+# Sublevel (build steps 1 to 6 done, first pass; step 7 next)
 
 Step 1, the look test, was approved on 2026-11-26 and is still at `/?look`. Step 2, the layout, is a first pass: all 36 rooms, four floors, and a stairwell at each end of the building (the east one was added on 2026-11-26 to shorten work order 4).
 
@@ -48,8 +48,19 @@ Step 4, the question pools, was checked against the Chapter 5 slides (Basic Chem
 - Building identity (handoff item 7, picked by Prof. Picione on 2026-11-27): **Calder & Finch Maintenance**, an older look. The phone calls use the name (`src/config.js`); door plates and the ATTENDANT sign are brass plates with dark brown serif letters; the stairwell floor numbers are painted in the same brown serif, with a brass company plaque under each.
 - Dark pool rooms: the water's ripple and the caustics now go fully dark too, so no shimmer is left on High or Ultra. Screen-space reflections skip fully matte surfaces.
 
+- The animals follow Prof. Picione's own (farm photos of 2026-11-27): the goat is a CC0 deer reshaped into the farm's goat, the donkey is coloured like the farm's donkey, and the rooster and the goose were made in Blender for this game.
+
+Step 6, the shape, the goose and the ending (first pass, 2026-11-27):
+
+- **The shape** is a dark human silhouette, seen three times for about a second, always at a distance or through something. It never comes closer. Lights-on mode has none of it.
+  1. Work order 3: its reflection in a pool, with no one standing there. It shows when the player looks in through a pool room's doorway on period 3 (or steps into a pool room that is not the one to find). The water draws it (`src/world.js`, `ghost`), so it ripples with the surface on every tier.
+  2. Work order 4 (or 5, if the player did not pass the booth in 4): a blurred head and shoulders behind the attendant's booth's frosted glass, as the player comes along the period 4 hallway toward it.
+  3. Work order 6: at the far west end of the period 4 hallway, by the stairs, as the lights there flicker out and come back with nothing there. The handoff puts this one in the long period 1 hallway, but work order 6 runs along period 4 (arsenic to potassium), so it is there.
+- **The goose** (Prof. Picione's brown Chinese-type goose) stands in the hallway near each glimpse's place during work orders 3 to 6, turns to watch the player go by, and honks (stretching its neck, wings up) a moment before the shape shows. The honk is made in code.
+- **The ending.** The animals wait by the open exit door in the potassium room. When the player goes to it, the rooster, the goose and the donkey walk out into the daylight, and the goat hops down from the desk and follows. The player follows them out and turns around: far back, beyond the room's front door, the shape stands in the hallway as the exit door swings shut. Then the debrief and the code, as before.
+
 **Placeholders still to confirm or replace:**
-- The goat is Prof. Picione's goat (a CC0 deer reshaped after the farm photos) and the donkey is coloured like Prof. Picione's donkey. The hum and ring are made in code.
+- The hum, the ring, the honk and the door are made in code (no recordings).
 
 ## Run it
 
@@ -94,14 +105,17 @@ Keys: WASD move · Shift faster · mouse look (or drag) · E use · Esc pause ·
 | `src/config.js` | Everything still to be decided: names, scoring, timing of the dark, code prefix and secret |
 | `src/main.js` | The run: walking, the phone, the dark, pause, save, ending and code (Daughter's structure, adapted) |
 | `src/rooster.js` | The rooster: the hint, walking to the safe room's door |
+| `src/bird.js` | Loads and walks the rooster and the goose |
+| `src/glimpses.js` | The shape, its three glimpses, and the goose that honks before each |
+| `src/ending.js` | The ending: the animals walk out, the door shuts on the shape |
 | `src/ui.js` | Panel, toasts and captions (Daughter's) |
-| `src/audio.js` | Hum, the buzz of a failing tube, and the phone ring, made in code |
+| `src/audio.js` | Hum, the buzz of a failing tube, the phone ring, the goose's honk and the exit door shutting, made in code |
 | `src/world.js` | The look test rooms and the water shader |
 | `src/code.js` | Completion code, copied unchanged from Daughter |
 | `public/textures/` | CC0 texture sets (see `../CREDITS.md`) |
 | `public/models/donkey.glb` | CC0 donkey, recoloured (see `../CREDITS.md`) |
 | `public/models/goat.glb` | The goat, made from a CC0 deer (see `../CREDITS.md`; source `../art/scripts/goat.py`) |
-| `public/models/chicken.glb` | The rooster, made in Blender for this game (source `../art/scripts/birds.py`) |
+| `public/models/chicken.glb`, `goose.glb` | The rooster and the goose, made in Blender for this game (source `../art/scripts/birds.py`) |
 | `public/models/phone.glb`, `desk.glb`, `door.glb`, `vending.glb`, `cooler.glb`, `wetsign.glb` | Made in Blender for this game (see `../CREDITS.md`) |
 
 Blender sources: `../art/animals.blend` and `../art/props.blend` (kept out of git).

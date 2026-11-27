@@ -270,7 +270,7 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 				wall( 'pooltile', 'x', b.x0, b.x1, b.z1, y - depth, y, - 1 );
 				wall( 'pooltile', 'z', b.z0, b.z1, b.x0, y - depth, y, 1 );
 				wall( 'pooltile', 'z', b.z0, b.z1, b.x1, y - depth, y, - 1 );
-				const W = buildWater( { ...b, depth, water: - 0.1 }, zoneLightNode );
+				const W = buildWater( { ...b, depth, water: - 0.1 }, zoneLightNode, { ghost: true } );
 				W.mesh.position.y += y;
 				group.add( W.mesh ); waters.push( W );
 				// walkable: the deck around the basin
@@ -291,8 +291,11 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 			wall( wallSet, 'x', R.x0, R.x1, R.z0, y, y + h, 1, exitHere ? [ { c: cx, w: 1.2, h: 2.15 } ] : [] );
 			if ( exitHere ) {
 
-				const v = new THREE.Mesh( new THREE.BoxGeometry( 1.5, 2.4, 1.5 ), new THREE.MeshBasicMaterial( { color: 0xfff4e2, side: THREE.BackSide } ) );
-				v.position.set( cx, y + 1.15, R.z0 - 0.75 );
+				// (open on the room's side, so that at the end the player can stand in it and look back; deep enough for
+				// the animals to walk into)
+				const vm = new THREE.MeshBasicMaterial( { color: new THREE.Color( 0xfff4e2 ).multiplyScalar( 2.2 ), side: THREE.BackSide, fog: false } ); // daylight: brighter than white
+				const v = new THREE.Mesh( new THREE.BoxGeometry( 1.5, 2.4, 3 ), [ vm, vm, vm, vm, new THREE.MeshBasicMaterial( { visible: false } ), vm ] );
+				v.position.set( cx, y + 1.15, R.z0 - 1.5 );
 				group.add( v );
 
 			}
