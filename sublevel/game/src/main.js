@@ -894,6 +894,9 @@ function frame() {
 
 		W.updateDark( dt );
 		W.updateFlood( player.pos, dt, moving );
+		W.updateFlicker( dt );
+		const fl = playing ? W.flickerNear( player.pos ) : null;
+		audio.setBuzz( fl ? Math.max( 0, 1 - fl.d / 7 ) : 0, fl?.stutter, fl?.on ?? true );
 		if ( ( lightT -= dt ) < 0 ) { lightT = 0.4; W.updateLights( player.pos ); }
 
 	}

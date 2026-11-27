@@ -43,6 +43,8 @@ Step 4, the question pools, was checked against the Chapter 5 slides (Basic Chem
 - The flooded corridor (handoff section 3): on the period 4 hallway between the zinc and gallium doors, where the parking level gives way to the pool rooms, so work order 5 (Fe to As) wades through it. The carpet stops and the floor drops 8 cm to wet concrete under murky water. Drips ring the surface now and then; a ring rises a few metres in as the player comes near, before they step in; wading leaves a wake and is slower (70 %).
 - The parking attendant's booth (for the second glimpse in step 6): a small room behind the period 4 hallway's front wall, in front of nickel, with a frosted window, a counter, a stool, a desk lamp glowing behind the glass, a radio, a key cabinet and an ATTENDANT sign. The glass writes depth so ambient occlusion on High and Ultra does not trace the room behind it.
 - Set dressing (handoff section 3), modelled in Blender for this game: vending machines (lit shelves of snacks, a "Refreshments" header in the building's brown and cream), water coolers and yellow wet-floor signs. Five vending machines and three water coolers stand against the hallways' front wall in the long empty stretches, between doors; three more coolers are in the Be, Na and Ca offices; a wet-floor sign stands just inside every pool room and at both ends of the flooded corridor. They block walking like the desks do.
+- Flickering tubes (handoff section 3): about one hallway fixture in thirteen, the one over the flooded corridor and one on the floor 3 west landing stutter now and then; the nearest real light dips with them, and a harsher buzz (made in code, `src/audio.js`) grows as the player comes close, with a crackle while the tube stutters.
+- Exit signs that point the wrong way (handoff section 3): every stairwell landing on floors 2 to 4 has a lit "EXIT ↑" (the way out is on floor 4), and floor 4's hallway has two "← EXIT" pointing east, away from the potassium room. Like the real EXIT sign, they glow when the lights fail.
 - Building identity (handoff item 7, picked by Prof. Picione on 2026-11-27): **Calder & Finch Maintenance**, an older look. The phone calls use the name (`src/config.js`); door plates and the ATTENDANT sign are brass plates with dark brown serif letters; the stairwell floor numbers are painted in the same brown serif, with a brass company plaque under each.
 - Dark pool rooms: the water's ripple and the caustics now go fully dark too, so no shimmer is left on High or Ultra. Screen-space reflections skip fully matte surfaces.
 
@@ -92,7 +94,7 @@ Keys: WASD move · Shift faster · mouse look (or drag) · E use · Esc pause ·
 | `src/config.js` | Everything still to be decided: names, scoring, timing of the dark, code prefix and secret |
 | `src/main.js` | The run: walking, the phone, the dark, pause, save, ending and code (Daughter's structure, adapted) |
 | `src/ui.js` | Panel, toasts and captions (Daughter's) |
-| `src/audio.js` | Hum and phone ring, made in code |
+| `src/audio.js` | Hum, the buzz of a failing tube, and the phone ring, made in code |
 | `src/world.js` | The look test rooms and the water shader |
 | `src/code.js` | Completion code, copied unchanged from Daughter |
 | `public/textures/` | CC0 texture sets (see `../CREDITS.md`) |

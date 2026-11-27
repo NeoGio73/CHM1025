@@ -230,6 +230,7 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 	}
 
 	const lightSpots = []; // candidate light positions { pos, floor, intensity }
+	const flickers = []; // tubes that flicker: { tube (index in tubesOn), zone, pos }
 	const rooms = [];
 	const hallEnds = {};
 	const plates = [], bays = [];
@@ -338,7 +339,13 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 		if ( p === BOOTH.p ) buildBooth( y );
 		area( 0, xEnd, 0.3, HALL_W - 0.3, y );
 		for ( let g = 1; g <= last; g ++ ) zoneLit.set( `h:${ p }:${ g }`, true );
-		for ( let x = 2; x < xEnd - 1; x += 4 ) fixture( x, HALL_W / 2, y + HALL_H, 2, hallZone( p, x ) );
+		for ( let x = 2, k = 0; x < xEnd - 1; x += 4, k ++ ) {
+
+			fixture( x, HALL_W / 2, y + HALL_H, 2, hallZone( p, x ) );
+			// a few tubes flicker and buzz (handoff section 3): about one fixture in thirteen, and the one over the flood
+			if ( ( k * 7 + p * 5 ) % 13 === 3 || ( p === FLOOD.p && x > FLOOD.x0 + 4 && x < FLOOD.x0 + 8 ) ) flickers.push( { tube: tubesOn.length - 1, zone: hallZone( p, x ), pos: new THREE.Vector3( x, y + HALL_H, HALL_W / 2 ) } );
+
+		}
 		for ( let x = 4; x < xEnd - 1; x += 8 ) lightSpots.push( { pos: new THREE.Vector3( x, y + HALL_H - 0.06, HALL_W / 2 ), floor: p, intensity: 9, reach: 7, zone: hallZone( p, x ) } );
 		hallEnds[ p ] = xEnd;
 
@@ -357,6 +364,7 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 		// landing at the hallway end: x from -2 to 0, both lanes
 		zoneLit.set( 's:' + p, true );
 		fixture( - 1, 0, y + HALL_H, 2, 's:' + p );
+		if ( p === 3 ) flickers.push( { tube: tubesOn.length - 1, zone: 's:' + p, pos: new THREE.Vector3( - 1, y + HALL_H, 0 ) } );
 		lightSpots.push( { pos: new THREE.Vector3( - 4, y + HALL_H - 0.06, 0 ), floor: p, intensity: 8, reach: 7, zone: 's:' + p } );
 		floorQ( 'concrete', - LAND, SX1, SZ0, SZ1, y );
 		area( - LAND, SX1 + 0.3, SZ0 + 0.3, SZ1 - 0.3, y );
@@ -648,15 +656,59 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 
 		if ( ! zoneLit.has( zone ) || zoneLit.get( zone ) === lit ) return;
 		zoneLit.set( zone, lit );
-		for ( const i of zoneTubes.get( zone ) || [] ) {
+		for ( const i of zoneTubes.get( zone ) || [] ) setTube( i, lit );
+		for ( const i of texels( zone ) ) zoneTarget[ i ] = lit ? 1 : 0;
 
-			onMesh.setMatrixAt( i, tmpM.compose( tubesOn[ i ], tmpQ.identity(), lit ? one : zero ) );
-			darkMesh.setMatrixAt( i, tmpM.compose( tubesOn[ i ], tmpQ.identity(), lit ? zero : one ) );
+	}
+
+	function setTube( i, lit ) {
+
+		onMesh.setMatrixAt( i, tmpM.compose( tubesOn[ i ], tmpQ.identity(), lit ? one : zero ) );
+		darkMesh.setMatrixAt( i, tmpM.compose( tubesOn[ i ], tmpQ.identity(), lit ? zero : one ) );
+		onMesh.instanceMatrix.needsUpdate = darkMesh.instanceMatrix.needsUpdate = true;
+
+	}
+
+	// ---- flickering tubes: mostly steady, then now and then a burst of stutter; the real light nearest the
+	// fixture dips with the tube. The game asks flickerNear() for the buzz.
+	for ( const f of flickers ) {
+
+		f.t = 2 + Math.random() * 8; f.burst = 0; f.next = 0; f.on = true;
+		let best = null, bd = 3.5;
+		for ( const l of lightSpots ) { const d = l.pos.distanceTo( f.pos ); if ( d < bd && l.zone === f.zone ) { bd = d; best = l; } }
+		f.spot = best;
+
+	}
+
+	function updateFlicker( dt ) {
+
+		for ( const f of flickers ) {
+
+			if ( ! isLit( f.zone ) ) { f.on = true; f.burst = 0; if ( f.spot ) f.spot.flick = 1; continue; }
+			let on = f.on;
+			if ( f.burst > 0 ) {
+
+				f.burst -= dt; f.next -= dt;
+				if ( f.next < 0 ) { on = Math.random() < 0.45; f.next = 0.03 + Math.random() * 0.13; }
+				if ( f.burst <= 0 ) { on = true; f.t = 3 + Math.random() * 10; }
+
+			} else if ( ( f.t -= dt ) < 0 ) f.burst = 0.4 + Math.random() * 1.6;
+
+			if ( on !== f.on ) { f.on = on; setTube( f.tube, on ); }
+			if ( f.spot ) f.spot.flick = on ? 1 : 0.6;
 
 		}
 
-		onMesh.instanceMatrix.needsUpdate = darkMesh.instanceMatrix.needsUpdate = true;
-		for ( const i of texels( zone ) ) zoneTarget[ i ] = lit ? 1 : 0;
+		pool.forEach( ( s, i ) => { const l = poolSpot[ i ]; if ( l ) s.intensity = l.intensity * ( l.flick ?? 1 ); } );
+
+	}
+
+	// the nearest flickering tube on the player's floor: how far, and whether it is stuttering right now
+	function flickerNear( pos ) {
+
+		let best = null, bd = Infinity;
+		for ( const f of flickers ) { if ( Math.abs( f.pos.y - pos.y ) > 2.5 || ! isLit( f.zone ) ) continue; const d = f.pos.distanceTo( pos ); if ( d < bd ) { bd = d; best = f; } }
+		return best ? { d: bd, stutter: best.burst > 0, on: best.on } : null;
 
 	}
 
@@ -836,6 +888,37 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 
 	}
 
+	// ---- exit signs that point the wrong way (handoff section 3). The way out is the potassium room's back wall,
+	// on floor 4 at the west end. Every landing on floors 2 to 4 has an EXIT sign pointing up the stairs, and floor 4's
+	// hallway has two pointing east. Lit like the real EXIT sign: they glow when the lights fail.
+	const exitSign = dir => {
+
+		const c = document.createElement( 'canvas' ); c.width = 320; c.height = 120;
+		const g = c.getContext( '2d' );
+		g.fillStyle = '#0e3b1f'; g.fillRect( 0, 0, 320, 120 );
+		g.fillStyle = '#6dff9c'; g.strokeStyle = '#6dff9c'; g.lineWidth = 12; g.lineCap = 'round'; g.lineJoin = 'round';
+		g.font = '700 66px Arial, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+		const tx = dir === 'up' ? 120 : 196, ax = dir === 'up' ? 262 : 62;
+		g.fillText( 'EXIT', tx, 64 );
+		g.beginPath();
+		if ( dir === 'up' ) { g.moveTo( ax, 92 ); g.lineTo( ax, 30 ); g.moveTo( ax - 22, 50 ); g.lineTo( ax, 28 ); g.lineTo( ax + 22, 50 ); }
+		else { g.moveTo( ax + 34, 60 ); g.lineTo( ax - 30, 60 ); g.moveTo( ax - 8, 38 ); g.lineTo( ax - 32, 60 ); g.lineTo( ax - 8, 82 ); }
+		g.stroke();
+		const t = new THREE.CanvasTexture( c ); t.colorSpace = THREE.SRGBColorSpace;
+		return new THREE.MeshStandardMaterial( { map: t, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: 1.5 } );
+
+	};
+	const upSign = exitSign( 'up' ), leftSign = exitSign( 'left' );
+	const putSign = ( m, x, y, z, ry ) => { const o = new THREE.Mesh( new THREE.PlaneGeometry( 0.48, 0.18 ), m ); o.position.set( x, y, z ); o.rotation.y = ry; group.add( o ); };
+	for ( let p = 2; p <= 4; p ++ ) {
+
+		putSign( upSign, SX1 - 0.012, floorY( p ) + 2.2, - 1.25, - Math.PI / 2 ); // west landing, on the wall beside the hallway
+		putSign( upSign, EX0 + 0.012, floorY( p ) + 2.2, - 1.25, Math.PI / 2 ); // east landing
+
+	}
+
+	for ( const g of [ 2, 9 ] ) putSign( leftSign, colCentre( g ) + 6.5, floorY( 4 ) + 2.3, HALL_W - 0.012, Math.PI ); // the arrow points east
+
 	// ---- real lights: a fixed pool, moved to the candidate positions nearest the player each half second
 	const hemi = new THREE.HemisphereLight( 0xeef1f4, 0xb4b8bc, 1.5 );
 	scene.add( hemi );
@@ -852,6 +935,7 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 	}
 
 	let shadowCount = 0;
+	const poolSpot = []; // the candidate spot each pooled light is showing
 	function updateLights( pos ) {
 
 		const floor = Math.round( - pos.y / FLOOR_DY ) + 1;
@@ -860,9 +944,10 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 		pool.forEach( ( s, i ) => {
 
 			const l = near[ i ]?.[ 0 ];
+			poolSpot[ i ] = l || null;
 			if ( ! l ) { s.intensity = 0; return; }
 			s.position.copy( l.pos ); s.target.position.set( l.pos.x, l.pos.y - 3, l.pos.z );
-			s.intensity = l.intensity; s.distance = Math.max( 8, l.reach + 4 );
+			s.intensity = l.intensity * ( l.flick ?? 1 ); s.distance = Math.max( 8, l.reach + 4 );
 			s.castShadow = i < shadowCount;
 
 		} );
@@ -879,7 +964,7 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 	}
 
 	const room = sym => rooms.find( r => r.e.sym === sym );
-	return { group, walk, rooms, room, apply, updateLights, hemi, zoneAt, nearZones, setZoneLit, allLit, isLit, updateDark, zones: zoneLit, hallEnds, zoneMaterial, updateFlood, inFlood, flood: FLOOD, booth: BOOTH };
+	return { group, walk, rooms, room, apply, updateLights, hemi, zoneAt, nearZones, setZoneLit, allLit, isLit, updateDark, zones: zoneLit, hallEnds, zoneMaterial, updateFlood, inFlood, flood: FLOOD, booth: BOOTH, updateFlicker, flickerNear };
 
 }
 
