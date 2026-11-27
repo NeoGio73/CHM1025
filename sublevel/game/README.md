@@ -8,7 +8,7 @@ Step 3, the work orders, is playable from start to finish with placeholder art:
 - The six work orders go H → Li → Mg → Cl → Fe → As → K. The last one ends at the exit door in the potassium room (the largest atom).
 - **The dark.** After each call, the rooms and hallway stretches the player has passed go dark one by one behind them. Wrong answers in that work order make it faster, and so does lingering. If everything behind is dark and the player still lingers (or stands in a dark room), the lights fail around them and they are taken back to the last phone, with no points lost. Reaching the safe room turns every light back on. Lights-on mode turns the dark off.
 - **Scoring** (confirmed 2026-11-26): 1 point per work order, 6 in all. Wrong answers never cost points.
-- **The donkey** stands across one wrong door for each search. After two wrong answers a question shows a hint; after two minutes of searching the objective shows one. Both stand in for the chicken until there is a chicken model.
+- **The donkey** stands across one wrong door for each search. After two wrong answers a question shows a hint. After two minutes of searching the objective shows one, and **the rooster** (Prof. Picione's Barred Rock) turns up in the hallway of the right floor, out of view if the player is on that floor, struts to the right door and pecks at its threshold until the player arrives. He is gone once the safe room is reached.
 - Door plates in the tiled rooms (p block) show the short configuration. Parking bays have the 3d electron count painted on the floor, except chromium and copper (out of scope).
 - Debrief ("What the building was telling you") and the completion code (Daughter's scheme, prefix `SL`, confirmed 2026-11-26, registered in the private checker the same day). Changing the secret in `src/config.js` means changing it in the checker too.
 
@@ -49,7 +49,7 @@ Step 4, the question pools, was checked against the Chapter 5 slides (Basic Chem
 - Dark pool rooms: the water's ripple and the caustics now go fully dark too, so no shimmer is left on High or Ultra. Screen-space reflections skip fully matte surfaces.
 
 **Placeholders still to confirm or replace:**
-- The goat is Prof. Picione's goat (a CC0 deer reshaped after the farm photos) and the donkey is coloured like Prof. Picione's donkey. The chicken's hints are still text only. The hum and ring are made in code.
+- The goat is Prof. Picione's goat (a CC0 deer reshaped after the farm photos) and the donkey is coloured like Prof. Picione's donkey. The hum and ring are made in code.
 
 ## Run it
 
@@ -93,6 +93,7 @@ Keys: WASD move · Shift faster · mouse look (or drag) · E use · Esc pause ·
 | `src/questions.js` | The six work orders (question pools checked against the Chapter 5 slides) and the debrief |
 | `src/config.js` | Everything still to be decided: names, scoring, timing of the dark, code prefix and secret |
 | `src/main.js` | The run: walking, the phone, the dark, pause, save, ending and code (Daughter's structure, adapted) |
+| `src/rooster.js` | The rooster: the hint, walking to the safe room's door |
 | `src/ui.js` | Panel, toasts and captions (Daughter's) |
 | `src/audio.js` | Hum, the buzz of a failing tube, and the phone ring, made in code |
 | `src/world.js` | The look test rooms and the water shader |
@@ -100,6 +101,7 @@ Keys: WASD move · Shift faster · mouse look (or drag) · E use · Esc pause ·
 | `public/textures/` | CC0 texture sets (see `../CREDITS.md`) |
 | `public/models/donkey.glb` | CC0 donkey, recoloured (see `../CREDITS.md`) |
 | `public/models/goat.glb` | The goat, made from a CC0 deer (see `../CREDITS.md`; source `../art/scripts/goat.py`) |
+| `public/models/chicken.glb` | The rooster, made in Blender for this game (source `../art/scripts/birds.py`) |
 | `public/models/phone.glb`, `desk.glb`, `door.glb`, `vending.glb`, `cooler.glb`, `wetsign.glb` | Made in Blender for this game (see `../CREDITS.md`) |
 
 Blender sources: `../art/animals.blend` and `../art/props.blend` (kept out of git).

@@ -24,7 +24,8 @@ export const CONFIG = {
 		inDark: 3 // seconds the player can stand in a dark room before the lights fail around them
 	},
 
-	// a hint (the chicken's job, until the chicken model exists) after this many wrong answers, or this long looking for a room
+	// a hint after this many wrong answers to a question (text), or this long looking for a room (text, and the rooster
+	// struts to the right door: rooster.js)
 	hintAfterWrong: 2,
 	hintAfterSeconds: 120,
 

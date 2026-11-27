@@ -16,6 +16,7 @@ import { initRenderer, createPipeline, TIERS, ORDER } from './engine.js';
 import { buildWorld, LAYOUT } from './world.js';
 import { buildBuilding, floorY } from './building.js';
 import { buildProps } from './props.js';
+import { createRooster } from './rooster.js';
 import { CONFIG } from './config.js';
 import { WORK_ORDERS, DEBRIEF } from './questions.js';
 import { orbitalDiagram } from './chem.js';
@@ -109,6 +110,9 @@ try {
 	animals.push( { mixer, idle, head, t: 6 } );
 
 } catch ( e ) { console.warn( 'The donkey did not load.', e ); }
+
+// the rooster (made for this game): the hint, leading the way to the safe room's door (rooster.js)
+const rooster = LOOK ? null : createRooster( scene, W );
 
 const audio = createAudio();
 const { pipeline, U, build } = createPipeline( renderer, scene, camera );
@@ -359,6 +363,7 @@ function syncWorld() {
 
 	}
 
+	if ( rooster && ! ( G.phase === 'find' && G.hinted ) ) rooster.hide();
 	if ( G.phase === 'exit' ) P.exit.open();
 	audio.ring( G.phase === 'ring' );
 	updateObjective();
@@ -867,7 +872,13 @@ function frame() {
 			if ( G.phase === 'find' && active ) {
 
 				G.findT += dt;
-				if ( ! G.hinted && G.findT > CONFIG.hintAfterSeconds ) { G.hinted = true; updateObjective(); toast( `Hint: ${ cur().find.hint }`, 6000 ); }
+				if ( ! G.hinted && G.findT > CONFIG.hintAfterSeconds ) {
+
+					G.hinted = true; updateObjective();
+					const r = rooster?.lead( cur().find.target, player.pos, camera );
+					toast( `${ r === 'near' ? 'The rooster is heading for the right door. ' : r ? 'The rooster has gone to wait at the right door. ' : '' }Hint: ${ cur().find.hint }`, 6000 );
+
+				}
 
 			}
 
@@ -881,6 +892,7 @@ function frame() {
 		ringT += dt;
 		P.setRinging( cur().phone, G.phase === 'ring', ringT );
 		P.update( dt );
+		rooster?.update( dt );
 
 		// ambient light, fog and hum follow how many lights are on around the player
 		const zs = dark.cur ? W.nearZones( dark.cur ) : [];
@@ -935,4 +947,5 @@ refreshTierButtons();
 if ( auto ) runBenchmark( true );
 else { $( 'btnStart' ).disabled = false; $( 'btnStart' ).textContent = startLabel(); $( 'status' ).textContent = `Backend: ${ backendName } · ${ TIERS[ tierKey ].label } (chosen in the URL)`; }
 
-if ( import.meta.env.DEV ) window.__look = { groundAt, renderer, scene, camera, player, setTier, TIERS, W, P, G, dark, syncWorld, spawnAt, answerPhone, startFind, checkArrival, get tier() { return tierKey; }, get fps() { return fpsShow; } };
+if ( import.meta.env.DEV ) window.__look = { groundAt, renderer, scene, camera, player, setTier, TIERS, W, P, G, dark, syncWorld, spawnAt, answerPhone, startFind, checkArrival, rooster, get tier() { return tierKey; }, get fps() { return fpsShow; } };
+
