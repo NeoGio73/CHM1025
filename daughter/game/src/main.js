@@ -458,6 +458,17 @@ function useTarget() {
 	const h = H[ target.id ];
 	if ( ! h ) return;
 	if ( target.kind === 'pickup' ) { h(); return; }
+	// glimpse 3: the shape standing in front of the decay console steps aside before the final equations open
+	const wait = target.id === 'finale' && G.state.s6.rods ? glimpses?.stepAside( camera.position ) : 0;
+	if ( wait ) {
+
+		inputBlocked = true;
+		for ( const k in keys ) keys[ k ] = false;
+		setTimeout( () => { if ( G.ended || evacuating ) return; inputBlocked = false; unlockQuiet(); h(); }, wait );
+		return;
+
+	}
+
 	unlockQuiet();
 	h();
 
@@ -636,6 +647,17 @@ async function startEnding() {
 	for ( const k in keys ) keys[ k ] = false;
 	L.coreSrc.strength = 0;
 	radio( 'end' );
+	// the view turns to the rocking chair beside the core door: it rocks once more and stops, empty
+	const seat = glimpses?.ending();
+	if ( seat ) {
+
+		const dx = seat.x - camera.position.x, dz = seat.z - camera.position.z, dy = seat.y + 0.2 - camera.position.y;
+		const y0 = player.yaw, p0 = player.pitch, yaw = Math.atan2( - dx, - dz );
+		const y1 = y0 + Math.atan2( Math.sin( yaw - y0 ), Math.cos( yaw - y0 ) ), p1 = Math.atan2( dy, Math.hypot( dx, dz ) );
+		tween( k => { player.yaw = y0 + ( y1 - y0 ) * k; player.pitch = p0 + ( p1 - p0 ) * k; }, 0, 1, 2400 );
+
+	}
+
 	// the counter falls silent, the blue light goes out
 	const b0 = L.lights.blueCore.intensity, h0 = L.lights.blueHot.intensity;
 	await tween( v => {
@@ -820,7 +842,7 @@ function frame() {
 	flashK += ( flashGoal - flashK ) * ( 1 - Math.exp( - dt * 8 ) );
 	flash.intensity = FLASH_BASE * flashK;
 	L.cone.position.copy( handPos ); L.cone.quaternion.copy( handQ );
-	glimpses?.update( dt, { flashOn, handPos, beamDir: fwd, camPos: camera.position } );
+	glimpses?.update( dt, { flashOn, handPos, beamDir: fwd, camera } );
 	L.volume.position.set( Math.round( camera.position.x ), 1.75, Math.round( camera.position.z ) );
 
 	// --- doors slide up
