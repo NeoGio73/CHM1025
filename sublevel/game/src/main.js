@@ -818,11 +818,14 @@ function frame() {
 	if ( benchmarking ) frameTimes.push( dt * 1000 );
 	const active = playing && ! inputBlocked && ! panelOpen() && $( 'pause' ).hidden;
 
+	let moving = false;
 	if ( active ) {
 
 		const mx = ( keys.KeyD ? 1 : 0 ) - ( keys.KeyA ? 1 : 0 ), mz = ( keys.KeyS ? 1 : 0 ) - ( keys.KeyW ? 1 : 0 );
+		moving = mx !== 0 || mz !== 0;
 		const c = Math.cos( player.yaw ), s = Math.sin( player.yaw );
-		const sp = player.speed * ( keys.ShiftLeft || keys.ShiftRight ? 1.7 : 1 ) * dt;
+		// wading through the flooded corridor is slower
+		const sp = player.speed * ( keys.ShiftLeft || keys.ShiftRight ? 1.7 : 1 ) * ( W.inFlood?.( player.pos ) ? 0.7 : 1 ) * dt;
 		const dx = ( mx * c + mz * s ) * sp, dz = ( - mx * s + mz * c ) * sp;
 		const feet = player.pos.y - EYE;
 		let g = groundAt( player.pos.x + dx, player.pos.z, feet );
@@ -890,6 +893,7 @@ function frame() {
 		if ( playing ) audio.setHum( ambient );
 
 		W.updateDark( dt );
+		W.updateFlood( player.pos, dt, moving );
 		if ( ( lightT -= dt ) < 0 ) { lightT = 0.4; W.updateLights( player.pos ); }
 
 	}

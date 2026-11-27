@@ -3,7 +3,7 @@
 // Units are metres. The hallway runs along +x; the office is at the west end, the pool room at the east end.
 
 import * as THREE from 'three/webgpu';
-import { texture, uv, time, vec2, vec3, vec4, float, sin, abs, pow, mix, normalMap, positionWorld, output, Fn } from 'three/tsl';
+import { texture, uv, time, vec2, vec3, vec4, float, sin, abs, pow, mix, normalMap, positionWorld, output, Fn, uniform, length, exp, max, step } from 'three/tsl';
 
 // texture sets: real-world size of one texture repeat (m) and the average color used on the Low tier
 const SETS = {
@@ -279,13 +279,20 @@ export function buildWorld( scene ) {
 // Env: glossy with moving normals, reflections from the environment map. Flat: tinted, no animation.
 // light (optional): a node from 0 (dark) to 1 (lit). The building passes its zone lighting, so the water,
 // its reflections and the caustics go dark with the room; the look test passes nothing and is unchanged.
-export function buildWater( B, light = null ) {
+// opts.color / opts.opacity: the water's tint (the flooded corridor is murkier than the pools); opts.reflect and
+// opts.caustics scale its reflections and caustics.
+// opts.rings: that many expanding rings (a drip, something moving in the water), started with ring( i, x, z )
+// and aged by update( dt ).
+export function buildWater( B, light = null, opts = {} ) {
 
 	const w = B.x1 - B.x0, l = B.z1 - B.z0;
 	const geo = new THREE.PlaneGeometry( w, l );
 	const mesh = new THREE.Mesh( geo );
 	mesh.rotation.x = - Math.PI / 2;
 	mesh.position.set( ( B.x0 + B.x1 ) / 2, B.water, ( B.z0 + B.z1 ) / 2 );
+
+	const rings = [], ringAge = [];
+	for ( let i = 0; i < ( opts.rings || 0 ); i ++ ) { rings.push( uniform( new THREE.Vector3( 0, 0, 99 ) ) ); ringAge.push( 99 ); }
 
 	// procedural ripple normal from a few slow travelling waves (world-space xz)
 	const ripple = Fn( () => {
@@ -294,14 +301,24 @@ export function buildWater( B, light = null ) {
 		const t = time.mul( 0.35 );
 		const dx = sin( p.x.mul( 3.1 ).add( t ) ).mul( 0.6 ).add( sin( p.x.mul( 1.7 ).add( p.y.mul( 2.3 ) ).sub( t.mul( 1.3 ) ) ).mul( 0.4 ) );
 		const dz = sin( p.y.mul( 2.7 ).sub( t.mul( 0.8 ) ) ).mul( 0.6 ).add( sin( p.y.mul( 1.3 ).sub( p.x.mul( 2.1 ) ).add( t.mul( 1.1 ) ) ).mul( 0.4 ) );
-		return vec3( dx.mul( 0.5 ).add( 0.5 ), dz.mul( 0.5 ).add( 0.5 ), 1 );
+		let rx = dx, rz = dz;
+		for ( const r of rings ) {
+
+			// r: ( x, z, age in seconds ); a ring front moving out at 0.8 m/s, fading as it spreads
+			const q = p.sub( r.xy ), d = max( length( q ), 0.02 ), front = d.sub( r.z.mul( 0.8 ) );
+			const k = sin( front.mul( 16 ) ).mul( exp( abs( front ).mul( - 5 ) ) ).mul( exp( r.z.mul( - 0.45 ) ) ).mul( step( 0, r.z ) ).mul( 2.4 );
+			rx = rx.add( q.x.div( d ).mul( k ) ); rz = rz.add( q.y.div( d ).mul( k ) );
+
+		}
+
+		return vec3( rx.mul( 0.5 ).add( 0.5 ), rz.mul( 0.5 ).add( 0.5 ), 1 );
 
 	} )();
 
-	const glossy = new THREE.MeshStandardNodeMaterial( { color: 0x9fd3dd, roughness: 0.04, metalness: 0, transparent: true, opacity: 0.55 } );
+	const glossy = new THREE.MeshStandardNodeMaterial( { color: opts.color ?? 0x9fd3dd, roughness: 0.04, metalness: 0, transparent: true, opacity: opts.opacity ?? 0.55 } );
 	glossy.normalNode = normalMap( ripple, vec2( 0.06 ) );
 	glossy.depthWrite = false;
-	const flat = new THREE.MeshLambertNodeMaterial( { color: 0x7cc6d6, transparent: true, opacity: 0.6, depthWrite: false } );
+	const flat = new THREE.MeshLambertNodeMaterial( { color: opts.flatColor ?? 0x7cc6d6, transparent: true, opacity: ( opts.opacity ?? 0.55 ) + 0.05, depthWrite: false } );
 	if ( light ) {
 
 		for ( const m of [ glossy, flat ] ) m.outputNode = vec4( output.rgb.mul( light ), output.a );
@@ -321,7 +338,7 @@ export function buildWater( B, light = null ) {
 		const a = sin( p.x.add( sin( p.y.mul( 1.3 ).add( t ) ) ).add( t ) );
 		const b = sin( p.y.mul( 1.1 ).add( sin( p.x.mul( 1.7 ).sub( t ) ) ).sub( t.mul( 0.7 ) ) );
 		const c = pow( float( 1 ).sub( abs( a.add( b ).mul( 0.5 ) ) ), float( 6 ) );
-		const col = vec3( 0.55, 0.8, 0.85 ).mul( c ).mul( 0.35 );
+		const col = vec3( 0.55, 0.8, 0.85 ).mul( c ).mul( 0.35 * ( opts.caustics ?? 1 ) );
 		return light ? col.mul( light.sub( 0.02 ).div( 0.98 ).clamp( 0, 1 ) ) : col; // none at all once the room is dark
 
 	} )();
@@ -337,7 +354,7 @@ export function buildWater( B, light = null ) {
 
 		mesh.material = mode === 'flat' ? flat : glossy;
 		glossy.envMap = envMap || null;
-		glossy.envMapIntensity = mode === 'env' ? 1.0 : 0.6;
+		glossy.envMapIntensity = ( mode === 'env' ? 1.0 : 0.6 ) * ( opts.reflect ?? 1 );
 		caust.visible = mode === 'full';
 
 	}
@@ -346,6 +363,9 @@ export function buildWater( B, light = null ) {
 	group.rotation.x = Math.PI / 2; // undo the parent's rotation for the caustic layer
 	group.position.set( 0, 0, 0 );
 	caust.position.set( 0, - B.depth + 0.004 - B.water, 0 );
-	return { mesh, setMode };
+
+	function ring( i, x, z ) { if ( rings[ i ] ) { rings[ i ].value.set( x, z, 0 ); ringAge[ i ] = 0; } }
+	function update( dt ) { rings.forEach( ( r, i ) => { if ( ringAge[ i ] < 30 ) { ringAge[ i ] += dt; r.value.z = ringAge[ i ]; } } ); }
+	return { mesh, setMode, ring, update };
 
 }

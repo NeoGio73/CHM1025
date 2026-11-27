@@ -123,6 +123,14 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 
 	}
 
+	// the flooded corridor (handoff section 3): ankle-deep water where the carpet used to be, on the period 4 hallway
+	// between the zinc and gallium doors, where the parking level gives way to the pool rooms (work order 5 crosses it)
+	const FLOOD = { p: 4, x0: colCentre( 12 ) + DOOR.w / 2 + 0.3, x1: colCentre( 13 ) - DOOR.w / 2 - 0.3, sink: 0.08, level: 0.02 };
+	// the parking attendant's booth (handoff, work order 4: the second glimpse is behind its frosted glass): a small room
+	// behind the period 4 hallway's front wall, in front of nickel, with a frosted window onto the hallway
+	const BOOTH = { p: 4, x0: colCentre( 10 ) - 1.3, x1: colCentre( 10 ) + 1.3, z1: HALL_W + 2.1, h: 2.4 };
+	BOOTH.window = { c: colCentre( 10 ) - 0.25, w: 1.4, h: 1.95, sill: 0.95 };
+
 	const group = new THREE.Group();
 	scene.add( group );
 	const surfaces = [];
@@ -162,6 +170,7 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 
 			piece( a, d.c - d.w / 2, y0, y1 );
 			piece( d.c - d.w / 2, d.c + d.w / 2, y0 + d.h, y1 );
+			if ( d.sill ) piece( d.c - d.w / 2, d.c + d.w / 2, y0, y0 + d.sill ); // a window: wall below the opening too
 			a = d.c + d.w / 2;
 
 		}
@@ -206,6 +215,7 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 	const hallEnds = {};
 	const plates = [], bays = [];
 	const waters = [];
+	let floodWater = null; // the flooded corridor's water (buildFlood)
 
 	// ---- floors
 	for ( let p = 1; p <= 4; p ++ ) {
@@ -301,10 +311,12 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 		}
 
 		// hallway along the front of the floor, from the west stair landing (x = 0) to the east one (x = XE)
-		floorQ( 'carpet', 0, xEnd, 0, HALL_W, y );
+		if ( p === FLOOD.p ) { floorQ( 'carpet', 0, FLOOD.x0, 0, HALL_W, y ); floorQ( 'carpet', FLOOD.x1, xEnd, 0, HALL_W, y ); buildFlood( y ); }
+		else floorQ( 'carpet', 0, xEnd, 0, HALL_W, y );
 		ceilQ( 'ceiling', 0, xEnd, 0, HALL_W, y + HALL_H );
 		wall( 'wall', 'x', 0, xEnd, 0, y, y + HALL_H, 1, doors );
-		wall( 'wall', 'x', 0, xEnd, HALL_W, y, y + HALL_H, - 1 );
+		wall( 'wall', 'x', 0, xEnd, HALL_W, y, y + HALL_H, - 1, p === BOOTH.p ? [ BOOTH.window ] : [] );
+		if ( p === BOOTH.p ) buildBooth( y );
 		area( 0, xEnd, 0.3, HALL_W - 0.3, y );
 		for ( let g = 1; g <= last; g ++ ) zoneLit.set( `h:${ p }:${ g }`, true );
 		for ( let x = 2; x < xEnd - 1; x += 4 ) fixture( x, HALL_W / 2, y + HALL_H, 2, hallZone( p, x ) );
@@ -469,6 +481,90 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 		wall( 'concrete', 'x', x - r, x + r, z + r, y, y + h, 1 ); wall( 'concrete', 'x', x - r, x + r, z - r, y, y + h, - 1 );
 		wall( 'concrete', 'z', z - r, z + r, x + r, y, y + h, 1 ); wall( 'concrete', 'z', z - r, z + r, x - r, y, y + h, - 1 );
 		box( 0.52, 0.25, 0.52, x, y + 1.02, z, 'curb' );
+
+	}
+
+	// ---- the flooded corridor: the floor drops 8 cm to bare wet concrete under 10 cm of murky water
+	function buildFlood( y ) {
+
+		const F = FLOOD, fy = y - F.sink;
+		floorQ( 'garage', F.x0, F.x1, 0, HALL_W, fy );
+		// the sunken edges: down from the carpet at each end, and along both walls
+		wall( 'garage', 'z', 0, HALL_W, F.x0, fy, y, 1 ); wall( 'garage', 'z', 0, HALL_W, F.x1, fy, y, - 1 );
+		wall( 'paint', 'x', F.x0, F.x1, 0, fy, y, 1 ); wall( 'paint', 'x', F.x0, F.x1, HALL_W, fy, y, - 1 );
+		const W = buildWater( { x0: F.x0, x1: F.x1, z0: 0, z1: HALL_W, depth: F.sink, water: F.level }, zoneLightNode, { color: 0x5e6457, flatColor: 0x5a6055, opacity: 0.68, reflect: 0.45, caustics: 0.3, rings: 3 } );
+		W.mesh.position.y += y;
+		group.add( W.mesh ); waters.push( W ); floodWater = W;
+
+	}
+
+	// drips now and then; ripples that start before the player steps in; a wake while wading
+	let dripT = 2, wakeT = 0, aheadArmed = true;
+	const onFloodFloor = pos => Math.round( - ( pos.y - 1.62 ) / FLOOR_DY ) + 1 === FLOOD.p;
+	const inFlood = pos => onFloodFloor( pos ) && pos.x > FLOOD.x0 && pos.x < FLOOD.x1 && pos.z > 0 && pos.z < HALL_W;
+	function updateFlood( pos, dt, moving ) {
+
+		if ( ! floodWater ) return;
+		floodWater.update( dt );
+		const F = FLOOD;
+		if ( ( dripT -= dt ) < 0 ) { dripT = 2.5 + Math.random() * 3.5; floodWater.ring( 0, F.x0 + 0.5 + Math.random() * ( F.x1 - F.x0 - 1 ), 0.3 + Math.random() * ( HALL_W - 0.6 ) ); }
+		if ( ! onFloodFloor( pos ) ) return;
+		const inside = pos.x > F.x0 && pos.x < F.x1;
+		const dist = inside ? 0 : Math.min( Math.abs( pos.x - F.x0 ), Math.abs( pos.x - F.x1 ) );
+		if ( ! inside && dist < 6 && aheadArmed ) {
+
+			aheadArmed = false; // something stirs the water a few metres in, before the player gets there
+			floodWater.ring( 1, pos.x < F.x0 ? F.x0 + 2.5 : F.x1 - 2.5, HALL_W * ( 0.3 + Math.random() * 0.4 ) );
+
+		}
+
+		if ( dist > 9 ) aheadArmed = true;
+		if ( inside && moving && ( wakeT -= dt ) < 0 ) { wakeT = 0.7; floodWater.ring( 2, pos.x, pos.z ); }
+
+	}
+
+	// ---- the attendant's booth behind the period 4 hallway's front wall: frosted window, counter, stool, lamp
+	function buildBooth( y ) {
+
+		const B = BOOTH, z0 = HALL_W, z1 = B.z1, top = y + B.h, wdw = B.window;
+		floorQ( 'garage', B.x0, B.x1, z0, z1, y );
+		ceilQ( 'concrete', B.x0, B.x1, z0, z1, top );
+		wall( 'paint', 'x', B.x0, B.x1, z1, y, top, - 1 );
+		wall( 'paint', 'z', z0, z1, B.x0, y, top, 1 ); wall( 'paint', 'z', z0, z1, B.x1, y, top, - 1 );
+		wall( 'paint', 'x', B.x0, B.x1, z0, y, top, 1, [ wdw ] ); // the inside of the hallway wall
+
+		const M = ( color, o = {} ) => zoneMaterial( new THREE.MeshStandardMaterial( { color, roughness: 0.6, ...o } ) );
+		const put = ( geo, m, x, yy, z ) => { const o = new THREE.Mesh( geo, m ); o.position.set( x, yy, z ); o.castShadow = o.receiveShadow = true; group.add( o ); return o; };
+		const cx = wdw.c, bx = ( B.x0 + B.x1 ) / 2, gh = wdw.h - wdw.sill;
+		// frosted glass: a little warm light comes through from the lamp inside, and only a blur of what is behind it.
+		// It writes depth, or the ambient occlusion on High and Ultra would trace the room behind it onto the glass.
+		const glass = new THREE.Mesh( new THREE.PlaneGeometry( wdw.w, gh ), zoneMaterial( new THREE.MeshStandardMaterial( { color: 0xd3d9d6, roughness: 0.35, transparent: true, opacity: 0.9, depthWrite: true, side: THREE.DoubleSide, emissive: 0x4a3a22, emissiveIntensity: 0.7 } ) ) );
+		glass.position.set( cx, y + wdw.sill + gh / 2, z0 + 0.03 );
+		group.add( glass );
+		const frameM = M( 0x3a3d3b, { metalness: 0.3, roughness: 0.5 } );
+		for ( const s of [ - 1, 1 ] ) put( new THREE.BoxGeometry( 0.05, gh + 0.1, 0.12 ), frameM, cx + s * ( wdw.w / 2 + 0.0 ), y + wdw.sill + gh / 2, z0 );
+		put( new THREE.BoxGeometry( wdw.w + 0.1, 0.05, 0.12 ), frameM, cx, y + wdw.h, z0 );
+		put( new THREE.BoxGeometry( 0.025, gh, 0.03 ), frameM, cx, y + wdw.sill + gh / 2, z0 + 0.03 ); // the middle bar
+		// a ledge on the hallway side; inside, a counter under the window, a stool, a lamp, a radio, a key cabinet
+		put( new THREE.BoxGeometry( wdw.w + 0.1, 0.035, 0.22 ), M( 0x6b6458 ), cx, y + wdw.sill + 0.0175, z0 - 0.11 );
+		put( new THREE.BoxGeometry( B.x1 - B.x0 - 0.08, 0.04, 0.55 ), M( 0x7a7264 ), bx, y + 0.92, z0 + 0.33 );
+		put( new THREE.BoxGeometry( B.x1 - B.x0 - 0.08, 0.88, 0.5 ), M( 0x55605a ), bx, y + 0.44, z0 + 0.3 );
+		put( new THREE.CylinderGeometry( 0.17, 0.17, 0.05, 16 ), M( 0x26282a ), cx + 0.25, y + 0.68, z0 + 0.95 );
+		put( new THREE.CylinderGeometry( 0.025, 0.025, 0.66, 8 ), M( 0x8a8c8e, { metalness: 0.6, roughness: 0.4 } ), cx + 0.25, y + 0.33, z0 + 0.95 );
+		const lampX = cx + wdw.w / 2 - 0.15;
+		put( new THREE.CylinderGeometry( 0.07, 0.08, 0.02, 16 ), M( 0x2c2e30 ), lampX, y + 0.95, z0 + 0.42 );
+		put( new THREE.CylinderGeometry( 0.008, 0.008, 0.32, 6 ), M( 0x2c2e30 ), lampX, y + 1.1, z0 + 0.42 );
+		put( new THREE.CylinderGeometry( 0.045, 0.1, 0.13, 16, 1, true ), new THREE.MeshStandardMaterial( { color: 0xf3d9a4, emissive: 0xffc77a, emissiveIntensity: 2.2, side: THREE.DoubleSide } ), lampX, y + 1.27, z0 + 0.42 );
+		put( new THREE.BoxGeometry( 0.26, 0.13, 0.09 ), M( 0x3b3530 ), cx - 0.35, y + 1.005, z0 + 0.45 );
+		put( new THREE.BoxGeometry( 0.45, 0.55, 0.07 ), M( 0x8a8e86 ), bx + 0.6, y + 1.55, z1 - 0.035 );
+		// the sign above the window
+		const c = document.createElement( 'canvas' ); c.width = 512; c.height = 96;
+		const g = c.getContext( '2d' );
+		g.fillStyle = '#2f3a44'; g.fillRect( 0, 0, 512, 96 ); g.fillStyle = '#e8e6df'; g.font = '700 56px Arial, sans-serif'; g.textAlign = 'center'; g.fillText( 'ATTENDANT', 256, 68 );
+		const t = new THREE.CanvasTexture( c ); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+		const sign = new THREE.Mesh( new THREE.PlaneGeometry( 0.9, 0.17 ), zoneMaterial( new THREE.MeshStandardMaterial( { map: t, roughness: 0.6 } ) ) );
+		sign.position.set( cx, y + wdw.h + 0.22, z0 - 0.006 ); sign.rotation.y = Math.PI;
+		group.add( sign );
 
 	}
 
@@ -748,7 +844,7 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 	}
 
 	const room = sym => rooms.find( r => r.e.sym === sym );
-	return { group, walk, rooms, room, apply, updateLights, hemi, zoneAt, nearZones, setZoneLit, allLit, isLit, updateDark, zones: zoneLit, hallEnds, zoneMaterial };
+	return { group, walk, rooms, room, apply, updateLights, hemi, zoneAt, nearZones, setZoneLit, allLit, isLit, updateDark, zones: zoneLit, hallEnds, zoneMaterial, updateFlood, inFlood, flood: FLOOD, booth: BOOTH };
 
 }
 

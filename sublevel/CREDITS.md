@@ -30,4 +30,4 @@ Donkey: imported into Blender 5.2 on 2026-11-26, scaled to 1.9 m long, given mat
 
 Modelled in Blender 5.2 for Sublevel on 2026-11-27 (source `art/props.blend`, kept out of git), with no outside assets: the wall phone (`game/public/models/phone.glb`), the steel desk and office chair (`desk.glb`) and the exit door (`door.glb`).
 
-Generated in `game/src/`: room geometry, the stairwell railings, step nosings and floor numbers, the parking bay markings, wheel stops, pillar bands, ceiling pipes and oil stains, tube light fixtures, the water surface and ripples, the pool caustics, the placeholder goat (`props.js`), the door plates and bay numbers, and the hum and phone ring (`audio.js`, synthesized; no sound files).
+Generated in `game/src/`: room geometry, the stairwell railings, step nosings and floor numbers, the parking bay markings, wheel stops, pillar bands, ceiling pipes and oil stains, the flooded corridor and the attendant's booth, tube light fixtures, the water surface and ripples, the pool caustics, the placeholder goat (`props.js`), the door plates and bay numbers, and the hum and phone ring (`audio.js`, synthesized; no sound files).
