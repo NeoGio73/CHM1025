@@ -15,6 +15,7 @@ import { transmission } from './dose.js';
 import { AudioRig } from './audio.js';
 import { CONFIG } from './config.js';
 import { RADIO } from './radio.js';
+import { createRadio } from './voice.js';
 import { DEBRIEF, HALF_LIFE } from './questions.js';
 import { createStations, makePicks, freshState, objective, RECORDS } from './stations.js';
 import { certCode, dayKey, normalizeUser } from './code.js';
@@ -548,7 +549,12 @@ function fadeTo( v, s ) { const a = U.fade.value; return tween( x => { U.fade.va
 
 // ---------------------------------------------------------------- checkpoints and radio
 
-function radio( key ) { for ( const line of RADIO[ key ] || [] ) caption( `${ CONFIG.names.physicistShort.toUpperCase() } (recording):`, fill( line ), options.captions ); }
+// Kessler's recordings: a voiced clip from public/audio/radio/ when there is one (src/voice.js), a caption either way
+const radioVoice = createRadio( {
+	audio, caption, base: import.meta.env.DEV ? './audio/radio/' : '../game/public/audio/radio/',
+	speaker: () => `${ CONFIG.names.physicistShort.toUpperCase() } (recording):`, captionsOn: () => options.captions
+} );
+function radio( key ) { radioVoice.say( key, ( RADIO[ key ] || [] ).map( fill ) ); }
 
 function checkRoom() {
 
@@ -602,6 +608,7 @@ if ( saved && saved.seed && ! saved.ended ) { $( 'btnContinue' ).hidden = false;
 function enterGame() {
 
 	audio.start();
+	radioVoice.preload( RADIO );
 	$( 'title' ).hidden = true; $( 'pause' ).hidden = true;
 	for ( const id of [ 'hudTL', 'hudTR', 'hudBL', 'cross' ] ) $( id ).hidden = false;
 	playing = true;
@@ -672,7 +679,7 @@ async function startEnding() {
 		L.mats.glowStrip.level.value = 2.6 * v;
 
 	}, 1, 0, 4000 );
-	await sleep( 2500 );
+	await Promise.all( [ sleep( 2500 ), radioVoice.whenDone( 16000 ) ] ); // let her last line finish before the fade
 	await fadeTo( 0, 2.0 );
 	playing = false;
 	unlockQuiet();

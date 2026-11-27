@@ -45,7 +45,8 @@ Each station is 1 point. Wrong answers cost 2 mSv once the dosimeter is live (st
 |---|---|
 | `src/config.js` | Names, scoring, dose limit, code prefix and secret, and `codeRegistered` (true: the secret is in the private checker) |
 | `src/questions.js` | All chemistry, with the slide each fact comes from |
-| `src/radio.js` | All radio lines (draft), shown as captions |
+| `src/radio.js` | All radio lines; each is voiced from `public/audio/radio/<key>.mp3` (see `src/voice.js`) and shown as a caption |
+| `src/voice.js` | Plays the radio clips through an old-tape filter (radio band, hiss, wobble, clicks); the caption follows the clip's length, and a line without a clip is a caption only. The ending waits for the last line |
 | `src/stations.js` | Terminal puzzles and checks |
 | `src/level.js` | Graybox rooms, doors, terminals, lights, dose sources (the gameplay layout) |
 | `src/art.js` | Loads the Blender rooms over the graybox |
@@ -70,7 +71,11 @@ Each glimpse happens once per run (`state.glimpse1`, `state.glimpse2`, `state.gl
 
 ## Not built yet
 
-Recorded radio audio (step 5). The Low tier uses real-time lights; a baked ambient-occlusion pass for Medium and Low is still to do.
+The Low tier uses real-time lights; a baked ambient-occlusion pass for Medium and Low is still to do.
+
+## Radio voice
+
+Kessler's 7 lines are AI-generated with Fish Audio (model `s2.1-pro`, licensed voice "Luminous Expressive Female"), MP3 at 64 kbps, 624 KB in all. If a line in `src/radio.js` changes, regenerate its file (same voice and settings: prosody speed 0.95, loudness normalized) or delete it so the line falls back to a caption only.
 
 ## Pinned versions
 

@@ -124,10 +124,11 @@ export function toast( text, ms = 3200 ) {
 }
 
 let capQueue = [], capBusy = false;
-export function caption( speaker, text, show ) {
+// ms: how long to show it (a voiced radio line passes its clip's length); otherwise it follows the text's length
+export function caption( speaker, text, show, ms ) {
 
 	if ( ! show ) return;
-	capQueue.push( { speaker, text } );
+	capQueue.push( { speaker, text, ms } );
 	if ( ! capBusy ) nextCaption();
 
 }
@@ -140,7 +141,7 @@ function nextCaption() {
 	capBusy = true;
 	c.innerHTML = `<span class="spk">${ item.speaker }</span> ${ item.text }`;
 	c.classList.add( 'show' );
-	setTimeout( nextCaption, Math.max( 3500, item.text.length * 65 ) );
+	setTimeout( nextCaption, item.ms ?? Math.max( 3500, item.text.length * 65 ) );
 
 }
 
