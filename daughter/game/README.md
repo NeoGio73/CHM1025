@@ -57,9 +57,18 @@ Each station is 1 point. Wrong answers cost 2 mSv once the dosimeter is live (st
 
 All six areas are modelled in Blender (`../art/facility.blend`, kept out of git) and exported to `public/models/*.glb` (10 MB). `src/art.js` loads each room and hides the graybox under it; walkable areas, collision, dose shielding and terminals still come from `src/level.js`. If a model fails to load, that room falls back to the graybox. The published copy in `../play/` loads the models from `../game/public/models/`, so they are stored once.
 
+## Glimpses (build step 5)
+
+`src/glimpses.js` loads `public/models/chair.glb` (the rocking chair, with the shape sitting in it) and runs the glimpses. Lights-on mode hides all of them.
+
+- Glimpse 1, entry hall: when the gamma barrier opens, the empty chair rocks and creaks at the end of the hall, and stops the moment the flashlight reaches it.
+- Glimpse 2, hot corridor: during the corridor clock's time skip the chair moves to the middle of the hot corridor, facing the player, with the shape in it against a faint blue glow. After half a second in view (with a clear line of sight) the shape is gone and the empty chair rocks and creaks.
+
+Each happens once per run (`state.glimpse1`, `state.glimpse2`). The shape is unlit and near-black; on Ultra and High its edge bends what is behind it, like heat haze.
+
 ## Not built yet
 
-The three glimpses, the chair, the shape and recorded radio audio (step 5). The Low tier uses real-time lights; a baked ambient-occlusion pass for Medium and Low is still to do.
+Glimpse 3 (the shape standing between the player and the core), the chair in the ending, and recorded radio audio (step 5). The Low tier uses real-time lights; a baked ambient-occlusion pass for Medium and Low is still to do.
 
 ## Pinned versions
 
