@@ -2,7 +2,7 @@
 // machines, water coolers, wet-floor signs; handoff section 3).
 // Art pass (build step 5): the phone, the desk with its chair and the exit door are models made in Blender
 // (art/props.blend, exported to public/models/*.glb; no outside assets). Each place gets a simple block until its
-// model has loaded. The goat is still a block (it waits for Prof. Picione's photos).
+// model has loaded. The goat is Prof. Picione's own goat, made from a CC0 deer (see the goat below and ../CREDITS.md).
 
 import * as THREE from 'three/webgpu';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -98,25 +98,50 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 
 	placeModel( './models/desk.glb', deskSpots );
 
-	// ---- the goat: a block placeholder (no CC0 goat model yet), off-white, facing the door (+z)
+	// ---- the goat: Prof. Picione's goat (art/scripts/goat.py: Quaternius's CC0 deer reshaped after the farm photos),
+	// standing on the desk along its length, facing the door (+z). One goat, moved to whichever desk the run needs.
+	// A block goat stands in until the model has loaded.
 	const goat = new THREE.Group();
-	const white = mat( 0xe9e4d8, { roughness: 0.9 } ), grey = mat( 0x6d6a64, { roughness: 0.8 } ), horn = mat( 0x9b8f78 );
-	add( new THREE.BoxGeometry( 0.3, 0.32, 0.7 ), white, 0, 0.58, 0, goat ); // body
-	for ( const [ lx, lz ] of [ [ - 0.1, - 0.27 ], [ 0.1, - 0.27 ], [ - 0.1, 0.27 ], [ 0.1, 0.27 ] ] ) add( new THREE.BoxGeometry( 0.07, 0.42, 0.07 ), white, lx, 0.21, lz, goat );
-	add( new THREE.BoxGeometry( 0.13, 0.28, 0.13 ), white, 0, 0.82, 0.35, goat ); // neck
-	add( new THREE.BoxGeometry( 0.17, 0.17, 0.27 ), white, 0, 0.98, 0.46, goat ); // head
-	add( new THREE.BoxGeometry( 0.07, 0.07, 0.05 ), grey, 0, 0.95, 0.6, goat ); // nose
-	for ( const s of [ - 1, 1 ] ) {
-
-		add( new THREE.BoxGeometry( 0.03, 0.16, 0.03 ), horn, s * 0.05, 1.12, 0.4, goat ).rotation.x = - 0.5;
-		add( new THREE.BoxGeometry( 0.12, 0.04, 0.05 ), white, s * 0.13, 1.0, 0.42, goat ); // ears
-
-	}
-
-	add( new THREE.BoxGeometry( 0.04, 0.1, 0.04 ), grey, 0, 0.88, 0.58, goat ); // beard
-	add( new THREE.BoxGeometry( 0.05, 0.12, 0.05 ), white, 0, 0.78, - 0.36, goat ).rotation.x = - 0.6; // tail
+	const goatStand = new THREE.Group();
+	const white = mat( 0xe9e4d8, { roughness: 0.9 } ), grey = mat( 0x6d6a64, { roughness: 0.8 } );
+	add( new THREE.BoxGeometry( 0.26, 0.28, 0.55 ), white, 0, 0.42, 0, goatStand ); // body
+	for ( const [ lx, lz ] of [ [ - 0.08, - 0.2 ], [ 0.08, - 0.2 ], [ - 0.08, 0.2 ], [ 0.08, 0.2 ] ] ) add( new THREE.BoxGeometry( 0.06, 0.3, 0.06 ), white, lx, 0.15, lz, goatStand );
+	add( new THREE.BoxGeometry( 0.14, 0.15, 0.24 ), white, 0, 0.66, 0.34, goatStand ); // head
+	add( new THREE.BoxGeometry( 0.04, 0.1, 0.04 ), grey, 0, 0.55, 0.42, goatStand ); // beard
+	goat.add( goatStand );
 	group.add( goat );
 	const goatAt = sym => { const d = desks[ sym ]; if ( d ) { goat.position.copy( d ); goat.rotation.y = 0; goat.visible = true; } };
+	// it stands, now and then changes its weight or lowers its head (the deer's Idle, Idle_2 and Idle_Headlow)
+	let goatMixer = null, goatIdles = [], goatNow = null, goatT = 6;
+	loader.loadAsync( './models/goat.glb' ).then( gltf => {
+
+		const m = gltf.scene;
+		m.traverse( o => { if ( o.isMesh ) { o.castShadow = o.receiveShadow = true; o.frustumCulled = false; o.material = B.zoneMaterial( o.material ); } } );
+		goat.add( m );
+		goat.remove( goatStand );
+		goatMixer = new THREE.AnimationMixer( m );
+		goatIdles = [ 'Idle', 'Idle_2', 'Idle_Headlow' ].map( n => gltf.animations.find( a => a.name === n ) ).filter( Boolean ).map( c => goatMixer.clipAction( c ) );
+		goatNow = goatIdles[ 0 ];
+		goatNow?.play();
+
+	} ).catch( e => console.warn( './models/goat.glb did not load; the block goat stays.', e ) );
+
+	function updateGoat( dt ) {
+
+		if ( ! goatMixer || ! goat.visible ) return;
+		goatMixer.update( dt );
+		goatT -= dt;
+		if ( goatT < 0 && goatIdles.length > 1 ) {
+
+			const next = goatNow === goatIdles[ 0 ] ? goatIdles[ 1 + Math.floor( Math.random() * ( goatIdles.length - 1 ) ) ] : goatIdles[ 0 ];
+			next.reset().play();
+			goatNow.crossFadeTo( next, 0.8, false );
+			goatNow = next;
+			goatT = next === goatIdles[ 0 ] ? 6 + Math.random() * 6 : 4 + Math.random() * 2;
+
+		}
+
+	}
 
 	// ---- the exit: a steel door with a push bar in the back wall of the largest room. The building leaves a doorway
 	// there with a bright space behind it; at the end the door swings open onto it, away from the player.
@@ -142,6 +167,7 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 
 	function update( dt ) {
 
+		updateGoat( dt );
 		if ( ! opening || openT >= 1 ) return;
 		openT = Math.min( 1, openT + dt / 1.8 );
 		const k = openT * openT * ( 3 - 2 * openT );

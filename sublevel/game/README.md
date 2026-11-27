@@ -49,7 +49,7 @@ Step 4, the question pools, was checked against the Chapter 5 slides (Basic Chem
 - Dark pool rooms: the water's ripple and the caustics now go fully dark too, so no shimmer is left on High or Ultra. Screen-space reflections skip fully matte surfaces.
 
 **Placeholders still to confirm or replace:**
-- The goat is a block (waiting for reference photos); so are the chicken's hints (text only). The hum and ring are made in code.
+- The goat is Prof. Picione's goat (a CC0 deer reshaped after the farm photos) and the donkey is coloured like Prof. Picione's donkey. The chicken's hints are still text only. The hum and ring are made in code.
 
 ## Run it
 
@@ -89,7 +89,7 @@ Keys: WASD move · Shift faster · mouse look (or drag) · E use · Esc pause ·
 | `src/elements.js` | The 36 elements: period, group, radius used for room size |
 | `src/chem.js` | Electron configurations as written on the slides, orbital diagrams, 3d counts (no Cr/Cu exceptions) |
 | `src/building.js` | Generates the building; the zones the dark switches off |
-| `src/props.js` | The phones, desks and chairs, exit door, vending machines, water coolers and wet-floor signs (models), and the placeholder goat |
+| `src/props.js` | The phones, desks and chairs, exit door, vending machines, water coolers and wet-floor signs (models), and the goat on the safe-room desk |
 | `src/questions.js` | The six work orders (question pools checked against the Chapter 5 slides) and the debrief |
 | `src/config.js` | Everything still to be decided: names, scoring, timing of the dark, code prefix and secret |
 | `src/main.js` | The run: walking, the phone, the dark, pause, save, ending and code (Daughter's structure, adapted) |
@@ -98,7 +98,8 @@ Keys: WASD move · Shift faster · mouse look (or drag) · E use · Esc pause ·
 | `src/world.js` | The look test rooms and the water shader |
 | `src/code.js` | Completion code, copied unchanged from Daughter |
 | `public/textures/` | CC0 texture sets (see `../CREDITS.md`) |
-| `public/models/donkey.glb` | CC0 donkey (see `../CREDITS.md`) |
+| `public/models/donkey.glb` | CC0 donkey, recoloured (see `../CREDITS.md`) |
+| `public/models/goat.glb` | The goat, made from a CC0 deer (see `../CREDITS.md`; source `../art/scripts/goat.py`) |
 | `public/models/phone.glb`, `desk.glb`, `door.glb`, `vending.glb`, `cooler.glb`, `wetsign.glb` | Made in Blender for this game (see `../CREDITS.md`) |
 
 Blender sources: `../art/animals.blend` and `../art/props.blend` (kept out of git).

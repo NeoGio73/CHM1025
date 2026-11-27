@@ -23,11 +23,14 @@ Concrete 034 and 036 were downloaded on 2026-11-27, approved by Prof. Picione th
 | Used for | Asset | Source | Author | License | Files |
 |---|---|---|---|---|---|
 | The donkey | Donkey (rigged and animated) | https://poly.pizza/m/qmX6nhnvp7 | Quaternius | CC0 1.0 | `game/public/models/donkey.glb` |
+| The goat (made from it) | Deer (rigged and animated) | https://poly.pizza/m/T6Cs7tmMHJ | Quaternius | CC0 1.0 | `game/public/models/goat.glb` |
 
-Donkey: imported into Blender 5.2 on 2026-11-26, scaled to 1.9 m long, given matte materials, and exported as glTF. Only the Idle, Idle_Headlow, Walk and Eating animations were kept; the attack and death animations were removed (handoff section 2: no harm to any animal).
+Donkey: imported into Blender 5.2 on 2026-11-26, scaled to 1.9 m long, given matte materials, and exported as glTF. Only the Idle, Idle_Headlow, Walk and Eating animations were kept; the attack and death animations were removed (handoff section 2: no harm to any animal). On 2026-11-27 its colours were changed to match Prof. Picione's donkey (brown coat, pale muzzle and belly, dark mane), from Prof. Picione's photos.
+
+Goat: the Deer from the same Quaternius pack (the donkey's, so the same rig), downloaded on 2026-11-27 and reshaped in Blender 5.2 by `art/scripts/goat.py` into Prof. Picione's goat, from the farm photos: shorter legs, a deeper and wider body, a shorter neck, ears held out sideways, horns and a beard added, and its colours. Only the Idle, Idle_2, Idle_Headlow, Eating, Walk and Jump_toIdle animations were kept; the attack, hit and death animations were removed (handoff section 2).
 
 ## Made for this game (no license needed)
 
 Modelled in Blender 5.2 for Sublevel on 2026-11-27 (source `art/props.blend`, kept out of git), with no outside assets: the wall phone (`game/public/models/phone.glb`), the steel desk and office chair (`desk.glb`), the exit door (`door.glb`), the vending machine (`vending.glb`), the water cooler (`cooler.glb`) and the wet-floor sign (`wetsign.glb`). Their labels (the snack shelves, the "Refreshments" header, the caution face) are drawn in code in `props.js`.
 
-Generated in `game/src/`: room geometry, the stairwell railings, step nosings and floor numbers, the parking bay markings, wheel stops, pillar bands, ceiling pipes and oil stains, the flooded corridor and the attendant's booth, tube light fixtures, the water surface and ripples, the pool caustics, the placeholder goat (`props.js`), the door plates and bay numbers, the wrong-way exit signs, and the hum, tube buzz and phone ring (`audio.js`, synthesized; no sound files).
+Generated in `game/src/`: room geometry, the stairwell railings, step nosings and floor numbers, the parking bay markings, wheel stops, pillar bands, ceiling pipes and oil stains, the flooded corridor and the attendant's booth, tube light fixtures, the water surface and ripples, the pool caustics, the block goat that stands in while the goat model loads (`props.js`), the door plates and bay numbers, the wrong-way exit signs, and the hum, tube buzz and phone ring (`audio.js`, synthesized; no sound files).
