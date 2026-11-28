@@ -8,7 +8,7 @@
 
 import * as THREE from 'three/webgpu';
 import { buildLevel, GLOW_BLUE } from './level.js';
-import { loadRoomArt } from './art.js';
+import { loadRoomArt, loadAO } from './art.js';
 import { createGlimpses } from './glimpses.js';
 import { initRenderer, createPipeline, TIERS, ORDER } from './engine.js';
 import { transmission } from './dose.js';
@@ -85,6 +85,7 @@ const L = buildLevel( scene );
 // art pass: rooms modelled in Blender replace the graybox where they exist (the graybox stays if a file fails to load)
 // the published copy (daughter/play/) loads the models from the game's own folder, so they are stored in the repo once
 const MODELS = import.meta.env.DEV ? './models/' : '../game/public/models/';
+// ao: the room's baked ambient occlusion for Medium and Low (downloaded only when one of them is used)
 const ART = [
 	{ name: 'entry hall', url: MODELS + 'hall.glb', room: 'HALL', region: { x0: - 2.3, x1: 2.3, z0: - 28.05, z1: 0.3 } },
 	{ name: 'records vault', url: MODELS + 'vault.glb', room: 'VAULT', region: { x0: - 7.5, x1: 7.5, z0: - 38.15, z1: - 27.75 } },
@@ -93,6 +94,7 @@ const ART = [
 	{ name: 'infirmary', url: MODELS + 'infirmary.glb', room: 'INF', region: { x0: - 5.3, x1: 5.3, z0: - 86.15, z1: - 76.15 } },
 	{ name: 'control room', url: MODELS + 'control.glb', room: 'CTL', region: { x0: - 6.3, x1: 6.3, z0: - 108.3, z1: - 86.15 } }
 ];
+for ( const a of ART ) a.ao = MODELS + 'ao/' + a.url.slice( MODELS.length ).replace( '.glb', '.webp' );
 $( 'status' ).textContent = 'Loading the rooms…';
 await Promise.all( ART.map( a => loadRoomArt( L, scene, a.url, a ).catch( e => console.warn( `The ${ a.name } art did not load; using the graybox.`, e ) ) ) );
 
@@ -139,6 +141,7 @@ async function setTier( key ) {
 	tierKey = key;
 	renderScale = T.scale;
 	L.variant = T.variant;
+	if ( T.variant !== 'full' ) await loadAO( L );
 	L.applyVariant( T.variant );
 	applyShadow( flash, T.flashShadow );
 	flash.map = T.flashShadow > 0 ? L.cookie : null;

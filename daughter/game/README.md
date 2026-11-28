@@ -49,14 +49,14 @@ Each station is 1 point. Wrong answers cost 2 mSv once the dosimeter is live (st
 | `src/voice.js` | Plays the radio clips through an old-tape filter (radio band, hiss, wobble, clicks); the caption follows the clip's length, and a line without a clip is a caption only. The ending waits for the last line |
 | `src/stations.js` | Terminal puzzles and checks |
 | `src/level.js` | Graybox rooms, doors, terminals, lights, dose sources (the gameplay layout) |
-| `src/art.js` | Loads the Blender rooms over the graybox |
+| `src/art.js` | Loads the Blender rooms over the graybox, and their baked ambient occlusion on Medium and Low |
 | `src/engine.js` | Renderer, tiers, post-processing (from the look test) |
 | `src/code.js` | Completion code, copied unchanged from Lewis Manor |
 | `src/main.js` | Player, interaction, dose, checkpoints, saving, title and ending |
 
 ## Art (build step 4)
 
-All six areas are modelled in Blender (`../art/facility.blend`, kept out of git) and exported to `public/models/*.glb` (10 MB). `src/art.js` loads each room and hides the graybox under it; walkable areas, collision, dose shielding and terminals still come from `src/level.js`. If a model fails to load, that room falls back to the graybox. The published copy in `../play/` loads the models from `../game/public/models/`, so they are stored once.
+All six areas are modelled in Blender (`../art/facility.blend`, kept out of git) and exported to `public/models/*.glb` (11 MB). `src/art.js` loads each room and hides the graybox under it; walkable areas, collision, dose shielding and terminals still come from `src/level.js`. If a model fails to load, that room falls back to the graybox. The published copy in `../play/` loads the models from `../game/public/models/`, so they are stored once.
 
 ## Glimpses (build step 5)
 
@@ -69,9 +69,15 @@ All six areas are modelled in Blender (`../art/facility.blend`, kept out of git)
 
 Each glimpse happens once per run (`state.glimpse1`, `state.glimpse2`, `state.glimpse3`). The shape is unlit and near-black; on Ultra and High its edge bends what is behind it, like heat haze.
 
+## Baked ambient occlusion (Medium and Low)
+
+Ultra and High darken corners and contact points on screen (SSGI, GTAO). Medium and Low get the same darkening from ambient occlusion baked in Blender: one 2048 × 2048 greyscale texture per room in `public/models/ao/` (1.9 MB in all), mapped through each room's third UV set (`uv2`). `src/art.js` multiplies the surface colour by it (strength 0.9, contrast 1.8), so it darkens every light on the surface, as GTAO does on High. The textures are only downloaded the first time Medium or Low is used. Doors, pickups, the chair and the shape move, so they are left out of the bake and get none.
+
+To rebake after changing a room, export it from `../art/facility.blend` with `export_room('<ROOM>', '<game>/public/models/<room>.glb', ao=dict(npy_path='<art>/ao/<room>.npy', res=2048))` (text blocks `export.py` and `ao.py`; the bake runs on the GPU in a few seconds), then run `python ../art/ao/convert.py <room>`. The model and its texture must always be exported together, since the bake's UV layout is made fresh each time.
+
 ## Not built yet
 
-The Low tier uses real-time lights; a baked ambient-occlusion pass for Medium and Low is still to do.
+The Low tier still lights the rooms with real-time lamps rather than light maps baked into the rooms.
 
 ## Radio voice
 

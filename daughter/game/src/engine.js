@@ -1,6 +1,7 @@
 // Renderer, quality tiers and the post-processing pipeline. Carried over unchanged in look from the
 // approved look test (daughter/look-test), with the Low tier using real-time lights instead of the
-// CPU bake until the Blender bake lands in the art pass.
+// look test's CPU light bake. Medium and Low have no screen-space AO; their ambient occlusion is baked
+// in Blender and applied in the materials (art.js loadAO).
 
 import * as THREE from 'three/webgpu';
 import {

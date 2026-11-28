@@ -536,7 +536,8 @@ export function buildLevel( scene ) {
 
 	L.applyVariant = ( variant ) => {
 
-		for ( const m of statics ) m.material = mats[ m.userData.matKey ][ variant ];
+		// aoKey: the room's baked-AO copy of the material, set by art.js loadAO (Medium and Low only)
+		for ( const m of statics ) m.material = mats[ ( variant !== 'full' && m.userData.aoKey ) || m.userData.matKey ][ variant ];
 
 	};
 
