@@ -56,7 +56,7 @@ Step 6, the shape, the goose and the ending (first pass, 2026-11-27):
   1. Work order 3: its reflection in a pool, with no one standing there. It shows when the player looks in through a pool room's doorway on period 3 (or steps into a pool room that is not the one to find). The water draws it (`src/world.js`, `ghost`), so it ripples with the surface on every tier.
   2. Work order 4 (or 5, if the player did not pass the booth in 4): a blurred head and shoulders behind the attendant's booth's frosted glass, as the player comes along the period 4 hallway toward it.
   3. Work order 6: at the far west end of the period 4 hallway, by the stairs, as the lights there flicker out and come back with nothing there. The handoff puts this one in the long period 1 hallway, but work order 6 runs along period 4 (arsenic to potassium), so it is there.
-- **The goose** (Prof. Picione's brown Chinese-type goose) stands in the hallway near each glimpse's place during work orders 3 to 6, turns to watch the player go by, and honks (stretching its neck, wings up) a moment before the shape shows. The honk is made in code.
+- **The goose** (Prof. Picione's brown African goose) stands in the hallway near each glimpse's place during work orders 3 to 6, turns to watch the player go by, and honks (stretching its neck, wings up) a moment before the shape shows. The honk is made in code.
 - **The ending.** The animals wait by the open exit door in the potassium room. When the player goes to it, the rooster, the goose and the donkey walk out into the daylight, and the goat hops down from the desk and follows. The player follows them out and turns around: far back, beyond the room's front door, the shape stands in the hallway as the exit door swings shut. Then the debrief and the code, as before.
 
 Step 7, options and device testing (first pass, 2026-11-27):
@@ -77,8 +77,10 @@ Polish (2026-11-27, after step 7):
 - **Easter eggs** (handoff section 4, made in `src/props.js`, each a chemistry pun): broken brown eggshells and a barred feather in the back corner of the calcium room, a salt lick in a steel holder on the sodium room's wall, and an iron horseshoe, open end up, on the back wall of the iron bay. They go dark with their rooms.
 - Dark water on High and Ultra: checked again, nothing shows (see "Fixes after step 4").
 
+- **Recorded sounds** (CC0 from Freesound, approved and downloaded 2026-11-27; `../CREDITS.md`): the phone's ring is a 1950s Western Electric 500 (one burst every 6 s, as on a North American line; answering cuts it off), the hum is a real fluorescent tube (120 Hz mains hum, like the one made in code; a seamless 12 s loop), and the exit door at the end is a heavy metal door slamming. Each takes over from its version made in code once loaded, which stays as the fallback. Levels were matched to the code versions in an offline render: the hum equal, the ring within 1.3 dB, the door about 3 dB louder. The loop seam was checked for a click (its largest step is below the hum's usual one).
+
 **Placeholders still to confirm or replace:**
-- The hum, the ring, the honk and the door are made in code (no recordings). CC0 candidates found on Freesound (2026-11-27), none downloaded: the ring, mycompasstv's "Old Rotary Phone Ringing - Western Electric Bell 500 phone" (456433); the door, kyles's "door metal big heavy close kinda slam thud echo offmic" (406197); the hum, kyles's "neon tube fluorescent light hum cu2" (454098). For the honk, a recording of Prof. Picione's own geese would be best (they are Chinese geese; the CC0 honks found are mostly Canada geese).
+- The goose's honk and the failing tube's buzz are made in code. For the honk, a recording of Prof. Picione's own geese (African geese) would be best: the CC0 honks found are mostly Canada geese, which sound different. Put a video or a voice memo in `sublevel/reference/` (kept private) and the honks can be cut from it.
 
 ## Run it
 

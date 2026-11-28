@@ -29,10 +29,20 @@ Donkey: imported into Blender 5.2 on 2026-11-26, scaled to 1.9 m long, given mat
 
 Goat: the Deer from the same Quaternius pack (the donkey's, so the same rig), downloaded on 2026-11-27 and reshaped in Blender 5.2 by `art/scripts/goat.py` into Prof. Picione's goat, from the farm photos: shorter legs, a deeper and wider body, a shorter neck, ears held out sideways, horns and a beard added, and its colours. Only the Idle, Idle_2, Idle_Headlow, Eating, Walk and Jump_toIdle animations were kept; the attack, hit and death animations were removed (handoff section 2).
 
+## Sounds
+
+Downloaded on 2026-11-27 from Freesound, approved by Prof. Picione the same day. Each sound's own page gives its license as Creative Commons 0 (CC0 1.0, https://creativecommons.org/publicdomain/zero/1.0/), checked on the page before download. The files are Freesound's public high-quality previews (MP3), cut, faded, levelled and saved as mono MP3 at 96 kbps by `art/scripts/sounds.py` (kept out of git).
+
+| Used for | Asset | Source | Author | License | Files |
+|---|---|---|---|---|---|
+| The phone ringing | Old Rotary Phone Ringing - Western Electric Bell 500 phone (one ring, 13.2 s in) | https://freesound.org/people/mycompasstv/sounds/456433/ | mycompasstv | CC0 1.0 | `game/public/sounds/ring.mp3` |
+| The exit door shutting | door metal big heavy close kinda slam thud echo offmic.wav | https://freesound.org/people/kyles/sounds/406197/ | kyles | CC0 1.0 | `game/public/sounds/door.mp3` |
+| The fluorescent hum | neon tube fluorescent light hum cu2.flac (12 s from 28 s in, made into a seamless loop) | https://freesound.org/people/kyles/sounds/454098/ | kyles | CC0 1.0 | `game/public/sounds/hum.mp3` |
+
 ## Made for this game (no license needed)
 
 Modelled in Blender 5.2 for Sublevel on 2026-11-27 (source `art/props.blend`, kept out of git), with no outside assets: the wall phone (`game/public/models/phone.glb`), the steel desk and office chair (`desk.glb`), the exit door (`door.glb`), the vending machine (`vending.glb`), the water cooler (`cooler.glb`) and the wet-floor sign (`wetsign.glb`). Their labels (the snack shelves, the "Refreshments" header, the caution face) are drawn in code in `props.js`.
 
-The rooster and the goose (`game/public/models/chicken.glb`, `goose.glb`) were modelled, rigged and animated in Blender 5.2 for Sublevel on 2026-11-27 by a script (`art/scripts/birds.py`, kept out of git), with no outside assets, after Prof. Picione's own Barred Rock rooster and brown Chinese-type goose (from the farm photos). The rooster's barred feathers are a small striped texture made by the same script.
+The rooster and the goose (`game/public/models/chicken.glb`, `goose.glb`) were modelled, rigged and animated in Blender 5.2 for Sublevel on 2026-11-27 by a script (`art/scripts/birds.py`, kept out of git), with no outside assets, after Prof. Picione's own Barred Rock rooster and brown African goose (from the farm photos). The rooster's barred feathers are a small striped texture made by the same script (made darker and wider on 2026-11-27, to match the photos).
 
-Generated in `game/src/`: room geometry, the stairwell railings, step nosings and floor numbers, the parking bay markings, wheel stops, pillar bands, ceiling pipes and oil stains, the flooded corridor and the attendant's booth, tube light fixtures, the water surface and ripples, the pool caustics, the block goat that stands in while the goat model loads (`props.js`), the shape, its reflection in the pools and its blur on the booth's glass (`glimpses.js`, `world.js`), the door plates and bay numbers, the wrong-way exit signs, and the hum, tube buzz, phone ring, goose honk and the exit door shutting (`audio.js`, synthesized; no sound files).
+Generated in `game/src/`: room geometry, the stairwell railings, step nosings and floor numbers, the parking bay markings, wheel stops, pillar bands, ceiling pipes and oil stains, the flooded corridor and the attendant's booth, tube light fixtures, the water surface and ripples, the pool caustics, the block goat that stands in while the goat model loads (`props.js`), the shape, its reflection in the pools and its blur on the booth's glass (`glimpses.js`, `world.js`), the door plates and bay numbers, the wrong-way exit signs, the easter eggs (eggshells, a feather, a salt lick and a horseshoe, `props.js`), and the failing tube's buzz and the goose's honk (`audio.js`, synthesized). The hum, the ring and the door are also synthesized there, as stand-ins until their recordings (above) have loaded.

@@ -1,29 +1,63 @@
-// Sound made in code (no files): the fluorescent hum, the buzz of a failing tube, the phone ring, the goose's honk
-// and the exit door shutting.
+// The sound: the fluorescent hum, the buzz of a failing tube, the phone ring, the goose's honk and the exit door shutting.
 // The hum follows how many lights are on around the player, so the dark is heard before it is seen (handoff section 6).
-// Every sound also has an on-screen cue (the prompt and toasts). The art pass replaces these with recorded sounds.
+// Every sound also has an on-screen cue (the prompt and toasts).
+// Recorded (CC0, from Freesound; see ../../CREDITS.md; cut by art/scripts/sounds.py): the ring (a 1950s Western
+// Electric 500), the hum (a fluorescent tube) and the door. Each takes over from its version made in code once it has
+// loaded; until then, or if it fails to load, the code version plays. The failing tube and the honk are made in code.
+
+import { ASSETS } from './config.js';
+
+const FILES = { ring: 'sounds/ring.mp3', door: 'sounds/door.mp3', hum: 'sounds/hum.mp3' };
+// the hum file is a seamless loop of this length followed by 1 s of its own start; the game loops it from 0.5 s, well
+// inside, so it does not matter whether the MP3 decoder keeps the encoder's padding at the ends
+const HUM_LOOP = 575899 / 48000;
 
 export function createAudio() {
 
-	let ctx = null, master, hum, buzz, crackle, ringGain, ringTimer = 0;
+	let ctx = null, master, hum, humCode, buzz, crackle, ringGain, ringTimer = 0, ringSrc = null;
+	const rec = {}; // decoded recordings, by name
 
 	function start() {
 
 		if ( ctx ) { ctx.resume?.(); return; }
 		try { ctx = new ( window.AudioContext || window.webkitAudioContext )(); } catch ( e ) { return; }
 		master = ctx.createGain(); master.gain.value = 0.6; master.connect( ctx.destination );
-		// hum: 120 Hz mains buzz with a little 240 Hz, low-passed
+		// hum (made in code until the recording is in): 120 Hz mains buzz with a little 240 Hz, low-passed
 		hum = ctx.createGain(); hum.gain.value = 0;
+		humCode = ctx.createGain();
 		const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900;
+		const humOsc = [];
 		for ( const [ f, g ] of [ [ 120, 0.05 ], [ 240, 0.018 ], [ 360, 0.006 ] ] ) {
 
 			const o = ctx.createOscillator(); o.type = 'sawtooth'; o.frequency.value = f;
 			const og = ctx.createGain(); og.gain.value = g;
 			o.connect( og ).connect( lp ); o.start();
+			humOsc.push( o );
 
 		}
 
-		lp.connect( hum ).connect( master );
+		lp.connect( humCode ).connect( hum ).connect( master );
+
+		// the recordings
+		for ( const k in FILES ) {
+
+			fetch( ASSETS + FILES[ k ] ).then( r => { if ( ! r.ok ) throw new Error( r.status ); return r.arrayBuffer(); } )
+				.then( b => ctx.decodeAudioData( b ) )
+				.then( buf => {
+
+					rec[ k ] = buf;
+					if ( k !== 'hum' ) return;
+					// the recorded hum fades in as the one made in code fades out
+					const s = ctx.createBufferSource(); s.buffer = buf; s.loop = true; s.loopStart = 0.5; s.loopEnd = 0.5 + HUM_LOOP;
+					const g = ctx.createGain(); g.gain.setValueAtTime( 0, ctx.currentTime ); g.gain.setTargetAtTime( 0.26, ctx.currentTime, 0.3 );
+					s.connect( g ).connect( hum ); s.start( 0, 0.5 );
+					humCode.gain.setTargetAtTime( 0, ctx.currentTime, 0.3 );
+					setTimeout( () => { for ( const o of humOsc ) o.stop(); }, 3000 );
+
+				} )
+				.catch( e => console.warn( `${ FILES[ k ] } did not load; the sound made in code plays instead.`, e ) );
+
+		}
 		// a failing tube up close: a harsher, brighter buzz, and a crackle while it stutters
 		buzz = ctx.createGain(); buzz.gain.value = 0;
 		const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1700; bp.Q.value = 0.8;
@@ -60,7 +94,18 @@ export function createAudio() {
 
 	}
 
-	// a ring cadence: two seconds on, four off
+	// the recorded ring: one burst of the bell (about 2 s, then its ring dying away), every 6 s as on a North American
+	// line; answering cuts it off, as lifting the receiver does
+	function stopRing() {
+
+		if ( ! ringSrc ) return;
+		const t = ctx.currentTime;
+		ringSrc.g.gain.setTargetAtTime( 0, t, 0.015 );
+		ringSrc.s.stop( t + 0.12 );
+		ringSrc = null;
+
+	}
+
 	function ring( on ) {
 
 		clearInterval( ringTimer );
@@ -68,6 +113,18 @@ export function createAudio() {
 		const burst = () => {
 
 			const t = ctx.currentTime;
+			if ( rec.ring ) {
+
+				stopRing();
+				const s = ctx.createBufferSource(), g = ctx.createGain();
+				s.buffer = rec.ring; g.gain.value = 0.5;
+				s.connect( g ).connect( master ); s.start( t );
+				ringSrc = { s, g };
+				return;
+
+			}
+
+			// made in code: a double ring every four seconds
 			ringGain.gain.cancelScheduledValues( t );
 			for ( let i = 0; i < 2; i ++ ) {
 
@@ -78,7 +135,7 @@ export function createAudio() {
 
 		};
 
-		if ( on ) { burst(); ringTimer = setInterval( burst, 4000 ); } else ringGain.gain.setValueAtTime( 0, ctx.currentTime );
+		if ( on ) { burst(); ringTimer = setInterval( burst, rec.ring ? 6000 : 4000 ); } else { stopRing(); ringGain.gain.setValueAtTime( 0, ctx.currentTime ); }
 
 	}
 
@@ -110,10 +167,19 @@ export function createAudio() {
 
 	}
 
-	// a heavy steel door shutting: a low thump and a short rattle
+	// a heavy steel door shutting: the recording, or (made in code) a low thump and a short rattle
 	function thud( level = 1 ) {
 
 		if ( ! ctx ) return;
+		if ( rec.door ) {
+
+			const s = ctx.createBufferSource(), g = ctx.createGain();
+			s.buffer = rec.door; g.gain.value = 0.6 * level; // about 3 dB above the thud made in code: a slam, not a jump scare
+			s.connect( g ).connect( master ); s.start();
+			return;
+
+		}
+
 		const t = ctx.currentTime, g = ctx.createGain();
 		g.gain.setValueAtTime( 0.5 * level, t ); g.gain.exponentialRampToValueAtTime( 0.001, t + 0.5 );
 		const o = ctx.createOscillator(); o.frequency.setValueAtTime( 85, t ); o.frequency.exponentialRampToValueAtTime( 42, t + 0.3 );
