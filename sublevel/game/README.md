@@ -66,6 +66,7 @@ Step 7, options and device testing (first pass, 2026-11-27):
 - **No tier change during a scare** (handoff section 8): the automatic tier drop waits while a glimpse or the ending is playing.
 - Keys are released when the window loses focus (Alt+Tab), as in Daughter.
 - On a small screen the title card scrolls from its top (it used to be centred and lose its first lines on a phone).
+- **Electron configurations are easier to read** (Prof. Picione found them a bit small, 2026-11-27): monospace fonts draw the Unicode superscripts (², ⁶, ¹⁰) tiny, so `ui.js` `ec()` sets every configuration 15% larger than the text around it, with real superscripts, in the questions, the answers, the feedback, the work-order line, toasts and the debrief. `questions.js` keeps the Unicode. All 71 variants still fit at 1024 × 600 (tallest 500 of 528 px).
 - **Tested here (Chrome, the built-in browser):** all four tiers on WebGPU and on forced WebGL 2, on the dev server and in the built copy; all 71 question variants on the phone panel at 1366 × 657 and 1024 × 600 (nothing cut off, none needs scrolling); the phone message at 375 × 812; the built copy inside a cross-origin iframe, plain and sandboxed without pointer lock (the D2L message, the new-tab button and drag-to-look all work). Not tested yet: Edge, Firefox and Safari, an old laptop or Chromebook, and the real D2L sandbox course. Timing and sound were not judged in real time (the browser pane runs slowly while hidden).
 
 **Placeholders still to confirm or replace:**
@@ -119,7 +120,7 @@ Keys: WASD move · Shift faster · mouse look (or drag) · E use · Esc pause ·
 | `src/bird.js` | Loads and walks the rooster and the goose |
 | `src/glimpses.js` | The shape, its three glimpses, and the goose that honks before each |
 | `src/ending.js` | The ending: the animals walk out, the door shuts on the shape |
-| `src/ui.js` | Panel, toasts and captions (Daughter's) |
+| `src/ui.js` | Panel, toasts and captions (Daughter's); `ec()` sets electron configurations larger, with real superscripts |
 | `src/audio.js` | Hum, the buzz of a failing tube, the phone ring, the goose's honk and the exit door shutting, made in code |
 | `src/world.js` | The look test rooms and the water shader |
 | `src/code.js` | Completion code, copied unchanged from Daughter |

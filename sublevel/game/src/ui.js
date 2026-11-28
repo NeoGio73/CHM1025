@@ -19,6 +19,17 @@ export function el( tag, attrs = {}, ...kids ) {
 
 }
 
+// Electron configurations: monospace fonts draw the Unicode superscripts (², ⁶, ¹⁰) tiny, so every configuration is set a
+// little larger than the text around it, with real superscripts (index.html: .ec, sup). The Unicode stays in questions.js.
+// ec() takes HTML (feedback, toasts, the objective); ecText() takes plain text (questions, answers) and escapes it first.
+const SUPS = '⁰¹²³⁴⁵⁶⁷⁸⁹';
+const SUP_RUN = /[⁰¹²³⁴⁵⁶⁷⁸⁹]+/g;
+const CONFIG_RUN = /(?:\[[A-Z][a-z]?\])?(?:\d[spdf][⁰¹²³⁴⁵⁶⁷⁸⁹]+)+/g; // 1s²2s²2p⁶, [Ar]4s²3d⁶, 4s²
+export const ec = html => html
+	.replace( CONFIG_RUN, m => `<span class="ec">${ m }</span>` )
+	.replace( SUP_RUN, m => `<sup>${ [ ...m ].map( c => SUPS.indexOf( c ) ).join( '' ) }</sup>` );
+export const ecText = s => ec( s.replace( /&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( />/g, '&gt;' ) );
+
 // orbital diagram as HTML boxes (read only)
 export function diagramHTML( rows ) {
 
@@ -60,7 +71,7 @@ export function feedback( body, text, ok ) {
 	let f = body.querySelector( '.feedback' );
 	if ( ! f ) { f = el( 'div', { class: 'feedback', role: 'status', 'aria-live': 'polite' } ); body.append( f ); }
 	f.className = 'feedback ' + ( ok ? 'good' : 'bad' );
-	f.innerHTML = text;
+	f.innerHTML = ec( text );
 
 }
 
@@ -70,7 +81,7 @@ let toastT = 0;
 export function toast( text, ms = 3200 ) {
 
 	const t = $( 'toast' );
-	t.innerHTML = text; t.classList.add( 'show' );
+	t.innerHTML = ec( text ); t.classList.add( 'show' );
 	clearTimeout( toastT ); toastT = setTimeout( () => t.classList.remove( 'show' ), ms );
 
 }
@@ -90,7 +101,7 @@ function nextCaption() {
 	const item = capQueue.shift();
 	if ( ! item ) { capBusy = false; c.classList.remove( 'show' ); return; }
 	capBusy = true;
-	c.innerHTML = `<span class="spk">${ item.speaker }</span> ${ item.text }`;
+	c.innerHTML = `<span class="spk">${ item.speaker }</span> ${ ec( item.text ) }`;
 	c.classList.add( 'show' );
 	capT = setTimeout( nextCaption, Math.max( 3500, item.text.length * 65 ) );
 

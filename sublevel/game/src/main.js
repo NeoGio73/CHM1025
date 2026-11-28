@@ -22,7 +22,7 @@ import { createEnding } from './ending.js';
 import { CONFIG, ASSETS } from './config.js';
 import { WORK_ORDERS, DEBRIEF } from './questions.js';
 import { orbitalDiagram } from './chem.js';
-import { $, el, openPanel, closePanel, panelOpen, feedback, toast, caption, clearCaptions, diagramHTML } from './ui.js';
+import { $, el, openPanel, closePanel, panelOpen, feedback, toast, caption, clearCaptions, diagramHTML, ec, ecText } from './ui.js';
 import { createAudio } from './audio.js';
 import { certCode, dayKey, normalizeUser } from './code.js';
 
@@ -404,7 +404,7 @@ function updateObjective() {
 		if ( G.hinted ) html += `<div style="color:var(--warn);margin-top:4px">Hint: ${ w.find.hint }</div>`;
 
 	} else if ( G.phase === 'exit' ) html = 'The exit door is open. Go out.';
-	$( 'objective' ).innerHTML = html;
+	$( 'objective' ).innerHTML = ec( html );
 
 }
 
@@ -454,7 +454,7 @@ function renderQuestion( body ) {
 	if ( G.qi >= qs.length ) {
 
 		body.append( el( 'p', { class: 'q' }, 'That is all on the phone. Your work order:' ) );
-		body.append( el( 'p', { html: `<b>${ fill( w.find.text ) }</b>` } ) );
+		body.append( el( 'p', { html: `<b>${ ec( fill( w.find.text ) ) }</b>` } ) );
 		if ( w.find.diagram ) body.append( el( 'div', { html: diagramHTML( orbitalDiagram( w.find.diagram ) ) } ) );
 		body.append( el( 'p', { class: 'hint', html: options.lights ? 'Lights-on mode: the lights stay on.' : 'When you hang up, the lights behind you will start going out. Keep moving.' } ) );
 		body.append( el( 'div', { class: 'actions' }, el( 'button', { class: 'primary', onclick: startFind }, 'Hang up and go' ) ) );
@@ -464,7 +464,7 @@ function renderQuestion( body ) {
 
 	const q = qs[ G.qi ];
 	body.append( el( 'div', { class: 'progress' }, `Question ${ G.qi + 1 } of ${ qs.length }` ) );
-	body.append( el( 'p', { class: 'q' }, q.q ) );
+	body.append( el( 'p', { class: 'q', html: ecText( q.q ) } ) );
 	let misses = 0;
 	const next = () => { G.qi ++; renderQuestion( body ); };
 	const nextBtn = () => body.append( el( 'div', { class: 'actions' }, el( 'button', { class: 'primary', onclick: next }, G.qi + 1 < qs.length ? 'Next question' : 'Continue' ) ) );
@@ -480,7 +480,7 @@ function renderQuestion( body ) {
 		const box = el( 'div', { class: 'choices' } );
 		q.options.forEach( ( o, i ) => {
 
-			const b = el( 'button', { class: 'choice', type: 'button' }, o );
+			const b = el( 'button', { class: 'choice', type: 'button', html: ecText( o ) } );
 			b.addEventListener( 'click', () => {
 
 				if ( i === q.answer ) {
@@ -713,7 +713,7 @@ async function startEnding() {
 
 function showDebrief() {
 
-	$( 'dbList' ).innerHTML = DEBRIEF.map( t => `<li>${ t }</li>` ).join( '' );
+	$( 'dbList' ).innerHTML = DEBRIEF.map( t => `<li>${ ec( t ) }</li>` ).join( '' );
 	$( 'debrief' ).hidden = false;
 
 }
