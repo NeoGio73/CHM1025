@@ -38,3 +38,7 @@ export const CONFIG = {
 	codeRegistered: true
 
 };
+
+// Where models and textures load from (as in Daughter): public/ on the dev server; in the published copy (../play/)
+// they stay in ../game/public/, so the repo holds them only once.
+export const ASSETS = import.meta.env.DEV ? './' : '../game/public/';

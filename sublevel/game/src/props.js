@@ -5,6 +5,7 @@
 // model has loaded. The goat is Prof. Picione's own goat, made from a CC0 deer (see the goat below and ../CREDITS.md).
 
 import * as THREE from 'three/webgpu';
+import { ASSETS } from './config.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { colCentre, floorY, HALL_W } from './building.js';
 
@@ -66,7 +67,7 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 
 	}
 
-	placeModel( './models/phone.glb', phoneSpots, ( o, s ) => o.material.name === 'Lamp' ? s.lampMat : null );
+	placeModel( ASSETS + 'models/phone.glb', phoneSpots, ( o, s ) => o.material.name === 'Lamp' ? s.lampMat : null );
 
 	function setRinging( sym, on, t = 0 ) {
 
@@ -96,7 +97,7 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 
 	}
 
-	placeModel( './models/desk.glb', deskSpots );
+	placeModel( ASSETS + 'models/desk.glb', deskSpots );
 
 	// ---- the goat: Prof. Picione's goat (art/scripts/goat.py: Quaternius's CC0 deer reshaped after the farm photos),
 	// standing on the desk along its length, facing the door (+z). One goat, moved to whichever desk the run needs.
@@ -114,7 +115,7 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 	// it stands, now and then changes its weight or lowers its head (the deer's Idle, Idle_2 and Idle_Headlow)
 	let goatMixer = null, goatIdles = [], goatNow = null, goatT = 6, goatScripted = false;
 	const goatAct = {};
-	loader.loadAsync( './models/goat.glb' ).then( gltf => {
+	loader.loadAsync( ASSETS + 'models/goat.glb' ).then( gltf => {
 
 		const m = gltf.scene;
 		m.traverse( o => { if ( o.isMesh ) { o.castShadow = o.receiveShadow = true; o.frustumCulled = false; o.material = B.zoneMaterial( o.material ); } } );
@@ -126,7 +127,7 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 		goatNow = goatIdles[ 0 ];
 		goatNow?.play();
 
-	} ).catch( e => console.warn( './models/goat.glb did not load; the block goat stays.', e ) );
+	} ).catch( e => console.warn( 'models/goat.glb did not load; the block goat stays.', e ) );
 
 	function updateGoat( dt ) {
 
@@ -155,7 +156,7 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 	group.add( doorHolder );
 	const doorSpot = { holder: doorHolder, stand: add( new THREE.BoxGeometry( 1.2, 2.15, 0.05 ), mat( 0x3f4943 ), 0, 1.075, 0, doorHolder ) };
 	let leaf = null, openT = 0, opening = false, closing = 0;
-	placeModel( './models/door.glb', [ doorSpot ] ).then( () => { leaf = doorSpot.model?.getObjectByName( 'DoorLeaf' ) || null; } );
+	placeModel( ASSETS + 'models/door.glb', [ doorSpot ] ).then( () => { leaf = doorSpot.model?.getObjectByName( 'DoorLeaf' ) || null; } );
 
 	const c = document.createElement( 'canvas' ); c.width = 256; c.height = 96;
 	const g = c.getContext( '2d' );
@@ -297,9 +298,9 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 		SignFace: B.zoneMaterial( new THREE.MeshStandardMaterial( { map: signFace, roughness: 0.45 } ) )
 	};
 	const dressed = o => dressing[ o.material.name ] || null;
-	placeModel( './models/vending.glb', vendSpots, dressed );
-	placeModel( './models/cooler.glb', coolerSpots, dressed );
-	placeModel( './models/wetsign.glb', signSpots, dressed );
+	placeModel( ASSETS + 'models/vending.glb', vendSpots, dressed );
+	placeModel( ASSETS + 'models/cooler.glb', coolerSpots, dressed );
+	placeModel( ASSETS + 'models/wetsign.glb', signSpots, dressed );
 
 	return { phones, setRinging, desks, blockers, goat, goatAt, goatScript, goatPlay, exit, update };
 

@@ -12,6 +12,7 @@
 // place during those work orders, turns to watch the player go by, and honks just before the shape shows.
 
 import * as THREE from 'three/webgpu';
+import { ASSETS } from './config.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { createBird } from './bird.js';
 import { ghost } from './world.js';
@@ -61,9 +62,10 @@ function glassShadow( booth, y ) {
 
 }
 
-export function createGlimpses( scene, W, audio ) {
+// onHonk: shows the honk in the captions, if they are on
+export function createGlimpses( scene, W, audio, onHonk ) {
 
-	const goose = createBird( scene, W, './models/goose.glb', { speed: 0.9, walkScale: 1.6 } );
+	const goose = createBird( scene, W, ASSETS + 'models/goose.glb', { speed: 0.9, walkScale: 1.6 } );
 	const figure = createShape();
 	scene.add( figure );
 	const B = W.booth, y4 = floorY( 4 );
@@ -105,6 +107,7 @@ export function createGlimpses( scene, W, audio ) {
 			audio.honk( THREE.MathUtils.clamp( 1 - d / 45, 0.25, 1 ) );
 
 		} else audio.honk( 0.5 );
+		onHonk?.();
 
 	}
 

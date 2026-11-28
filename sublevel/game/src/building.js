@@ -13,6 +13,7 @@ import { positionWorld, normalWorld, texture, vec2, float, floor, clamp, select,
 import { ELEMENTS, roomKind, valenceOf } from './elements.js';
 import { shortConfig, dCount } from './chem.js';
 import { buildWater } from './world.js';
+import { ASSETS } from './config.js';
 
 export const FLOOR_DY = 5; // metres between floors
 export const HALL_W = 2.5, HALL_H = 2.6;
@@ -67,7 +68,7 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 		const k = `${ res }/${ name }_${ map }`;
 		if ( ! texCache[ k ] ) {
 
-			const t = loader.load( `./textures/${ k }.jpg` );
+			const t = loader.load( `${ ASSETS }textures/${ k }.jpg` );
 			t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
 			t.colorSpace = color ? THREE.SRGBColorSpace : THREE.NoColorSpace;
 			texCache[ k ] = t;
@@ -86,6 +87,7 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 	zoneTex.magFilter = zoneTex.minFilter = THREE.NearestFilter; zoneTex.needsUpdate = true;
 	const zoneShow = new Float32Array( ZW * ZH ).fill( 1 ); // what is shown, easing toward the target
 	const zoneTarget = new Float32Array( ZW * ZH ).fill( 1 );
+	const blinkWait = new Float32Array( ZW * ZH ), blinksLeft = new Uint8Array( ZW * ZH ); // a failing zone's blinks back
 	const zoneLightNode = ( () => {
 
 		const wp = positionWorld;
@@ -660,7 +662,12 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 		if ( ! zoneLit.has( zone ) || zoneLit.get( zone ) === lit ) return;
 		zoneLit.set( zone, lit );
 		for ( const i of zoneTubes.get( zone ) || [] ) setTube( i, lit );
-		for ( const i of texels( zone ) ) zoneTarget[ i ] = lit ? 1 : 0;
+		for ( const i of texels( zone ) ) {
+
+			zoneTarget[ i ] = lit ? 1 : 0;
+			if ( ! lit ) { blinkWait[ i ] = 0.12 + Math.random() * 0.2; blinksLeft[ i ] = Math.random() < 0.5 ? 1 : 2; }
+
+		}
 
 	}
 
@@ -683,19 +690,30 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 
 	}
 
+	// Flicker safety (handoff section 2): slow and irregular, never a strobe. A tube changes at most every 0.18 s
+	// (under three flashes a second), and reduced motion (steady) turns all flicker off.
+	let steady = false;
+	function setSteady( on ) {
+
+		steady = on;
+		if ( on ) for ( const f of flickers ) { f.burst = 0; if ( ! f.on ) { f.on = true; setTube( f.tube, true ); } if ( f.spot ) f.spot.flick = 1; }
+
+	}
+
 	function updateFlicker( dt ) {
 
 		for ( const f of flickers ) {
 
 			if ( ! isLit( f.zone ) ) { f.on = true; f.burst = 0; if ( f.spot ) f.spot.flick = 1; continue; }
 			let on = f.on;
-			if ( f.burst > 0 ) {
+			if ( steady ) on = true;
+			else if ( f.burst > 0 ) {
 
 				f.burst -= dt; f.next -= dt;
-				if ( f.next < 0 ) { on = Math.random() < 0.45; f.next = 0.03 + Math.random() * 0.13; }
+				if ( f.next < 0 ) { on = Math.random() < 0.45; f.next = 0.18 + Math.random() * 0.35; }
 				if ( f.burst <= 0 ) { on = true; f.t = 3 + Math.random() * 10; }
 
-			} else if ( ( f.t -= dt ) < 0 ) f.burst = 0.4 + Math.random() * 1.6;
+			} else if ( ( f.t -= dt ) < 0 ) f.burst = 0.6 + Math.random() * 1.4;
 
 			if ( on !== f.on ) { f.on = on; setTube( f.tube, on ); }
 			if ( f.spot ) f.spot.flick = on ? 1 : 0.6;
@@ -726,7 +744,8 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 
 	}
 
-	// ease what the surfaces show toward the zones' state: lights fail with a flicker, and come back on more slowly
+	// ease what the surfaces show toward the zones' state: lights fail with one or two blinks back (at least 0.35 s
+	// apart, timed in seconds, not frames; none in reduced motion), and come back on more slowly
 	function updateDark( dt ) {
 
 		let changed = false;
@@ -734,7 +753,13 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 
 			const s = zoneShow[ i ], t = zoneTarget[ i ];
 			if ( s === t ) continue;
-			let v = t < s ? ( Math.random() < 0.12 ? Math.min( 1, s + 0.5 ) : s - dt * 1.6 ) : s + dt * 1.2;
+			let v;
+			if ( t < s ) {
+
+				if ( ! steady && blinksLeft[ i ] && ( blinkWait[ i ] -= dt ) <= 0 ) { v = Math.min( 1, s + 0.45 ); blinksLeft[ i ] --; blinkWait[ i ] = 0.35 + Math.random() * 0.25; }
+				else v = s - dt * 1.6;
+
+			} else v = s + dt * 1.2;
 			v = t < s ? Math.max( t, v ) : Math.min( t, v );
 			zoneShow[ i ] = v; zoneData[ i * 4 ] = Math.round( v * 255 ); changed = true;
 
@@ -967,7 +992,7 @@ export function buildBuilding( scene, { exitRoom = null } = {} ) {
 	}
 
 	const room = sym => rooms.find( r => r.e.sym === sym );
-	return { group, walk, rooms, room, apply, updateLights, hemi, zoneAt, nearZones, setZoneLit, allLit, isLit, updateDark, zones: zoneLit, hallEnds, zoneMaterial, updateFlood, inFlood, flood: FLOOD, booth: BOOTH, updateFlicker, flickerNear };
+	return { group, walk, rooms, room, apply, updateLights, hemi, zoneAt, nearZones, setZoneLit, allLit, isLit, updateDark, zones: zoneLit, hallEnds, zoneMaterial, updateFlood, inFlood, flood: FLOOD, booth: BOOTH, updateFlicker, flickerNear, setSteady };
 
 }
 

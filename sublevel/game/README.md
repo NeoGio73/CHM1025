@@ -1,4 +1,4 @@
-# Sublevel (build steps 1 to 6 done, first pass; step 7 next)
+# Sublevel (build steps 1 to 7 done, first pass; a local test build in `../play/`)
 
 Step 1, the look test, was approved on 2026-11-26 and is still at `/?look`. Step 2, the layout, is a first pass: all 36 rooms, four floors, and a stairwell at each end of the building (the east one was added on 2026-11-26 to shorten work order 4).
 
@@ -59,6 +59,15 @@ Step 6, the shape, the goose and the ending (first pass, 2026-11-27):
 - **The goose** (Prof. Picione's brown Chinese-type goose) stands in the hallway near each glimpse's place during work orders 3 to 6, turns to watch the player go by, and honks (stretching its neck, wings up) a moment before the shape shows. The honk is made in code.
 - **The ending.** The animals wait by the open exit door in the potassium room. When the player goes to it, the rooster, the goose and the donkey walk out into the daylight, and the goat hops down from the desk and follows. The player follows them out and turns around: far back, beyond the room's front door, the shape stands in the hallway as the exit door swings shut. Then the debrief and the code, as before.
 
+Step 7, options and device testing (first pass, 2026-11-27):
+
+- **Title screen options** (handoff section 2, reused from Daughter): the content note ("eerie, a few scary moments, no gore"), lights-on mode (the lights never go out, no glimpses, no shape at the end, no hurry; same 6 points), captions on by default (the phone calls, and the goose's honk as "[a goose honks]"), and reduced motion. The same toggles are in the pause menu. On a phone or tablet the title screen asks for a laptop or desktop. Inside D2L (an iframe) it shows the "Open in a new tab" button, and mouse look falls back to dragging when the frame blocks pointer lock. Saving is wrapped in try/catch.
+- **Flicker safety** (handoff section 2): a flickering tube changes at most every 0.18 s (under three flashes a second). A room or hallway stretch going dark blinks back once or twice, at least 0.35 s apart, and is dark in about a second. Before this fix the blink was a per-frame dice roll: at 60 fps rooms took about 15 s to go dark and blinked about seven times a second, and at 144 fps they barely went dark at all (the dark itself still worked; only the picture lagged). Reduced motion turns all flicker off: the tubes stay steady and rooms fade out without blinking.
+- **No tier change during a scare** (handoff section 8): the automatic tier drop waits while a glimpse or the ending is playing.
+- Keys are released when the window loses focus (Alt+Tab), as in Daughter.
+- On a small screen the title card scrolls from its top (it used to be centred and lose its first lines on a phone).
+- **Tested here (Chrome, the built-in browser):** all four tiers on WebGPU and on forced WebGL 2, on the dev server and in the built copy; all 71 question variants on the phone panel at 1366 × 657 and 1024 × 600 (nothing cut off, none needs scrolling); the phone message at 375 × 812; the built copy inside a cross-origin iframe, plain and sandboxed without pointer lock (the D2L message, the new-tab button and drag-to-look all work). Not tested yet: Edge, Firefox and Safari, an old laptop or Chromebook, and the real D2L sandbox course. Timing and sound were not judged in real time (the browser pane runs slowly while hidden).
+
 **Placeholders still to confirm or replace:**
 - The hum, the ring, the honk and the door are made in code (no recordings).
 
@@ -79,6 +88,8 @@ Then open http://localhost:5181/.
 | `/?webgl` | Forces the WebGL 2 backend |
 | `/?fresh` | Ignores the run saved in this browser |
 | `/?look` | The approved step 1 look test |
+
+`npm run build` writes the static site to `dist/` (not committed). The playable copy is `../play/`, made as for Daughter with `npx vite build --outDir ../play --emptyOutDir`. It holds only `index.html` and one script; the models and textures load from `../game/public/` (`ASSETS` in `src/config.js`), so they are in the repo once. To try it locally, serve the `sublevel/` folder (for example `python -m http.server 5182 --directory sublevel` from the repo root) and open http://localhost:5182/play/. The URL options above work there too; the dev handle `window.__look` does not exist in the build.
 
 Keys: WASD move · Shift faster · mouse look (or drag) · E use · Esc pause · **1 Low, 2 Medium, 3 High, 4 Ultra, 0 Auto**.
 
@@ -102,7 +113,7 @@ Keys: WASD move · Shift faster · mouse look (or drag) · E use · Esc pause ·
 | `src/building.js` | Generates the building; the zones the dark switches off |
 | `src/props.js` | The phones, desks and chairs, exit door, vending machines, water coolers and wet-floor signs (models), and the goat on the safe-room desk |
 | `src/questions.js` | The six work orders (question pools checked against the Chapter 5 slides) and the debrief |
-| `src/config.js` | Everything still to be decided: names, scoring, timing of the dark, code prefix and secret |
+| `src/config.js` | Everything still to be decided: names, scoring, timing of the dark, code prefix and secret; `ASSETS`, where models and textures load from |
 | `src/main.js` | The run: walking, the phone, the dark, pause, save, ending and code (Daughter's structure, adapted) |
 | `src/rooster.js` | The rooster: the hint, walking to the safe room's door |
 | `src/bird.js` | Loads and walks the rooster and the goose |

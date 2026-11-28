@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sublevel</title>
+<style>:root{--ink:#e4e6e2;--dim:#9a9e98;--blue:#6f9dff;--warn:#e0b25a;--bad:#e08a6a;--good:#9cc0ff;--panel:#0e1012f2}html,body{height:100%;color:var(--ink);background:#000;margin:0;font:14px/1.45 ui-monospace,Cascadia Mono,Consolas,SF Mono,Menlo,monospace;overflow:hidden}canvas{width:100vw;height:100vh;display:block}button{font:inherit}.hud{pointer-events:none;text-shadow:0 0 4px #000,0 0 2px #000;position:fixed}.hud[hidden]{display:none}#hudTL{max-width:min(520px,60vw);top:16px;left:20px}#hudTR{text-align:right;pointer-events:auto;top:12px;right:14px}#wo{font-weight:600}#objective{color:var(--ink);background:#00000073;margin-top:4px;padding:6px 8px}#objective:empty{display:none}#perfInfo{color:#fff;margin-top:4px;font-size:12px}#cross{background:#28282880;border-radius:50%;width:4px;height:4px;margin:-2px 0 0 -2px;top:50%;left:50%}#prompt{background:#0009;border:1px solid #4b4f47;padding:4px 10px;display:none;top:58%;left:50%;transform:translate(-50%)}#prompt kbd{border:1px solid #777;border-radius:3px;margin-right:6px;padding:0 5px}#toast{text-align:center;opacity:0;background:#000000a6;border:1px solid #4b4f47;max-width:min(640px,86vw);padding:8px 14px;transition:opacity .4s;top:18%;left:50%;transform:translate(-50%)}#toast.show{opacity:1}#captions{text-align:center;opacity:0;background:#000000bf;max-width:min(760px,88vw);padding:6px 12px;font-size:15px;transition:opacity .3s;bottom:90px;left:50%;transform:translate(-50%)}#captions.show{opacity:1}#captions .spk{color:var(--warn)}#fade{opacity:0;pointer-events:none;background:#000;transition:opacity 1.2s;position:fixed;inset:0}#fade.white{background:#fffaf0}.screen{box-sizing:border-box;background:#00000073;padding:16px;display:flex;position:fixed;inset:0;overflow:auto}.screen[hidden]{display:none}.card{background:var(--panel);box-sizing:border-box;border:1px solid #3c4039;width:100%;max-width:600px;margin:auto;padding:26px 30px}.card h1{letter-spacing:.04em;margin:0 0 2px;font:600 40px/1.1 Georgia,Times New Roman,serif}.card h2{color:var(--dim);margin:0 0 16px;font-size:13px;font-weight:400}.card h3{margin:18px 0 6px;font-size:14px}.card p{margin:8px 0}.card ul{margin:6px 0;padding-left:20px}.card li{margin:3px 0}.row{flex-wrap:wrap;align-items:center;gap:10px;margin-top:14px;display:flex}.lbl{color:var(--dim)}.btn{color:#fff;border:1px solid var(--blue);cursor:pointer;background:#1f2d4d;padding:8px 16px}.btn:disabled{opacity:.5;cursor:wait}.btn.ghost{color:var(--ink);background:0 0;border-color:#555}.btn[hidden]{display:none}.btn:focus-visible,.choice:focus-visible,input:focus-visible,.toggle:focus-visible,.tiers button:focus-visible,.obox:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.toggle{cursor:pointer;align-items:center;gap:8px;margin:6px 0;display:flex}.toggle input{width:16px;height:16px}.tiers{flex-wrap:wrap;gap:4px;display:flex}.tiers button{color:var(--ink);cursor:pointer;background:#0a0c0cb3;border:1px solid #4b4f47;padding:3px 9px}.tiers button.active{border-color:var(--blue);color:#fff;background:#283c6e8c}#status{color:var(--dim);min-height:1.4em;margin-top:10px;font-size:12px}.note{color:var(--dim);font-size:12px}.warnbox{color:var(--warn);border:1px solid #6b5a33;margin:10px 0;padding:8px 10px}.warnbox[hidden]{display:none}#panel{background:var(--panel);border:1px solid #5b5f55;width:min(580px,94vw);max-height:88vh;position:fixed;top:50%;left:50%;overflow:auto;transform:translate(-50%,-50%);box-shadow:0 0 40px #000}#panel[hidden]{display:none}#panel header{color:var(--warn);border-bottom:1px solid #3c4039;justify-content:space-between;align-items:center;padding:10px 14px;display:flex}#panelClose{color:var(--ink);cursor:pointer;background:0 0;border:1px solid #555;padding:2px 8px}#panelBody{padding:12px 16px 16px}#panelBody p.q{font-size:15px}#panelBody .hint{color:var(--warn);font-size:13px}#panelBody .progress{color:var(--dim);font-size:12px}.choices{flex-direction:column;gap:6px;margin:8px 0;display:flex}.choice{text-align:left;color:var(--ink);cursor:pointer;background:#15181a;border:1px solid #4b4f47;padding:8px 12px;font-size:15px}.choice:hover:not(:disabled){border-color:#8a8f84}.choice.right{border-color:var(--good);background:#1b2740}.choice.wrong{border-color:var(--bad);color:var(--dim)}.actions{margin-top:12px}.primary{color:#fff;border:1px solid var(--blue);cursor:pointer;background:#1f2d4d;padding:7px 18px}.feedback{border-left:3px solid;margin-top:10px;padding:8px 10px}.feedback.good{border-color:var(--good);color:#cfe0ff}.feedback.bad{border-color:var(--bad);color:#f0d0c4}.orb{margin:10px 0}.orow{align-items:center;gap:4px;margin:4px 0;display:flex}.olbl{width:34px;color:var(--dim)}.obox{color:#fff;cursor:pointer;letter-spacing:-2px;background:#111416;border:1px solid #8a8f84;justify-content:center;align-items:center;width:38px;height:32px;padding:0;font-size:18px;display:inline-flex}.orb.ro .obox{cursor:default;width:26px;height:22px;font-size:13px}.orb .obox.wrong{border-color:var(--bad)}#objective .orb{margin:6px 0 2px}input{font:inherit;color:var(--ink);background:#111416;border:1px solid #555;padding:4px 6px}#fatal{text-align:center;background:#000;justify-content:center;align-items:center;padding:24px;display:none;position:fixed;inset:0}.code{letter-spacing:.08em;color:#fff;border:1px solid var(--blue);user-select:all;margin:6px 0;padding:8px 12px;font-size:26px;display:inline-block}@media (width<=700px){#hudTR{display:none}}</style>
+  <script type="module" crossorigin src="./assets/index-DB9ezZ1c.js"></script>
+</head>
+<body>
+<div id="hudTL" class="hud" hidden>
+	<div id="wo">—</div>
+	<div id="objective"></div>
+</div>
+<div id="hudTR" class="hud" hidden>
+	<div class="tiers" id="tierBarHud"></div>
+	<div id="perfInfo"></div>
+</div>
+<div id="cross" class="hud" hidden></div>
+<div id="prompt" class="hud"></div>
+<div id="toast" class="hud" role="status" aria-live="polite"></div>
+<div id="captions" class="hud" aria-live="polite"></div>
+<div id="fade"></div>
+
+<!-- title -->
+<div id="title" class="screen">
+	<div class="card">
+		<h1>Sublevel</h1>
+		<h2>Chapter 5 · Electronic Structure of Atoms and Periodic Trends · CHM 1025 · 6 points extra credit</h2>
+		<p>Content note: eerie, a few scary moments, no gore.</p>
+		<p>You are alone in a building laid out as the periodic table. A phone rings with a work order. Six work orders, one for each idea in Chapter 5. Every work order you finish is worth 1 point. A wrong answer makes the lights go out faster; it never costs points.</p>
+		<div id="mobileWarn" class="warnbox" hidden>This game needs a keyboard and mouse. Please play on a laptop or desktop computer.</div>
+		<div id="iframeWarn" class="warnbox" hidden>The game is running inside D2L. If the mouse does not stay captured, <a id="newTabLink" href="#" target="_blank" rel="noopener" style="color:var(--warn)">open it in a new tab</a>.</div>
+		<h3>Options</h3>
+		<label class="toggle"><input type="checkbox" id="optLights"> Lights-on mode (the lights never go out, no scares, no hurry; same 6 points)</label>
+		<label class="toggle"><input type="checkbox" id="optCaptions" checked> Captions for the phone calls and the goose</label>
+		<label class="toggle"><input type="checkbox" id="optMotion"> Reduced motion (no flickering lights, grain or color fringing)</label>
+		<div class="row"><span class="lbl">Graphics</span><div class="tiers" id="tierBarTitle"></div></div>
+		<div class="row">
+			<button class="btn" id="btnStart" disabled>Checking graphics…</button>
+			<button class="btn ghost" id="btnContinue" hidden>Continue</button>
+			<a class="btn ghost" id="btnNewTab" href="#" target="_blank" rel="noopener" style="text-decoration:none" hidden>Open in a new tab</a>
+		</div>
+		<div id="status"></div>
+		<p class="note">WASD move · Shift walk faster · mouse look (or drag) · E use · Esc pause · 1–4 and 0 graphics tiers. Headphones help.</p>
+	</div>
+</div>
+
+<!-- pause -->
+<div id="pause" class="screen" hidden>
+	<div class="card">
+		<h1 style="font-size:28px">Paused</h1>
+		<h2 id="pauseInfo"></h2>
+		<label class="toggle"><input type="checkbox" id="pLights"> Lights-on mode</label>
+		<label class="toggle"><input type="checkbox" id="pCaptions"> Captions</label>
+		<label class="toggle"><input type="checkbox" id="pMotion"> Reduced motion</label>
+		<div class="row"><span class="lbl">Graphics</span><div class="tiers" id="tierBarPause"></div></div>
+		<div class="row">
+			<button class="btn" id="btnResume">Resume</button>
+			<button class="btn ghost" id="btnCheckpoint">Go back to the last phone</button>
+		</div>
+		<p class="note">Your progress is saved in this browser after every work order (if the browser allows it).</p>
+	</div>
+</div>
+
+<!-- the phone panel -->
+<div id="panel" role="dialog" aria-modal="true" aria-labelledby="panelTitle" hidden>
+	<header><span id="panelTitle"></span><button id="panelClose" aria-label="Hang up">Hang up · Esc</button></header>
+	<div id="panelBody"></div>
+</div>
+
+<!-- debrief and code -->
+<div id="debrief" class="screen" hidden>
+	<div class="card">
+		<h1 style="font-size:28px">What the building was telling you</h1>
+		<ul id="dbList"></ul>
+		<div class="row"><button class="btn" id="btnToCode">Get my completion code</button></div>
+	</div>
+</div>
+<div id="codeScreen" class="screen" hidden>
+	<div class="card">
+		<h1 style="font-size:28px">Completion code</h1>
+		<p id="codeScore"></p>
+		<p>Type your D2L username (the one you sign in with, not your email):</p>
+		<div class="row"><input id="d2lInput" autocomplete="off" spellcheck="false" style="width:220px"><button class="btn" id="d2lGo">Show my code</button></div>
+		<p id="d2lErr" style="color:var(--bad)"></p>
+		<div id="codeOut" hidden>
+			<p>Your code for <b id="codeUser"></b>:</p>
+			<div class="code" id="codeVal"></div>
+			<p>Enter your D2L username and this code in the Sublevel assignment in D2L.</p>
+		</div>
+		<p class="warnbox" id="codeWarn">Test build: this game's code is not registered in the instructor's checker yet.</p>
+		<div class="row"><button class="btn ghost" id="btnToTitle">Back to the title screen</button></div>
+	</div>
+</div>
+<div id="fatal"></div>
+</body>
+</html>

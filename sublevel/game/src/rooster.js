@@ -5,6 +5,7 @@
 // hallway end on their side. He goes dark with the lights like everything else and never blocks the way.
 
 import * as THREE from 'three/webgpu';
+import { ASSETS } from './config.js';
 import { createBird } from './bird.js';
 
 const LANE = 1.2; // down the middle of the hallway: clear of the machines against its front wall (z = HALL_W)
@@ -14,7 +15,7 @@ const EYE = 1.62;
 export function createRooster( scene, W ) {
 
 	// a hurried strut, 1.3 m/s (the player walks at 1.7): the walk cycle sped up to match
-	const bird = createBird( scene, W, './models/chicken.glb', { speed: 1.3, walkScale: 2.4 } );
+	const bird = createBird( scene, W, ASSETS + 'models/chicken.glb', { speed: 1.3, walkScale: 2.4 } );
 	const fwd = new THREE.Vector3();
 	let pecking = false, t = 0;
 

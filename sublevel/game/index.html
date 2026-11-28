@@ -30,9 +30,10 @@
 	#fade { position: fixed; inset: 0; background: #000; opacity: 0; pointer-events: none; transition: opacity 1.2s; }
 	#fade.white { background: #fffaf0; }
 
-	.screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.45); overflow: auto; padding: 16px; box-sizing: border-box; }
+	/* margin: auto centres the card, and unlike align-items: center it never pushes a tall card's top off a small screen */
+	.screen { position: fixed; inset: 0; display: flex; background: rgba(0,0,0,.45); overflow: auto; padding: 16px; box-sizing: border-box; }
 	.screen[hidden] { display: none; }
-	.card { max-width: 600px; width: 100%; padding: 26px 30px; border: 1px solid #3c4039; background: var(--panel); box-sizing: border-box; }
+	.card { margin: auto; max-width: 600px; width: 100%; padding: 26px 30px; border: 1px solid #3c4039; background: var(--panel); box-sizing: border-box; }
 	.card h1 { margin: 0 0 2px; font: 600 40px/1.1 Georgia, "Times New Roman", serif; letter-spacing: .04em; }
 	.card h2 { margin: 0 0 16px; font-weight: 400; font-size: 13px; color: var(--dim); }
 	.card h3 { margin: 18px 0 6px; font-size: 14px; }
@@ -110,14 +111,15 @@
 <div id="title" class="screen">
 	<div class="card">
 		<h1>Sublevel</h1>
-		<h2>Chapter 5 · Electronic Structure of Atoms and Periodic Trends · CHM 1025 · 6 points extra credit · art pass under way</h2>
+		<h2>Chapter 5 · Electronic Structure of Atoms and Periodic Trends · CHM 1025 · 6 points extra credit</h2>
+		<p>Content note: eerie, a few scary moments, no gore.</p>
 		<p>You are alone in a building laid out as the periodic table. A phone rings with a work order. Six work orders, one for each idea in Chapter 5. Every work order you finish is worth 1 point. A wrong answer makes the lights go out faster; it never costs points.</p>
 		<div id="mobileWarn" class="warnbox" hidden>This game needs a keyboard and mouse. Please play on a laptop or desktop computer.</div>
 		<div id="iframeWarn" class="warnbox" hidden>The game is running inside D2L. If the mouse does not stay captured, <a id="newTabLink" href="#" target="_blank" rel="noopener" style="color:var(--warn)">open it in a new tab</a>.</div>
 		<h3>Options</h3>
-		<label class="toggle"><input type="checkbox" id="optLights"> Lights-on mode (the lights never go out; same 6 points)</label>
-		<label class="toggle"><input type="checkbox" id="optCaptions" checked> Captions for the phone</label>
-		<label class="toggle"><input type="checkbox" id="optMotion"> Reduced motion (no grain or color fringing)</label>
+		<label class="toggle"><input type="checkbox" id="optLights"> Lights-on mode (the lights never go out, no scares, no hurry; same 6 points)</label>
+		<label class="toggle"><input type="checkbox" id="optCaptions" checked> Captions for the phone calls and the goose</label>
+		<label class="toggle"><input type="checkbox" id="optMotion"> Reduced motion (no flickering lights, grain or color fringing)</label>
 		<div class="row"><span class="lbl">Graphics</span><div class="tiers" id="tierBarTitle"></div></div>
 		<div class="row">
 			<button class="btn" id="btnStart" disabled>Checking graphics…</button>
@@ -125,7 +127,7 @@
 			<a class="btn ghost" id="btnNewTab" href="#" target="_blank" rel="noopener" style="text-decoration:none" hidden>Open in a new tab</a>
 		</div>
 		<div id="status"></div>
-		<p class="note">WASD move · Shift walk faster · mouse look (or drag) · E use · Esc pause · 1–4 and 0 graphics tiers</p>
+		<p class="note">WASD move · Shift walk faster · mouse look (or drag) · E use · Esc pause · 1–4 and 0 graphics tiers. Headphones help.</p>
 	</div>
 </div>
 
@@ -172,7 +174,7 @@
 			<div class="code" id="codeVal"></div>
 			<p>Enter your D2L username and this code in the Sublevel assignment in D2L.</p>
 		</div>
-		<p class="warnbox" id="codeWarn">Step 3 build: this game's code is not registered in the instructor's checker yet.</p>
+		<p class="warnbox" id="codeWarn">Test build: this game's code is not registered in the instructor's checker yet.</p>
 		<div class="row"><button class="btn ghost" id="btnToTitle">Back to the title screen</button></div>
 	</div>
 </div>

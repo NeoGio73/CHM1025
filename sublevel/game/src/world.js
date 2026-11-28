@@ -3,6 +3,7 @@
 // Units are metres. The hallway runs along +x; the office is at the west end, the pool room at the east end.
 
 import * as THREE from 'three/webgpu';
+import { ASSETS } from './config.js';
 import { texture, uv, time, vec2, vec3, vec4, float, sin, abs, pow, mix, normalMap, positionWorld, output, Fn, uniform, length, exp, max, step, normalize, reflect, cameraPosition, smoothstep } from 'three/tsl';
 
 // texture sets: real-world size of one texture repeat (m) and the average color used on the Low tier
@@ -31,7 +32,7 @@ export function buildWorld( scene ) {
 		const k = `${ res }/${ name }_${ map }`;
 		if ( ! texCache[ k ] ) {
 
-			const t = loader.load( `./textures/${ k }.jpg` );
+			const t = loader.load( `${ ASSETS }textures/${ k }.jpg` );
 			t.wrapS = t.wrapT = THREE.RepeatWrapping;
 			t.anisotropy = 8;
 			t.colorSpace = color ? THREE.SRGBColorSpace : THREE.NoColorSpace;

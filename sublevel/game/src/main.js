@@ -19,7 +19,7 @@ import { buildProps } from './props.js';
 import { createRooster } from './rooster.js';
 import { createGlimpses } from './glimpses.js';
 import { createEnding } from './ending.js';
-import { CONFIG } from './config.js';
+import { CONFIG, ASSETS } from './config.js';
 import { WORK_ORDERS, DEBRIEF } from './questions.js';
 import { orbitalDiagram } from './chem.js';
 import { $, el, openPanel, closePanel, panelOpen, feedback, toast, caption, clearCaptions, diagramHTML } from './ui.js';
@@ -100,7 +100,7 @@ let donkey = null, donkeyRig = null;
 $( 'status' ).textContent = 'Loading the donkey…';
 try {
 
-	const gltf = await new GLTFLoader().loadAsync( './models/donkey.glb' );
+	const gltf = await new GLTFLoader().loadAsync( ASSETS + 'models/donkey.glb' );
 	donkey = gltf.scene;
 	if ( LOOK ) { donkey.position.set( 6.6, 0, - 0.35 ); donkey.rotation.y = - Math.PI / 2 - 0.35; }
 	donkey.traverse( o => { if ( o.isMesh ) { o.castShadow = true; o.receiveShadow = true; o.frustumCulled = false; if ( ! LOOK ) o.material = W.zoneMaterial( o.material ); } } );
@@ -122,7 +122,7 @@ const rooster = LOOK ? null : createRooster( scene, W );
 
 const audio = createAudio();
 // the shape's three glimpses and the goose (glimpses.js), and the ending (ending.js)
-const glimpses = LOOK ? null : createGlimpses( scene, W, audio );
+const glimpses = LOOK ? null : createGlimpses( scene, W, audio, () => caption( '', '[a goose honks]', options.captions ) );
 const ending = LOOK ? null : createEnding( { room: W.room( EXIT_ROOM ), P, rooster, goose: glimpses.goose, donkey: donkeyRig, figure: glimpses.figure, audio } );
 const { pipeline, U, build } = createPipeline( renderer, scene, camera );
 U.lensK.value = 0.05; // straighter walls than Daughter: offices read as wrong when lines bend
@@ -328,6 +328,7 @@ addEventListener( 'keydown', e => {
 
 } );
 addEventListener( 'keyup', e => { keys[ e.code ] = false; } );
+addEventListener( 'blur', () => { for ( const k in keys ) keys[ k ] = false; } ); // no key stays held after Alt+Tab (Daughter)
 
 // ---------------------------------------------------------------- the run
 
@@ -776,7 +777,8 @@ function bindToggle( ids, key, after ) {
 
 bindToggle( [ 'optLights', 'pLights' ], 'lights', () => { if ( options.lights ) W.allLit?.(); } );
 bindToggle( [ 'optCaptions', 'pCaptions' ], 'captions', () => { if ( ! options.captions ) clearCaptions(); } );
-bindToggle( [ 'optMotion', 'pMotion' ], 'motion' );
+bindToggle( [ 'optMotion', 'pMotion' ], 'motion', () => W.setSteady?.( options.motion ) );
+W.setSteady?.( options.motion ); // reduced motion: no flickering tubes, the lights fade out without blinking
 
 if ( ! LOOK && saved && ! saved.ended && ( saved.wo > 1 || saved.phase !== 'ring' ) ) {
 
@@ -943,7 +945,8 @@ function frame() {
 
 	fpsAcc += dt; fpsN ++;
 	if ( fpsAcc > 0.5 ) { fpsShow = fpsN / fpsAcc; fpsAcc = 0; fpsN = 0; }
-	if ( auto && playing && ! benchmarking && ! busy ) {
+	// the auto tier never changes during a scare (a glimpse or the ending: handoff section 8)
+	if ( auto && playing && ! benchmarking && ! busy && ! glimpses?.busy && ! ending?.running ) {
 
 		if ( fpsShow > 0 && fpsShow < 30 ) lowSince += dt; else lowSince = 0;
 		if ( lowSince > 4 ) {
