@@ -75,6 +75,24 @@ Ultra and High darken corners and contact points on screen (SSGI, GTAO). Medium 
 
 To rebake after changing a room, export it from `../art/facility.blend` with `export_room('<ROOM>', '<game>/public/models/<room>.glb', ao=dict(npy_path='<art>/ao/<room>.npy', res=2048))` (text blocks `export.py` and `ao.py`; the bake runs on the GPU in a few seconds), then run `python ../art/ao/convert.py <room>`. The model and its texture must always be exported together, since the bake's UV layout is made fresh each time.
 
+## Testing (build step 7)
+
+`test/playthrough.js` plays the whole game through the real terminals on the dev server: it opens each terminal, fills in the right answer and presses Check, walks from room to room, and checks the three glimpses, one wrong answer (2 mSv, no points), an evacuation at the dose limit, the ending, the debrief and the completion code. `tour()` measures the frame rate in each room on each tier. It needs the dev server's `window.__game`, so it does nothing in the published build. In a browser console on `http://localhost:5179/?fresh&tier=high`, after pressing Start:
+
+```
+const t = await import( '/test/playthrough.js' ); console.table( ( await t.run() ).steps ); console.table( await t.tour() );
+```
+
+The scripts that drive installed browsers with it (Chrome and Edge through Playwright, Firefox through WebDriver BiDi) are kept with the art tools in `../art/devtest/`, outside the repository.
+
+Tested on 2026-11-27, Windows 11:
+- **Full playthrough, resumed after a reload at station 3:** Chrome 158 and Firefox 161 on WebGPU and WebGL 2; Edge 158 on WebGPU. All passed with no errors.
+- **Inside a cross-origin iframe, as in D2L:** Chrome, both a plain iframe and one sandboxed without `allow-pointer-lock` (dragging to look takes over). On an https parent page the iframe keeps WebGPU.
+- **Weak integrated GPU (AMD Radeon, RDNA 2):** the automatic choice settles on Medium (45 to 55 fps), and Low runs at 144. Forced up to High, the in-game safety net lowers the render scale until the game holds 30 fps.
+- **Phone screen sizes:** the title and other screens scroll from their top.
+
+Still to test: Safari, an old laptop or Chromebook, and the real D2L sandbox course.
+
 ## Not built yet
 
 The Low tier still lights the rooms with real-time lamps rather than light maps baked into the rooms.

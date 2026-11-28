@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Daughter</title>
+<link rel="icon" href="data:,"><!-- no icon file: stops the browser asking for /favicon.ico and logging a 404 -->
+
 <style>
 	:root { --ink: #d9dccf; --dim: #8b8f84; --blue: #6f9dff; --warn: #e0b25a; --bad: #e08a6a; --good: #9cc0ff; --panel: rgba(9,10,10,.95); }
 	html, body { margin: 0; height: 100%; background: #000; color: var(--ink); overflow: hidden;
@@ -35,9 +37,10 @@
 	#captions .spk { color: var(--warn); }
 	#evac { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; color: #222; font: 600 30px Georgia, serif; pointer-events: none; }
 
-	.screen { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.8); overflow: auto; padding: 16px; box-sizing: border-box; }
+	/* margin: auto centres the card, and unlike align-items: center it never pushes a tall card's top off a small screen */
+	.screen { position: fixed; inset: 0; display: flex; background: rgba(0,0,0,.8); overflow: auto; padding: 16px; box-sizing: border-box; }
 	.screen[hidden] { display: none; }
-	.card { max-width: 600px; width: 100%; padding: 26px 30px; border: 1px solid #3c4039; background: var(--panel); box-sizing: border-box; }
+	.card { margin: auto; max-width: 600px; width: 100%; padding: 26px 30px; border: 1px solid #3c4039; background: var(--panel); box-sizing: border-box; }
 	.card h1 { margin: 0 0 2px; font: 600 40px/1.1 Georgia, "Times New Roman", serif; letter-spacing: .04em; }
 	.card h2 { margin: 0 0 16px; font-weight: 400; font-size: 13px; color: var(--dim); }
 	.card h3 { margin: 18px 0 6px; font-size: 14px; }

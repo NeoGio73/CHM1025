@@ -773,7 +773,14 @@ async function runBenchmark( first ) {
 			const ms2 = await measure( 90 );
 			if ( ms2 === null || ms2 > 19.5 ) await setTier( prev ); else ms = ms2;
 
-		} else if ( ms > 34 && idx > 0 ) await setTier( ORDER[ idx - 1 ] );
+		} else if ( ms > 34 && idx > 0 ) {
+
+			await setTier( ORDER[ idx - 1 ] );
+			await sleep( 900 );
+			const ms2 = await measure( 90 ); // so the title screen shows the speed of the tier it settled on, not the one it left
+			if ( ms2 !== null ) ms = ms2;
+
+		}
 
 	}
 
