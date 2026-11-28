@@ -11,6 +11,8 @@ import { createBird } from './bird.js';
 const LANE = 1.2; // down the middle of the hallway: clear of the machines against its front wall (z = HALL_W)
 // and of the donkey across a doorway
 const EYE = 1.62;
+const RUN = 2.6; // m/s on a long way to the door (the player walks at 1.7, 2.9 with Shift)
+const STRUT = 6; // the last metres before the door are a strut
 
 export function createRooster( scene, W ) {
 
@@ -41,7 +43,11 @@ export function createRooster( scene, W ) {
 		const dir = Math.sign( r.cx - sx ) || 1;
 		bird.show( sx, y, LANE, Math.atan2( dir, 0 ) );
 		pecking = false;
-		bird.goTo( [ new THREE.Vector3( r.cx - dir * 0.75, y, LANE ), new THREE.Vector3( r.cx - dir * 0.7, y, 0.55 ) ], {
+		// a long way (a floor can be 200 m): he runs, as chickens do, and struts only the last few metres. At a strut
+		// the walk from one end of a floor took over two minutes, and the player walked away from him.
+		const runTo = r.cx - dir * STRUT;
+		const run = ( runTo - sx ) * dir > 2 ? [ Object.assign( new THREE.Vector3( runTo, y, LANE ), { pace: RUN } ) ] : [];
+		bird.goTo( [ ...run, new THREE.Vector3( r.cx - dir * 0.75, y, LANE ), new THREE.Vector3( r.cx - dir * 0.7, y, 0.55 ) ], {
 			face: new THREE.Vector3( r.cx, y, - 0.5 ), // the doorway
 			done: () => { pecking = true; t = 1; }
 		} );

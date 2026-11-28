@@ -7,6 +7,7 @@
 import * as THREE from 'three/webgpu';
 import { ASSETS } from './config.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { colCentre, floorY, HALL_W } from './building.js';
 
 export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
@@ -301,6 +302,65 @@ export function buildProps( scene, B, { phoneRooms, safeRooms, exitRoom } ) {
 	placeModel( ASSETS + 'models/vending.glb', vendSpots, dressed );
 	placeModel( ASSETS + 'models/cooler.glb', coolerSpots, dressed );
 	placeModel( ASSETS + 'models/wetsign.glb', signSpots, dressed );
+
+	// ---- easter eggs (handoff section 4, "keep if cheap"), small things made here, each a chemistry pun:
+	// eggshells in the calcium room (calcium carbonate; brown, as a Barred Rock lays them) with one of the rooster's
+	// barred feathers, a salt lick in the sodium room (the goat's; NaCl), and an iron horseshoe, open end up, in the
+	// iron room (the donkey's). They go dark with their rooms and block nothing.
+	{
+
+		const ca = B.room( 'Ca' ), na = B.room( 'Na' ), fe = B.room( 'Fe' );
+		// two broken halves (the cup of an egg 5.5 cm long) and three bits of shell, in the back right corner
+		const shell = mat( 0xc79d72, { roughness: 0.75, side: THREE.DoubleSide } );
+		const cup = new THREE.SphereGeometry( 0.021, 12, 8, 0, Math.PI * 2, Math.PI * 0.42, Math.PI * 0.58 );
+		const bit = new THREE.CircleGeometry( 0.009, 3 );
+		const ex = ca.x1 - 0.55, ez = ca.z0 + 0.5;
+		// one cup tipped on its side, one upside down
+		for ( const [ dx, dy, dz, rx, rz, ry ] of [ [ 0, 0.024, 0, 0.35, 0.2, 0.6 ], [ 0.09, 0.018, 0.05, 2.2, - 0.4, 2.1 ] ] ) {
+
+			const h = add( cup, shell, ex + dx, ca.y + dy, ez + dz );
+			h.scale.set( 1, 1.3, 1 ); h.rotation.set( rx, ry, rz );
+
+		}
+		for ( const [ dx, dz, r ] of [ [ - 0.06, 0.08, 0.4 ], [ 0.05, - 0.07, 2.6 ], [ 0.14, 0.11, 4.1 ] ] ) {
+
+			const s = add( bit, shell, ex + dx, ca.y + 0.003, ez + dz );
+			s.rotation.set( - Math.PI / 2, 0, r ); s.castShadow = false;
+
+		}
+		// the feather: dark and light bars, drawn with its outline (alpha) on a small canvas
+		const fc = document.createElement( 'canvas' ); fc.width = 32; fc.height = 128;
+		const fg = fc.getContext( '2d' );
+		fg.beginPath(); fg.moveTo( 16, 2 ); fg.quadraticCurveTo( 31, 40, 22, 118 ); fg.lineTo( 10, 118 ); fg.quadraticCurveTo( 1, 40, 16, 2 ); fg.clip();
+		for ( let y = 0; y < 128; y += 12 ) { fg.fillStyle = '#d4d0c6'; fg.fillRect( 0, y, 32, 6 ); fg.fillStyle = '#222022'; fg.fillRect( 0, y + 6, 32, 6 ); }
+		fg.fillStyle = '#e8e4da'; fg.fillRect( 15, 0, 2, 128 ); // the shaft
+		const ft = new THREE.CanvasTexture( fc ); ft.colorSpace = THREE.SRGBColorSpace;
+		const feather = add( new THREE.PlaneGeometry( 0.042, 0.11 ), B.zoneMaterial( new THREE.MeshStandardMaterial( { map: ft, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.9 } ) ), ex - 0.16, ca.y + 0.003, ez - 0.05 );
+		feather.rotation.set( - Math.PI / 2, 0, 0.9 );
+		feather.castShadow = false;
+
+		// the salt lick: a reddish mineral block in a steel holder on the east wall, at a goat's height
+		const steel = mat( 0x8d9192, { roughness: 0.45, metalness: 0.6 } );
+		const sx = na.x1 - 0.01, sz = ( na.z0 + na.z1 ) / 2, sy = na.y + 0.55;
+		add( new THREE.BoxGeometry( 0.012, 0.22, 0.28 ), steel, sx - 0.006, sy + 0.05, sz ); // back plate
+		add( new THREE.BoxGeometry( 0.2, 0.012, 0.28 ), steel, sx - 0.1, sy - 0.06, sz ); // tray
+		add( new THREE.BoxGeometry( 0.2, 0.08, 0.012 ), steel, sx - 0.1, sy - 0.02, sz - 0.14 ); // its sides
+		add( new THREE.BoxGeometry( 0.2, 0.08, 0.012 ), steel, sx - 0.1, sy - 0.02, sz + 0.14 );
+		add( new THREE.BoxGeometry( 0.012, 0.05, 0.28 ), steel, sx - 0.2, sy - 0.03, sz ); // front lip
+		const lick = add( new RoundedBoxGeometry( 0.17, 0.11, 0.24, 3, 0.02 ), mat( 0x9a5a49, { roughness: 0.95 } ), sx - 0.1, sy + 0.0, sz );
+		lick.scale.y = 0.95;
+
+		// the horseshoe: open end up, for luck, on a nail in the back wall of the iron room's bay
+		const ARC = Math.PI * 1.42; // the torus runs from angle 0 round to ARC; the rest is the shoe's open end
+		const shoeGeo = new THREE.TorusGeometry( 0.055, 0.009, 6, 24, ARC );
+		shoeGeo.rotateZ( - Math.PI / 2 - ARC / 2 ); // the middle of the gap to the top
+		shoeGeo.scale( 1, 1.15, 0.6 ); // a little taller than wide, like a real shoe, and flat
+		add( shoeGeo, mat( 0x4b3f37, { roughness: 0.65, metalness: 0.55 } ), fe.cx - 0.9, fe.y + 1.75, fe.z0 + 0.008 );
+		// it hangs from the inside of its bottom curve
+		const nail = add( new THREE.CylinderGeometry( 0.004, 0.004, 0.02, 6 ), steel, fe.cx - 0.9, fe.y + 1.75 - 0.049, fe.z0 + 0.01 );
+		nail.rotation.x = Math.PI / 2;
+
+	}
 
 	return { phones, setRinging, desks, blockers, goat, goatAt, goatScript, goatPlay, exit, update };
 

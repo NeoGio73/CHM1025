@@ -28,6 +28,9 @@ export const CONFIG = {
 	// struts to the right door: rooster.js)
 	hintAfterWrong: 2,
 	hintAfterSeconds: 120,
+	// the rooster also comes sooner when the player is stuck (handoff section 4: "two wrong answers"): after this many
+	// wrong rooms tried during one search (more than a metre inside a room that is neither the one to find nor the phone's)
+	hintAfterWrongRooms: 2,
 
 	// Completion code (handoff section 9): same scheme as Daughter, Lewis Manor and Retro Reactions.
 	// CONFIRMED prefix 'SL' (2026-11-26). Secret generated 2026-11-26 (24 random letters and digits).

@@ -559,10 +559,14 @@ function renderQuestion( body ) {
 
 }
 
+// the wrong rooms tried during this search (the rooster comes after CONFIG.hintAfterWrongRooms of them)
+const tried = new Set();
+
 function startFind() {
 
 	const w = cur();
 	G.phase = 'find'; G.findT = 0; G.hinted = false;
+	tried.clear();
 	closePanel();
 	persist();
 	syncWorld();
@@ -898,11 +902,22 @@ function frame() {
 			if ( G.phase === 'find' && active ) {
 
 				G.findT += dt;
-				if ( ! G.hinted && G.findT > CONFIG.hintAfterSeconds ) {
+				// a wrong room counts once the player is more than a metre inside it (a look through the doorway does not)
+				const w = cur(), z = W.zoneAt( player.pos );
+				if ( ! G.hinted && z.startsWith( 'r:' ) && player.pos.z < - 1 && z !== 'r:' + w.find.target && z !== 'r:' + w.phone && ! tried.has( z ) ) {
+
+					tried.add( z );
+					// (not over a glimpse: the reflection in a wrong pool room is meant to be met in silence)
+					if ( tried.size < CONFIG.hintAfterWrongRooms && ! glimpses?.busy ) toast( 'Not this room.', 2500 );
+
+				}
+
+				const stuck = tried.size >= CONFIG.hintAfterWrongRooms;
+				if ( ! G.hinted && ! glimpses?.busy && ( G.findT > CONFIG.hintAfterSeconds || stuck ) ) {
 
 					G.hinted = true; updateObjective();
-					const r = rooster?.lead( cur().find.target, player.pos, camera );
-					toast( `${ r === 'near' ? 'The rooster is heading for the right door. ' : r ? 'The rooster has gone to wait at the right door. ' : '' }Hint: ${ cur().find.hint }`, 6000 );
+					const r = rooster?.lead( w.find.target, player.pos, camera );
+					toast( `${ stuck ? 'Not this room either. ' : '' }${ r === 'near' ? 'The rooster is heading for the right door. ' : r ? 'The rooster has gone to wait at the right door. ' : '' }Hint: ${ w.find.hint }`, 6000 );
 
 				}
 

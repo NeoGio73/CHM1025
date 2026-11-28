@@ -48,10 +48,11 @@ export function createBird( scene, W, url, { speed = 1, walkScale = 1 } = {} ) {
 
 	function hide() { holder.visible = false; path = []; arrived = null; }
 
-	// walk through the points (Vector3s; y is taken from them), then call done() (or face the point face, if given)
+	// walk through the points (Vector3s; y is taken from them), then call done() (or face the point face, if given).
+	// A point may carry its own .pace (m/s) for the leg that ends there; the walk cycle speeds up to match.
 	function goTo( points, { done = null, face = null, pace: p = speed } = {} ) {
 
-		path = points.map( v => v.clone() );
+		path = points.map( v => Object.assign( v.clone(), { pace: v.pace } ) );
 		pace = p;
 		arrived = () => { if ( face ) want = Math.atan2( face.x - holder.position.x, face.z - holder.position.z ); play( 'Idle' ); done?.(); };
 		play( 'Walk', 0.2 );
@@ -66,7 +67,8 @@ export function createBird( scene, W, url, { speed = 1, walkScale = 1 } = {} ) {
 		mixer.update( dt );
 		if ( path.length ) {
 
-			const p = path[ 0 ], dx = p.x - holder.position.x, dz = p.z - holder.position.z, d = Math.hypot( dx, dz ), step = pace * dt;
+			const p = path[ 0 ], pc = p.pace ?? pace, dx = p.x - holder.position.x, dz = p.z - holder.position.z, d = Math.hypot( dx, dz ), step = pc * dt;
+			if ( act.Walk ) act.Walk.timeScale = walkScale * pc / speed; // the legs keep up with the pace
 			if ( d <= step ) { holder.position.set( p.x, p.y, p.z ); path.shift(); } else { holder.position.x += dx / d * step; holder.position.z += dz / d * step; holder.position.y = p.y; want = Math.atan2( dx, dz ); }
 			if ( ! path.length ) { const a = arrived; arrived = null; a?.(); }
 

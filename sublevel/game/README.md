@@ -1,4 +1,4 @@
-# Sublevel (build steps 1 to 7 done, first pass; a local test build in `../play/`)
+# Sublevel (build steps 1 to 7 done, first pass, and a polish pass; a test build in `../play/`, not linked for students)
 
 Step 1, the look test, was approved on 2026-11-26 and is still at `/?look`. Step 2, the layout, is a first pass: all 36 rooms, four floors, and a stairwell at each end of the building (the east one was added on 2026-11-26 to shorten work order 4).
 
@@ -8,7 +8,7 @@ Step 3, the work orders, is playable from start to finish with placeholder art:
 - The six work orders go H → Li → Mg → Cl → Fe → As → K. The last one ends at the exit door in the potassium room (the largest atom).
 - **The dark.** After each call, the rooms and hallway stretches the player has passed go dark one by one behind them. Wrong answers in that work order make it faster, and so does lingering. If everything behind is dark and the player still lingers (or stands in a dark room), the lights fail around them and they are taken back to the last phone, with no points lost. Reaching the safe room turns every light back on. Lights-on mode turns the dark off.
 - **Scoring** (confirmed 2026-11-26): 1 point per work order, 6 in all. Wrong answers never cost points.
-- **The donkey** stands across one wrong door for each search. After two wrong answers a question shows a hint. After two minutes of searching the objective shows one, and **the rooster** (Prof. Picione's Barred Rock) turns up in the hallway of the right floor, out of view if the player is on that floor, struts to the right door and pecks at its threshold until the player arrives. He is gone once the safe room is reached.
+- **The donkey** stands across one wrong door for each search. After two wrong answers a question shows a hint. After two minutes of searching, or after two wrong rooms tried (more than a metre inside; the first one says "Not this room."), the objective shows one, and **the rooster** (Prof. Picione's Barred Rock) turns up in the hallway of the right floor, out of view if the player is on that floor, runs most of the way to the right door, struts the last few metres and pecks at its threshold until the player arrives. He is gone once the safe room is reached.
 - Door plates in the tiled rooms (p block) show the short configuration. Parking bays have the 3d electron count painted on the floor, except chromium and copper (out of scope).
 - Debrief ("What the building was telling you") and the completion code (Daughter's scheme, prefix `SL`, confirmed 2026-11-26, registered in the private checker the same day). Changing the secret in `src/config.js` means changing it in the checker too.
 
@@ -20,7 +20,7 @@ Step 4, the question pools, was checked against the Chapter 5 slides (Basic Chem
 - Out of scope, as set in the handoff: atomic spectra and light (5.1, 5.2), ionization energy and metallic character (5.6), and the chromium and copper exceptions. Electron-dot symbols are not in the Chapter 5 slides, so they are left out.
 
 **Fixes after step 4 (2026-11-26):**
-- Everything in a dark room goes dark: the pool water and its reflections and caustics, the props, the donkey, the light fixtures, the door plates and the bay numbers. The emissive phone lamp and the EXIT sign still glow. On High and Ultra a very faint ripple can still show on dark water up close (art pass).
+- Everything in a dark room goes dark: the pool water and its reflections and caustics, the props, the donkey, the light fixtures, the door plates and the bay numbers. The emissive phone lamp and the EXIT sign still glow. (A faint ripple left on dark water on High and Ultra was fixed in the art pass; checked again 2026-11-27 with the image brightened tenfold: none.)
 - The pool basin's tiled sides faced outward and were invisible from inside the pool; they now face the water.
 - A second stairwell at the east end. Timed run on Low with Shift held, answering instantly (5 minutes of walking, 808 m, the lights never caught up):
 
@@ -69,8 +69,16 @@ Step 7, options and device testing (first pass, 2026-11-27):
 - **Electron configurations are easier to read** (Prof. Picione found them a bit small, 2026-11-27): monospace fonts draw the Unicode superscripts (², ⁶, ¹⁰) tiny, so `ui.js` `ec()` sets every configuration 15% larger than the text around it, with real superscripts, in the questions, the answers, the feedback, the work-order line, toasts and the debrief. `questions.js` keeps the Unicode. All 71 variants still fit at 1024 × 600 (tallest 500 of 528 px).
 - **Tested here (Chrome, the built-in browser):** all four tiers on WebGPU and on forced WebGL 2, on the dev server and in the built copy; all 71 question variants on the phone panel at 1366 × 657 and 1024 × 600 (nothing cut off, none needs scrolling); the phone message at 375 × 812; the built copy inside a cross-origin iframe, plain and sandboxed without pointer lock (the D2L message, the new-tab button and drag-to-look all work). Not tested yet: Edge, Firefox and Safari, an old laptop or Chromebook, and the real D2L sandbox course. Timing and sound were not judged in real time (the browser pane runs slowly while hidden).
 
+Polish (2026-11-27, after step 7):
+
+- **The rooster comes when the player is stuck** (handoff section 4: "two wrong answers, or a long pause"). The questions are all on the phone, so in a search a wrong answer is a wrong room: after two wrong rooms (`CONFIG.hintAfterWrongRooms`), or the two minutes as before, whichever comes first. A look through a doorway does not count, nor do the room to find and the phone's room. The hint waits while a glimpse is playing.
+- **He runs.** A floor can be 200 m long, and at his strut (1.3 m/s) the walk from one end took over two minutes; the player walked away from him. He now runs at 2.6 m/s (about a player's pace with Shift) and struts the last 6 m. The walk cycle now speeds up with the pace (`src/bird.js`), so the legs keep up, the goose's walk in the ending included. Measured in the game: 2.60 m/s running, 1.30 m/s strutting.
+- **His bars.** The dark bars were mid grey and narrower than the light ones, so he read as a white hen. They are now near-black and as wide as the light ones, as in the farm photos: from a distance he reads grey, and up close (High) the bars show. `chicken.glb`'s three textures were repainted in Python with `birds.py`'s own formula (checked to reproduce the old ones exactly first); `birds.py` has the new colours.
+- **Easter eggs** (handoff section 4, made in `src/props.js`, each a chemistry pun): broken brown eggshells and a barred feather in the back corner of the calcium room, a salt lick in a steel holder on the sodium room's wall, and an iron horseshoe, open end up, on the back wall of the iron bay. They go dark with their rooms.
+- Dark water on High and Ultra: checked again, nothing shows (see "Fixes after step 4").
+
 **Placeholders still to confirm or replace:**
-- The hum, the ring, the honk and the door are made in code (no recordings).
+- The hum, the ring, the honk and the door are made in code (no recordings). CC0 candidates found on Freesound (2026-11-27), none downloaded: the ring, mycompasstv's "Old Rotary Phone Ringing - Western Electric Bell 500 phone" (456433); the door, kyles's "door metal big heavy close kinda slam thud echo offmic" (406197); the hum, kyles's "neon tube fluorescent light hum cu2" (454098). For the honk, a recording of Prof. Picione's own geese would be best (they are Chinese geese; the CC0 honks found are mostly Canada geese).
 
 ## Run it
 
